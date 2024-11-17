@@ -1,0 +1,9 @@
+customer_id,customer_name,age,gender,location,email,loyalty_points,join_date
+CUST001,Ali,28,Male,KL,ali@example.com,200,1/10/2023
+CUST002,Siti,24,Female,Penang,siti@example.com,150,2/15/2023
+CUST003,Ravi,30,Male,Johor Bahru,ravi@example.com,300,3/5/2023
+CUST004,Siti A,27,Female,Kota Kinabalu,sitia@example.com,100,1/25/2023
+CUST005,Amin,35,Male,Ipoh,amin@example.com,250,2/20/2023
+CUST006,Ahmad,22,Male,KL,ahmad@example.com,50,3/15/2023
+CUST007,Sara,29,Female,Penang,sara@example.com,80,1/18/2023
+CUST008,John,40,Male,Johor Bahru,john@example.com,400,1/28/2023

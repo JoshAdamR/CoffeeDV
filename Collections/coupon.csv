@@ -1,0 +1,5 @@
+coupon_id,coupon_code,promotion_type,discount_percentage,start_date,expiry_date
+COUPON001,SAVE10,Discount,10,01/01/2024,12/31/2024
+COUPON002,SAVE20,Discount,20,06/01/2024,11/30/2024
+COUPON003,FREESHIP,Free Delivery,0,05/01/2024,10/31/2024
+COUPON004,BULKBUY,Discount,5,07/15/2024,11/15/2024
