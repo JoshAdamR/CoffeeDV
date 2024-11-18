@@ -1,1 +1,1 @@
-order_item_id,sale_id,product_id,quantity,base_price,total_price,add_on_id,size_id,temperature,ice_level,sugar_level,milk_id,email,status
+order_item_id,sale_id,product_id,quantity,base_price,total_price,add_on_id,size_id,temperature,ice_level,sugar_level,milk_id,status

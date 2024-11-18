@@ -1,1 +1,1 @@
-sale_id,branch_id,customer_id,sale_date,order_completion_date,total_amount,coupon_code,discount_percentage,discount_amount,final_amount,total_items
+sale_id,branch_id,email,sale_date,order_completion_date,total_amount,coupon_code,discount_percentage,discount_amount,final_amount,total_items
