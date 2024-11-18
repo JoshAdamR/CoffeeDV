@@ -1,0 +1,8 @@
+special_id,product_id,discount,day
+SPEC001,PROD001,10,Monday
+SPEC002,PROD002,10,Tuesday
+SPEC003,PROD003,10,Wednesday
+SPEC004,PROD004,10,Thursday
+SPEC005,PROD005,10,Friday
+SPEC006,PROD006,10,Saturday
+SPEC007,PROD007,10,Sunday

@@ -1,9 +1,1 @@
-feedback_id,sale_id,rate_coffee,rate_service,rate_wait_time,rate_environment,rate_sanitary
-FEEDBACK001,SALE001,4,5,3,4,4
-FEEDBACK002,SALE002,5,5,4,5,5
-FEEDBACK003,SALE003,3,4,2,3,3
-FEEDBACK004,SALE004,4,3,5,4,5
-FEEDBACK005,SALE005,5,5,5,5,5
-FEEDBACK006,SALE006,4,4,3,4,4
-FEEDBACK007,SALE007,3,3,4,2,2
-FEEDBACK008,SALE008,5,5,5,5,5
+feedback_id,sale_id,rate_coffee,rate_service,rate_wait_time,rate_environment,rate_sanitary,customer_id

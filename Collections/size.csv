@@ -1,0 +1,4 @@
+size_id,size_name,price,recipe_multiplier
+SIZE001,Small,0,1
+SIZE002,Medium,0.5,1.25
+SIZE003,Large,1,1.5
