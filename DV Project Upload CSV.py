@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 # IMPORTANT!!
-cred = credentials.Certificate(r"C:\Users\user\Downloads\ttestestset-89e0b-firebase-adminsdk-l730t-f20cf5cd2c.json")
+cred = credentials.Certificate(r"C:\Users\user\Downloads\coffee-shop-b4277-firebase-adminsdk-hqmbz-b9792ddd08.json")
 app = firebase_admin.initialize_app(cred)
 
 store = firestore.client()
@@ -24,8 +24,13 @@ for filename in os.listdir(folder_path):
 
         # Loop through each row in the DataFrame and add it to the Firestore collection
         for index, row in df.iterrows():
-            # Create a document ID (you can use index or a specific column value)
-            document_id = str(index)  # or row['some_unique_column']
+            # Find the column that ends with '_id' (e.g., 'customer_id')
+            document_id_column = [col for col in df.columns if col.endswith('_id')]
+
+            if document_id_column:
+                document_id = str(row[document_id_column[0]])  # Use the value from the '_id' column
+            else:
+                document_id = str(index)  # Fallback to using the index if '_id' is not found
 
             # Convert the row to a dictionary and add it to Firestore
             store.collection(collection_name).document(document_id).set(row.to_dict())
