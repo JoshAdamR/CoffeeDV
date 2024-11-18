@@ -1,0 +1,6 @@
+streamlit==1.23.1
+pandas==1.5.3
+firebase-admin==6.1.0
+google-cloud-firestore==2.7.0
+matplotlib==3.7.1
+seaborn==0.12.2
