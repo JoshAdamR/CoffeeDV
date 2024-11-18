@@ -7,7 +7,7 @@ import seaborn as sns
 
 # Initialize Firebase Admin SDK
 if not firebase_admin._apps:
-    cred = credentials.Certificate(r"C:\Users\user\Downloads\coffee-shop-b4277-firebase-adminsdk-hqmbz-b9792ddd08.json")
+    cred = credentials.Certificate('firebase_credentials.json')
     firebase_admin.initialize_app(cred)
 
 # Create Firestore client
