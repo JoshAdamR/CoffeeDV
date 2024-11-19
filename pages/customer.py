@@ -5,8 +5,15 @@ import firebase_admin
 import stripe
 from firebase_admin import credentials, firestore
 from navigation import make_sidebar, logout
+from functions import cookies
 
 make_sidebar()
+
+
+st.write(cookies.getAll())
+# st.write(f"**Email:** {cookies.get('email')}")
+# # st.write(f"**Username:** {st.session_state.username}")
+# st.write(f"**Password:** {cookies.get('password')} (stored for session test)")
 
 # Initialize session state for cart and order history
 if 'order_history' not in st.session_state:
@@ -37,7 +44,7 @@ def add_to_cart(coffee, size, price):
     st.success(f"{coffee} added to cart!")
 
 # Initialize Firebase
-cred_path = "coffeeshop-54872-firebase-adminsdk-if85u-f0eabc8124.json"
+cred_path = "firebase_credentials.json"
 
 # Check if Firebase app is already initialized
 if not firebase_admin._apps:
@@ -175,7 +182,7 @@ elif page == "Cart":
                         line_items=line_items,
                         mode="payment",
                         success_url="http://localhost:8501/success",  # Replace with your actual success URL
-                        cancel_url="http://localhost:8501",   # Replace with your actual cancel URL
+                        cancel_url="http://localhost:8501/customer",   # Replace with your actual cancel URL
                     )
 
                     # Save cart to Firestore
@@ -341,6 +348,5 @@ elif page == "Feedback":
 
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
-
 if st.sidebar.button("Log out"):
     logout()

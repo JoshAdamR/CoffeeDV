@@ -2,6 +2,7 @@ import streamlit as st
 from time import sleep
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 from streamlit.source_util import get_pages
+from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies
 
 
 def get_current_page_name():
@@ -20,47 +21,56 @@ def make_sidebar():
         # st.write("")
         # st.write("")
 
-        if st.session_state.get("logged_in_cust", False):
-            st.page_link("pages/customer.py", label = "")
-            #st.page_link("pages/login.py", label="Secret Company Stuff", icon="🔒")
-            #st.page_link("pages/signup.py", label="More Secret Stuff", icon="🕵️")
+        # if st.session_state.get("logged_in_cust", False):
+        #     st.page_link("pages/customer.py", label = "")
+        #     #st.page_link("pages/login.py", label="Secret Company Stuff", icon="🔒")
+        #     #st.page_link("pages/signup.py", label="More Secret Stuff", icon="🕵️")
 
 
-            #st.markdown("", unsafe_allow_html=True)
+        #     #st.markdown("", unsafe_allow_html=True)
 
-            # if st.button("Log out"):
-            #     logout()
+        #     # if st.button("Log out"):
+        #     #     logout()
         
-        elif st.session_state.get("logged_in_admin", False):
-            st.page_link("pages/admin.py", label = "")
-            #st.page_link("pages/login.py", label="Secret Company Stuff", icon="🔒")
-            #st.page_link("pages/signup.py", label="More Secret Stuff", icon="🕵️")
+        # elif st.session_state.get("logged_in_admin", False):
+        #     st.page_link("pages/admin.py", label = "")
+        #     #st.page_link("pages/login.py", label="Secret Company Stuff", icon="🔒")
+        #     #st.page_link("pages/signup.py", label="More Secret Stuff", icon="🕵️")
 
-            #st.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
+        #     #st.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 
-            #if st.button("Log out"):
-            #    logout()
+        #     #if st.button("Log out"):
+        #     #    logout()
 
-        elif st.session_state.get("signup", False):
-            #st.page_link("pages/login.py", label="Secret Company Stuff", icon="🔒")
-            st.page_link("pages/signup.py", label="")
+        # elif st.session_state.get("signup", False):
+        #     #st.page_link("pages/login.py", label="Secret Company Stuff", icon="🔒")
+        #     st.page_link("pages/signup.py", label="")
             
-            st.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
+        #     st.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 
 
-            if st.button("Back"):
-                logout()
+        #     if st.button("Back"):
+        #         logout()
 
-        elif get_current_page_name() != "app":
-            # If anyone tries to access a secret page without being logged in,
-            # redirect them to the login page
-            st.switch_page("app.py")
+        # elif get_current_page_name() != "app":
+        #     # If anyone tries to access a secret page without being logged in,
+        #     # redirect them to the login page
+        #     st.switch_page("app.py")
 
 
 def logout():
-    st.session_state.logged_in_cust = False
-    st.session_state.logged_in_admin = False
-    st.session_state.signup = False
+    # st.session_state.logged_in_cust = False
+    # st.session_state.logged_in_admin = False
+    # st.session_state.signup = False
     #st.info("Logged out successfully!")
     sleep(0.5)
+    cookies.remove("status")
+    cookies.remove("email")
+    cookies.remove("username")
+    cookies.remove("birthday")
+    cookies.remove("gender")
+    cookies.remove("age")
+    cookies.remove("role")
+    cookies.remove("password")
+    
     st.switch_page("app.py")
