@@ -4,7 +4,7 @@ from firebase_admin import credentials, firestore
 from time import sleep
 from datetime import datetime
 from navigation import make_sidebar, logout
-from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user
+from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies
 
 
 make_sidebar()
@@ -44,3 +44,9 @@ if entries:
     st.dataframe(df)
 else:
     st.write("No entries found.")
+
+st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
+if st.sidebar.button("Back"):
+    logout()
+
+st.write(cookies.getAll())

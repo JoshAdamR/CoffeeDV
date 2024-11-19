@@ -57,13 +57,7 @@ def make_sidebar():
         #     # redirect them to the login page
         #     st.switch_page("app.py")
 
-
-def logout():
-    # st.session_state.logged_in_cust = False
-    # st.session_state.logged_in_admin = False
-    # st.session_state.signup = False
-    #st.info("Logged out successfully!")
-    sleep(0.5)
+def clearCookies():
     cookies.remove("status")
     cookies.remove("email")
     cookies.remove("username")
@@ -72,5 +66,17 @@ def logout():
     cookies.remove("age")
     cookies.remove("role")
     cookies.remove("password")
+
+def logout():
+    # st.session_state.logged_in_cust = False
+    # st.session_state.logged_in_admin = False
+    # st.session_state.signup = False
+    #st.info("Logged out successfully!")
+    sleep(0.5)
+
+    st.write(cookies.getAll())
+
+    if cookies.get("status") == "true":
+        clearCookies()
     
     st.switch_page("app.py")
