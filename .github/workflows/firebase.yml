@@ -32,5 +32,5 @@ jobs:
     - name: Set up Firebase credentials and run script
       run: |
         echo "${{ secrets.FIREBASE_SECRET }}" > firebase_credentials.json
-        python App.py  # Replace this with the actual name of your script
+        python app.py  # Replace this with the actual name of your script
 s
