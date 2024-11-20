@@ -7,6 +7,7 @@ from datetime import datetime
 from streamlit_cookies_controller import CookieController, RemoveEmptyElementContainer
 
 cookies = CookieController()
+cartItems = CookieController()
 
 # Initialize Firebase Admin SDK if not already initialized
 if not firebase_admin._apps:
@@ -51,7 +52,7 @@ def calculate_age(birthday):
     birth_date = datetime.strptime(birthday, "%Y-%m-%d")
     return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
 
-def add_entry(fullname, username, email, password, birthday, gender, datejoin):
+def add_entry(fullname, username, email, password, birthday, gender, datejoin, loyalty_point):
     # user_id = generate_user_id()
     customer_id = generate_customer_id()
     age = calculate_age(birthday)
@@ -70,7 +71,8 @@ def add_entry(fullname, username, email, password, birthday, gender, datejoin):
         "age": age,
         "customer_id": customer_id,
         "customer_name": fullname,
-        "join_date": datejoin
+        "join_date": datejoin,
+        "loyalty_point": loyalty_point
     }
     store.collection("useracc").document(email).set(user_entry)
     store.collection("customer").document(email).set(cust_entry)
