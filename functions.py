@@ -6,7 +6,7 @@ from firebase_admin import credentials, firestore
 
 # Initialize Firebase Admin SDK if not already initialized
 if not firebase_admin._apps:
-    cred = credentials.Certificate("coffeeshop-54872-firebase-adminsdk-if85u-f0eabc8124.json")
+    cred = credentials.Certificate('firebase_credentials.json')
     firebase_admin.initialize_app(cred)
 
 # Create Firestore client
