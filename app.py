@@ -36,6 +36,14 @@ if st.button("Log In"):
                 sleep(0.5)
                 st.switch_page("pages/customer.py")
                 st.balloons()
+
+            while cookies.get("role") == 'branch' and cookies.get("status") == 'true':
+                # st.write("You are logged in as a **Customer**.")
+                # st.session_state.logged_in_cust = True
+                st.success("Logged in successfully!")
+                sleep(0.5)
+                st.switch_page("pages/branch.py")
+                st.balloons()
                 
 
         else:
