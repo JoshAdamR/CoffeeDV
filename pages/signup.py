@@ -19,6 +19,7 @@ password = st.text_input("Password", type='password')
 birthday = st.date_input("Birthday", help="Enter your date of birth")
 gender = st.radio("Gender", options=["Male", "Female"]) 
 datejoin = datetime.now().strftime("%Y-%m-%d")
+loyalty_point = 0
 
 if st.button("Sign Up"):
     if username and email and password and birthday and gender:
@@ -29,7 +30,7 @@ if st.button("Sign Up"):
         elif not is_valid_password(password):
             st.error("Password must be at least 8 characters long, contain at least one uppercase letter, one number, and one special character.")
         else:
-            add_entry(fullname, username, email, password, birthday.strftime("%Y-%m-%d"), gender, datejoin)
+            add_entry(fullname, username, email, password, birthday.strftime("%Y-%m-%d"), gender, datejoin, loyalty_point)
             st.success("Sign up successful! You can now log in.")
             sleep(0.5)
             st.switch_page("app.py")
