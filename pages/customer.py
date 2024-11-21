@@ -645,7 +645,7 @@ def display_orders(cart_items, branches):
         if val == 'Preparing':
             return 'background-color: #FFA500;'  # Red for "Preparing"
         elif val == 'Done':
-            return 'background-color: #d4edda;'  # Green for "Done"
+            return 'background-color: #008000;'  # Green for "Done"
         return ''
 
     styled_df = df[display_columns].style.applymap(
