@@ -3,7 +3,6 @@ from firebase_admin import credentials, firestore
 import toml
 
 # Load Firebase secret from the .toml file
-config = toml.load('config.toml')  # Replace with the actual path to your .toml file
 firebase_secret = config['firebase']
 
 # Initialize Firebase Admin SDK with the credentials from the .toml file
