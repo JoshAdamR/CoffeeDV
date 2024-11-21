@@ -48,4 +48,4 @@ st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br
 if st.sidebar.button("Back"):
     logout()
 
-st.write(cookies.getAll())
+# st.write(cookies.getAll())

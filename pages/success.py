@@ -88,3 +88,5 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("""
 You can now safely close this page.
 """)
+
+# st.write(cookies.getAll())

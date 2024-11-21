@@ -69,7 +69,7 @@ if entries:
 else:
     st.write("No entries found.")
 
-st.write(cookies.getAll())
+# st.write(cookies.getAll())
 
 
 
