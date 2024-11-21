@@ -4,7 +4,7 @@ import toml
 
 # Initialize Firebase Admin SDK with the credentials from the .toml file
 if not firebase_admin._apps:
-    cred = credentials.Certificate(['firebase'])
+    cred = credentials.Certificate(firebase)
     firebase_admin.initialize_app(cred)
     
 # Get Firestore client
