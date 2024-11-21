@@ -21,6 +21,6 @@ if not firebase_admin._apps:
         "universe_domain": firebase_secret['universe_domain']
     })
     firebase_admin.initialize_app(cred)
-    
+
 # Get Firestore client
 store = firestore.client() 
