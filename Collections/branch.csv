@@ -1,0 +1,6 @@
+branch_id,branch_name,location,operating_cost,password
+BRANCH001,Branch A,KL,5000,BRANCHA
+BRANCH002,Branch B,Penang,4000,BRANCHB
+BRANCH003,Branch C,Johor Bahru,4500,BRANCHC
+BRANCH004,Branch D,Kota Kinabalu,3500,BRANCHD
+BRANCH005,Branch E,Ipoh,3000,BRANCHE
