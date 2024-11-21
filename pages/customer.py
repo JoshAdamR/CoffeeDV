@@ -407,7 +407,7 @@ def display_cart(email):
                                     "currency": "myr",
                                     "product_data": {
                                         "name": item['name'],
-                                        "description": f"Size: {item['size']}, Add-on: {item['addons']}, Temperature: {item['temperature']}"
+                                        "description": f"Size: {item['size']}, Add-on: {', '.join(item['addons'])}, Temperature: {item['temperature']}"
                                     },
                                     "unit_amount": item['discounted_price'],
                                 },
@@ -462,11 +462,14 @@ def display_cart(email):
                         
                 else:
                     st.warning("Your cart is empty. Please add items to proceed.")
+                
+                st.rerun()
 
         with clear_col[1]:
             # Button for Clear Cart
             if st.button("Clear Cart"):
                 clear_cart(cookies.get("email"), status="In Cart")
+                st.rerun()
     else:
         st.info("Your cart is empty!")
 
@@ -904,6 +907,8 @@ all_cart_df = pd.DataFrame(all_cart_data)
 
 #st.title("This is all cart")
 #st.dataframe(all_cart_df)
+
+
 
 st.sidebar.markdown("<br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
