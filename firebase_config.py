@@ -1,6 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
-import toml
+import streamlit as st
 
 # Retrieve Firebase credentials from Streamlit secrets
 firebase_secret = st.secrets['firebase']
