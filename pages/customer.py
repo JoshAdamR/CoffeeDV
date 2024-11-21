@@ -857,6 +857,6 @@ all_cart_df = pd.DataFrame(all_cart_data)
 #st.title("This is all cart")
 #st.dataframe(all_cart_df)
 
-
+st.sidebar.markdown("<br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
     logout()
