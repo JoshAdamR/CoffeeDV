@@ -178,7 +178,7 @@ def create_pdf(entry, cart_data):
     pdf.setFillColor(colors.black)
     pdf.drawString(50, 730, f"Date: {entry.get('date', 'N/A')}")
     pdf.drawString(475, 730, f"Invoice ID: {entry.get('invoice_id', 'N/A')}")
-    
+
     # Company Information
     pdf.setFont("Helvetica-Bold", 12)
     pdf.drawString(50, 700, "PyBean Company")
