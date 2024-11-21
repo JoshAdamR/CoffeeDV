@@ -6,6 +6,13 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 from streamlit_cookies_controller import CookieController, RemoveEmptyElementContainer
 
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Table, TableStyle, Image
+from io import BytesIO
+
 cookies = CookieController()
 cartItems = CookieController()
 
@@ -154,3 +161,84 @@ def getCookies(email_input):
         return user_data
     else:
         return None
+
+def create_pdf(entry):
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    
+    # Header Section
+    pdf.setFont("Helvetica-Bold", 20)
+    pdf.setFillColor(colors.HexColor("#4B6584"))
+    pdf.drawString(50, 750, "🫘 PyBean Invoice")
+    
+    pdf.setFont("Helvetica", 12)
+    pdf.setFillColor(colors.black)
+    pdf.drawString(50, 730, f"Date: {entry.get('date', 'N/A')}")
+    pdf.drawString(400, 730, f"Invoice ID: {entry.get('invoice_id', 'N/A')}")
+    
+    # Company Information
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, 700, "PyBean Company")
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(50, 685, "123 Brew Lane")
+    pdf.drawString(50, 670, "Bean Town, USA")
+    pdf.drawString(50, 655, "Email: support@pybean.com")
+
+    # User Details
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, 630, "Customer Details:")
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(50, 615, f"User ID: {entry.get('id')}")
+    pdf.drawString(50, 600, f"Name: {entry.get('name', 'N/A')}")
+    pdf.drawString(50, 585, f"Email: {entry.get('email', 'N/A')}")
+    pdf.drawString(50, 570, f"Role: {entry.get('role', 'N/A')}")
+    
+    # Divider Line
+    pdf.line(50, 560, 550, 560)
+
+    # Invoice Table (if applicable)
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(50, 540, "Items:")
+    
+    data = [
+        ["Item", "Description", "Quantity", "Price (MYR)"],
+        ["Coffee Beans", "Premium Arabica Beans", 2, 20.00],
+        ["Grinder", "Electric Coffee Grinder", 1, 50.00],
+        ["Subscription", "Monthly Membership", 1, 10.00]
+    ]
+    
+    # Calculate total price
+    total_price = sum(item[2] * item[3] for item in data[1:])
+
+    # Add total row
+    data.append(["", "", "Total", total_price])
+    
+    # Add table style
+    table = Table(data, colWidths=[120, 250, 80, 80])
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#4B6584")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ])
+    table.setStyle(style)
+
+    # Place table
+    table.wrapOn(pdf, 50, 200)
+    table.drawOn(pdf, 50, 440)
+
+    # Display Total Price
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(480, 150, f"Total: ${total_price:.2f}")
+    
+    # Footer Section
+    pdf.setFont("Helvetica-Oblique", 10)
+    pdf.drawString(50, 50, "Thank you for choosing PyBean!")
+    pdf.drawString(50, 35, "For queries, contact us at support@pybean.com.")
+    
+    pdf.save()
+    buffer.seek(0)
+    return buffer
