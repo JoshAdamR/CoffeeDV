@@ -2,11 +2,10 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import toml
 
-# Load Firebase secret from the .toml file
-secret = toml.load('secrets.toml')  # Replace with the actual path to your .toml file
-firebase_secret = secret['firebase']
+# Retrieve Firebase credentials from Streamlit secrets
+firebase_secret = st.secrets['firebase']
 
-# Initialize Firebase Admin SDK with the credentials from the .toml file
+# Initialize Firebase Admin SDK
 if not firebase_admin._apps:
     cred = credentials.Certificate({
         "type": firebase_secret['type'],
@@ -22,5 +21,6 @@ if not firebase_admin._apps:
         "universe_domain": firebase_secret['universe_domain']
     })
     firebase_admin.initialize_app(cred)
+    
 # Get Firestore client
 store = firestore.client() 
