@@ -6,3 +6,4 @@ streamlit==1.40.1
 streamlit_cookies_controller==0.0.4
 streamlit_extras==0.5.0
 stripe==11.2.0
+toml==0.10.2
