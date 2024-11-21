@@ -203,21 +203,24 @@ def create_pdf(entry, cart_data):
     pdf.drawString(50, 540, "Items:")
     
     # Add table data
-    data = [["Item", "Description", "Quantity", "Price (MYR)"]]
+    data = [["Item", "Description", "Qty", "Price"]]
     for item in cart_data:
         # Format price to two decimals
         formatted_price = "{:.2f}".format(item["price"])
-        data.append([item["item"], item["description"], item["quantity"], formatted_price])
+        # Get addons as a list and display vertically
+        formatted_addons = ', '.join(item["addons"]) if item.get("addons") else "None"
+        formatted_description = item["description"] + "\n" + formatted_addons
+        data.append([item["item"], formatted_description, item["quantity"], formatted_price])
     
     # Calculate total price and format it to two decimals
     total_price = sum(item["quantity"] * item["price"] for item in cart_data)
     formatted_total_price = "{:.2f}".format(total_price)
 
     # Add total row
-    data.append(["", "", "Total", formatted_total_price])
+    data.append(["", "", "Total (MYR)", formatted_total_price])
     
     # Add table style
-    table = Table(data, colWidths=[120, 250, 80, 80])
+    table = Table(data, colWidths=[80, 360, 70, 40])  # Ensure enough width for addons column
     style = TableStyle([ 
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#4B6584")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -226,12 +229,27 @@ def create_pdf(entry, cart_data):
         ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Ensure vertical alignment in cells
     ])
     table.setStyle(style)
 
-    # Place table
+    # Calculate the total width of the table (sum of column widths)
+    table_width = sum([80, 360, 70, 40])  # The values in colWidths for each column
+
+    # Estimate row height (you can adjust this depending on font size and padding)
+    row_height = 20  # Approximate row height for each row (adjust if needed)
+    table_height = len(data) * row_height  # Height based on the number of rows
+
+    # Calculate horizontal centering
+    x_position = (612 - table_width) / 2  # 612 is the width of the page (letter size)
+
+    # Dynamically adjust y_position based on the number of rows
+    initial_y_position = 490  # Starting Y position below "Items:" label
+    y_position = initial_y_position - table_height  # Move the table down by its height
+
+    # Place table (centered horizontally and adjusted vertically)
     table.wrapOn(pdf, 50, 200)
-    table.drawOn(pdf, 50, 440)
+    table.drawOn(pdf, x_position, y_position)
     
     # Footer Section (Centered)
     footer_text1 = "Thank you for choosing PyBean!"
@@ -266,7 +284,7 @@ def fetch_cart_data(invoice_id):
     for doc in query:
         data = doc.to_dict()
 
-        # Create a description by combining milk_type, sugar_level, and temperature
+        # Create a description by combining milk_type, sugar_level, temperature, and addons
         description = (
             f"{data.get('milk_type', 'N/A')}, "
             f"{data.get('sugar_level', 'N/A')}, "
@@ -277,6 +295,7 @@ def fetch_cart_data(invoice_id):
         cart_items.append({
             "item": data.get("name", "Unknown Item"),
             "description": description,
+            "addons": data.get("addons", 0),
             "quantity": data.get("quantity", 0),
             "price": data.get("price", 0.0)
         })
