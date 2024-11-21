@@ -13,6 +13,8 @@ st.write("Please enter your email and password to log in:")
 email = st.text_input("Email")
 password = st.text_input("Password", type='password')
 
+
+
 if st.button("Log In"):
     if (email and password):
         user = fetch_user(email, password)
@@ -67,6 +69,6 @@ if entries:
 else:
     st.write("No entries found.")
 
-st.write(cookies.getAll())
+
 
 
