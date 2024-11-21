@@ -255,21 +255,30 @@ def create_pdf(entry, cart_data):
 
 
 def fetch_cart_data(invoice_id):
-    # Filter the DataFrame for the given invoice ID
-    filtered_data = cart_table[cart_table['invoice_id'] == invoice_id]
+    # Reference the Firestore collection
+    cart_collection = store.collection("cart")
 
-    # Create a description by combining milk_type, sugar_level, and temperature
-    filtered_data['description'] = (
-        filtered_data['milk_type'].fillna("N/A") + ", " +
-        filtered_data['sugar_level'].fillna("N/A") + ", " +
-        filtered_data['temperature'].fillna("N/A")
-    )
+    # Query the collection for the given invoice ID
+    query = cart_collection.where("invoice_id", "==", invoice_id).stream()
 
-    # Select only the desired columns
-    selected_columns = filtered_data[['name', 'description', 'quantity', 'price']]
-    selected_columns.rename(columns={'name': 'item'}, inplace=True)
+    # Process the query results
+    cart_items = []
+    for doc in query:
+        data = doc.to_dict()
 
-    # Convert the filtered DataFrame to a list of dictionaries
-    cart_items = selected_columns.to_dict(orient='records')
+        # Create a description by combining milk_type, sugar_level, and temperature
+        description = (
+            f"{data.get('milk_type', 'N/A')}, "
+            f"{data.get('sugar_level', 'N/A')}, "
+            f"{data.get('temperature', 'N/A')}"
+        )
+
+        # Add the processed item to the cart_items list
+        cart_items.append({
+            "item": data.get("name", "Unknown Item"),
+            "description": description,
+            "quantity": data.get("quantity", 0),
+            "price": data.get("price", 0.0)
+        })
 
     return cart_items

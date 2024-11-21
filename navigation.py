@@ -66,6 +66,7 @@ def clearCookies():
     cookies.remove("age")
     cookies.remove("role")
     cookies.remove("password")
+    cookies.remove("invoice_id")
 
 def logout():
     # st.session_state.logged_in_cust = False
@@ -80,3 +81,4 @@ def logout():
         clearCookies()
     
     st.switch_page("app.py")
+    st.success("Successfully Logout!")

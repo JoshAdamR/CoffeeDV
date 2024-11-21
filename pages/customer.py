@@ -12,6 +12,9 @@ import stripe
 import random
 from dbcoffee import branch_table, product_table, size_table, milk_option_table, addon_table, coupon_table, user_table, temperature_table, sugar_level_table
 import webbrowser
+from PIL import Image
+import requests
+from io import BytesIO
 
 
 make_sidebar()
@@ -23,6 +26,15 @@ stripe.api_key = "sk_test_CsnggH3iChIYjrFoue5y6M98"
 
 # Initialize Firestore
 db = store
+
+import base64
+
+def resized_image_to_base64(image):
+    buffered = BytesIO()
+    image.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    return img_str
+
 
 # Fetch data from Firestore
 def fetch_data_from_firestore():
@@ -644,20 +656,24 @@ def display_orders(cart_items, branches):
 def display_loyalty_program(email):
     st.title("🎉 Loyalty Program")
 
-    # Retrieve loyalty points
-    loyalty_points = get_loyalty_points(email)
+    # Fetch current loyalty points
+    def fetch_loyalty_points():
+        return get_loyalty_points(email)
+
+    loyalty_points = fetch_loyalty_points()
     points_to_next_voucher = 100 - (loyalty_points % 100)
 
     # Section: Loyalty Points Summary
     st.subheader("✨ Your Points Summary")
-    st.metric("Loyalty Points", f"{loyalty_points} points")
+    points_display = st.empty()  # Placeholder for points metric
+    points_display.metric("Loyalty Points", f"{loyalty_points} points")
     st.write("---")
 
     # Section: Redeem Merchandise
     st.subheader("🎁 Redeem Merchandise")
-    
+
     # Fetch merchandise options from Firebase
-    merchandise_ref = db.collection("merchandise")
+    merchandise_ref = store.collection("merchandise")
     merchandise_docs = merchandise_ref.get()
     merchandise_options = [
         {
@@ -678,18 +694,42 @@ def display_loyalty_program(email):
         selected_item = next(item for item in merchandise_options if item["name"] == selected_merchandise)
         required_points = selected_item["points_required"]
 
-        # Display merchandise image
-        st.image(selected_item["image_url"], caption=selected_item["name"], use_column_width=True)
+        # Resize and display merchandise image
+        def resize_image(image_url, size=(200, 200)):  # Adjust size as needed
+            response = requests.get(image_url)
+            if response.status_code == 200:
+                img = Image.open(BytesIO(response.content))
+                img = img.resize(size)  # Resize image
+                return img
+            else:
+                st.error("Image could not be loaded.")
+                return None
+
+        resized_image = resize_image(selected_item["image_url"])
+        if resized_image:
+            # Display the image at the center using markdown
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <img src="data:image/png;base64,{resized_image_to_base64(resized_image)}" alt="{selected_item['name']}" style="border-radius: 10px;">
+                    <p><b>{selected_item['name']}</b></p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
         if loyalty_points >= required_points:
             if st.button(f"Redeem {selected_merchandise}"):
-                # Call the function to deduct points and update Firebase
+                # Deduct points and update Firebase
                 new_points_balance = deduct_loyalty_points(email, required_points)
 
                 if new_points_balance is not None:
-                    # Notify the user with the updated points
-                    st.success(f"🎉 Successfully redeemed {selected_merchandise}! Your new balance is {new_points_balance} points.")
+                    # Fetch and display updated loyalty points
+                    loyalty_points = fetch_loyalty_points()  # Refetch updated points
+                    points_display.metric("Loyalty Points", f"{loyalty_points} points")
 
+                    # Success message
+                    st.success(f"🎉 Successfully redeemed {selected_merchandise}! Your new balance of loyalty points is {loyalty_points} points.")
         else:
             st.info(f"🚀 Earn {required_points - loyalty_points} more points to redeem {selected_merchandise}!")
     else:
@@ -708,24 +748,32 @@ def display_loyalty_program(email):
 def deduct_loyalty_points(email, points_to_deduct):
     try:
         # Fetch the current loyalty points of the user
-        loyalty_points = get_loyalty_points(email)
+        customer_ref = store.collection("customer").document(email)
+        customer = customer_ref.get()
 
-        if loyalty_points >= points_to_deduct:
-            # Deduct the loyalty points
-            new_balance = loyalty_points - points_to_deduct
-            
-            # Update the Firebase record with the new balance
-            update_loyalty_points(email, new_balance)
+        if customer.exists:
+            # Fetch current points
+            current_points = customer.to_dict().get("loyalty_points", 0)
 
-            # Return the updated balance
-            return new_balance
+            if current_points >= points_to_deduct:
+                # Deduct points
+                new_balance = current_points - points_to_deduct
+
+                # Update the database
+                customer_ref.update({"loyalty_points": new_balance})
+
+                # Return the updated balance
+                return new_balance
+            else:
+                st.warning("⚠️ You don't have enough loyalty points to redeem this item.")
+                return None
         else:
-            # If the user doesn't have enough points
-            st.warning("⚠️ You don't have enough loyalty points to redeem this item.")
+            st.error(f"Customer with email {email} not found.")
             return None
     except Exception as e:
         st.error(f"Error deducting loyalty points: {e}")
         return None
+
 
 def get_next_feedback_id():
     try:

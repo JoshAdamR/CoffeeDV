@@ -1,301 +1,207 @@
 import streamlit as st
 import pandas as pd
-import time 
-import firebase_admin
-import stripe
-from firebase_admin import credentials, firestore
-from navigation import make_sidebar, logout
-import matplotlib.pyplot as plt
-import seaborn as sns
-from functions import cookies
+import os
+from firebase_config import store  # Import Firestore client from config
+from pathlib import Path
+from navigation import logout, make_sidebar
 
 make_sidebar()
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
 
-st.write(cookies.getAll())
+# Helper Functions
+def get_collections():
+    """Fetch all collection names from Firestore."""
+    collections = store.collections()
+    return [collection.id for collection in collections]
 
-# Initialize Firebase Admin SDK
-if not firebase_admin._apps:
-    cred = credentials.Certificate('firebase_credentials.json')
-    firebase_admin.initialize_app(cred)
-
-# Create Firestore client
-store = firestore.client()
-
-# Functions to interact with Firestore
-def get_branches():
-    branches_ref = store.collection('branch')
-    return pd.DataFrame([doc.to_dict() for doc in branches_ref.stream()])
-
-def get_inventory():
-    inventory_ref = store.collection('inventory')
-    return pd.DataFrame([doc.to_dict() for doc in inventory_ref.stream()])
-
-def get_inventory_quantity():
-    inv_quantity_branch_ref = store.collection('inv_quantity_branch')
-    return pd.DataFrame([doc.to_dict() for doc in inv_quantity_branch_ref.stream()])
-
-def get_offers():
-    offers_ref = store.collection('coupon')
-    return pd.DataFrame([doc.to_dict() for doc in offers_ref.stream()])
-
-def get_usage_history():
-    usage_history_ref = store.collection('usage_history')
-    return pd.DataFrame([doc.to_dict() for doc in usage_history_ref.stream()])
-
-def get_restock_history():
-    restock_history_ref = store.collection('restock_history')
-    return pd.DataFrame([doc.to_dict() for doc in restock_history_ref.stream()])
-
-def update_stock(item_name, quantity, action, branch_id):
-    """Update stock based on sales or restock for the selected branch."""
-    
-    # Step 1: Get the inventory_id from the inventory collection based on the item_name
-    inventory_ref = store.collection('inventory').where('inventory_name', '==', item_name)
-    docs = inventory_ref.stream()
-    
-    # Step 2: Get the inventory_id from the found document (assumes one match)
+def get_fields_and_types(collection_name):
+    """Fetch fields and their types for the first document in a collection to infer field structure."""
+    docs = store.collection(collection_name).limit(1).stream()
     for doc in docs:
-        inventory_id = doc.id  # This is the inventory_id
+        return {field: type(value).__name__ for field, value in doc.to_dict().items()}
+    return {}
 
-    # Step 3: Get the corresponding quantity_on_hand from inv_quantity_branch collection using inventory_id and branch_id
-    inv_quantity_ref = store.collection('inv_quantity_branch').where('inventory_id', '==', inventory_id).where('branch_id', '==', branch_id)
-    quantity_docs = inv_quantity_ref.stream()
+def fetch_data(collection_name):
+    """Fetch all documents from a collection."""
+    docs = store.collection(collection_name).stream()
+    return [{**doc.to_dict(), 'id': doc.id} for doc in docs]
 
-    # Step 4: Update the quantity_on_hand for the specific inventory_id in inv_quantity_branch collection
-    for quantity_doc in quantity_docs:
-        current_quantity = quantity_doc.to_dict()['quantity_on_hand']
+def add_data(collection_name, document_id, data):
+    """Add a new document to a collection with the selected document_id."""
+    store.collection(collection_name).document(document_id).set(data)
+
+def update_data(collection_name, document_id, updates):
+    """Update an existing document."""
+    store.collection(collection_name).document(document_id).update(updates)
+
+def delete_data(collection_name, document_id):
+    """Delete a document from a collection."""
+    store.collection(collection_name).document(document_id).delete()
+
+def delete_all_collections():
+    collections = store.collections()
+    for collection in collections:
+        collection_name = collection.id
+        print(f"Deleting collection: {collection_name}")
         
-        # Check the action (remove or restock)
-        if action == "remove":
-            new_quantity = current_quantity - quantity
-            # Add to usage_history collection
-            store.collection('usage_history').add({
-                'inventory_id': inventory_id,
-                'quantity': quantity,
-                'branch_id': branch_id
-            })
-        elif action == "restock":
-            new_quantity = current_quantity + quantity
-            # Add to restock_history collection
-            store.collection('restock_history').add({
-                'inventory_id': inventory_id,
-                'quantity': quantity,
-                'branch_id': branch_id
-            })
-        else:
-            st.error("Invalid action. Use 'remove' or 'restock'.")
-            return
-        
-        # Step 5: Update the stock in the inv_quantity_branch collection
-        store.collection('inv_quantity_branch').document(quantity_doc.id).update({'quantity_on_hand': new_quantity})
-
-        # Notify the user that the stock has been updated
-        st.success(f"Stock updated! New quantity: {new_quantity}")
-
-# Load data from Firestore
-def readdb():
-    branches = get_branches()
-    inventory_data = get_inventory()
-    inventory_quantity = get_inventory_quantity()
-    inventory = pd.merge(inventory_data, inventory_quantity, on='inventory_id', how='inner')
-    offers = get_offers()
-    usage_history = get_usage_history()
-    restock_history = get_restock_history()
-    
-    return branches, inventory, offers, usage_history, restock_history
-
-branches, inventory, offers, usage_history, restock_history = readdb()
-
-# Streamlit App Layout
-st.title("Inventory Management System")
-st.sidebar.header("Select a Section")
-
-# Dropdown for selecting between Inventory Management and Coupon Management
-section = st.sidebar.selectbox("Select a Section", ["Inventory Management", "Coupon Management"])
-
-# Inventory Management Section
-if section == "Inventory Management":
-    st.header("Inventory Management")
-
-    # Multi-Branch Support
-    selected_branch_id = st.selectbox("Select Branch", branches['branch_name'].tolist())
-    selected_branch = branches[branches['branch_name'] == selected_branch_id]
-    selected_branch_id_value = selected_branch['branch_id'].values[0]
-
-    # Display branch details
-    st.subheader(f"Branch Details: {selected_branch['branch_name'].values[0]}")
-    st.write(f"Location: {selected_branch['location'].values[0]}")
-    st.write(f"Operating Cost: ${selected_branch['operating_cost'].values[0]}")
-
-    # Display inventory for the selected branch
-    st.subheader(f"Inventory for {selected_branch_id}")
-    branch_inventory = inventory[inventory['branch_id'] == selected_branch_id_value]
-    inventory_display = st.dataframe(branch_inventory.drop(columns=['inventory_id', 'inv_branch_id', 'branch_id']))  # Store initial display
-
-    # Update stock based on sales or restock
-    action = st.radio("Select Action", ["Remove Items", "Restock Items"])
-    selected_items = st.multiselect("Select Items", branch_inventory['inventory_name'].tolist())
-    quantity = st.number_input("Quantity", min_value=1, value=1, step=1)
-
-    if st.button("Update Stock"):
-        for item in selected_items:
-            if action == "Remove Items":
-                update_stock(item, quantity, "remove", selected_branch_id_value)  # Reduce quantity by specified amount for the selected branch
-            elif action == "Restock Items":
-                update_stock(item, quantity, "restock", selected_branch_id_value)  # Increase quantity by specified amount for the selected branch
-        st.success(f"{action} updated!")
-
-        st.rerun()
-
-    # Notifications for low stock (specific to the selected branch)
-    low_stock_items = branch_inventory[branch_inventory['quantity_on_hand'] < branch_inventory['minimum_stock_level']]
-    if not low_stock_items.empty:
-        st.warning("Low stock for the following items:")
-        st.write(low_stock_items)
-
-    # Visualization Section
-    st.subheader("Inventory Data, Restock History, and Usage History")
-
-    # Filter usage and restock history by branch ID
-    branch_usage_history = usage_history[usage_history['branch_id'] == selected_branch_id_value]
-    branch_restock_history = restock_history[restock_history['branch_id'] == selected_branch_id_value]
-
-    # Create plots for inventory, restock, and usage history
-    fig, axs = plt.subplots(3, 1, figsize=(10, 15))
-
-    # Inventory plot (Quantity on hand per item) - Horizontal Bar Chart
-    sns.barplot(x='quantity_on_hand', y='inventory_name', data=branch_inventory, ax=axs[0])
-    axs[0].set_title('Inventory Data - Quantity on Hand')
-    axs[0].set_xlabel('Quantity')
-
-    # Add text annotations on bars for inventory data
-    for p in axs[0].patches:
-        axs[0].text(p.get_width() + 0.1, p.get_y() + p.get_height() / 2, f'{int(p.get_width())}', 
-                    ha='left', va='center')
-
-    # Restock history plot - Horizontal Bar Chart
-    if not branch_restock_history.empty:
-        restock_history_agg = branch_restock_history.groupby('inventory_id')['quantity'].sum().reset_index()
-        restock_history_agg = restock_history_agg.merge(inventory[['inventory_id', 'inventory_name']], on='inventory_id')
-        sns.barplot(x='quantity', y='inventory_name', data=restock_history_agg, ax=axs[1])
-        axs[1].set_title('Restock History')
-        axs[1].set_xlabel('Restocked Quantity')
-
-        # Add text annotations on bars for restock history
-        for p in axs[1].patches:
-            axs[1].text(p.get_width() + 0.1, p.get_y() + p.get_height() / 2, f'{int(p.get_width())}', 
-                        ha='left', va='center')
-    else:
-        axs[1].text(0.5, 0.5, 'No Restock History', ha='center', va='center')
-
-    # Usage history plot - Horizontal Bar Chart
-    if not branch_usage_history.empty:
-        usage_history_agg = branch_usage_history.groupby('inventory_id')['quantity'].sum().reset_index()
-        usage_history_agg = usage_history_agg.merge(inventory[['inventory_id', 'inventory_name']], on='inventory_id')
-        sns.barplot(x='quantity', y='inventory_name', data=usage_history_agg, ax=axs[2])
-        axs[2].set_title('Usage History')
-        axs[2].set_xlabel('Used Quantity')
-
-        # Add text annotations on bars for usage history
-        for p in axs[2].patches:
-            axs[2].text(p.get_width() + 0.1, p.get_y() + p.get_height() / 2, f'{int(p.get_width())}', 
-                        ha='left', va='center')
-    else:
-        axs[2].text(0.5, 0.5, 'No Usage History', ha='center', va='center')
-
-    plt.tight_layout()
-    st.pyplot(fig)
-
-# Coupon Management Section
-elif section == "Coupon Management":
-    from datetime import datetime
-
-    # Function to get all offers from the Firestore coupon collection
-    def get_offers():
-        offers_ref = store.collection('coupon')
-        return pd.DataFrame([doc.to_dict() for doc in offers_ref.stream()])
-
-    # Function to check if a coupon with the same code already exists
-    def coupon_exists(offer_code):
-        offer_ref = store.collection('coupon').where('coupon_code', '==', offer_code)
-        docs = offer_ref.stream()
-        return len(list(docs)) > 0  # Return True if coupon exists
-
-    # Function to add a new offer to the Firestore coupon collection
-    def add_offer(offer_code, promotion_type, discount, start_date, expiry_date):
-        if coupon_exists(offer_code):  # Check if coupon already exists
-            st.error(f"Coupon with code '{offer_code}' already exists. Please choose a different code.")
-            return False
-        
-        # Convert start_date and expiry_date to datetime
-        start_date = datetime.combine(start_date, datetime.min.time())
-        expiry_date = datetime.combine(expiry_date, datetime.min.time())
-        
-        # Prepare the data to be added
-        offer_data = {
-            'coupon_code': offer_code,
-            'promotion_type': promotion_type,
-            'discount_percentage': discount if promotion_type == 'Percentage' else 0,
-            'rm_discount': discount if promotion_type == 'Flat Rate' else 0,
-            'start_date': start_date,
-            'expiry_date': expiry_date
-        }
-        
-        # Add the offer data to the 'coupon' collection in Firestore
-        store.collection('coupon').add(offer_data)
-        
-        st.success(f"Offer with Coupon Code '{offer_code}' added successfully!")  # Success message
-        return True  # Return True indicating the offer was added
-
-    # Function to remove an offer from the Firestore coupon collection
-    def remove_offer(offer_code):
-        # Query to find the offer by coupon_code
-        offer_ref = store.collection('coupon').where('coupon_code', '==', offer_code)
-        docs = offer_ref.stream()
-        
-        # If offer is found, remove it
+        # Fetch all documents in the collection
+        docs = collection.stream()
         for doc in docs:
-            store.collection('coupon').document(doc.id).delete()
+            print(f"Deleting document: {doc.id} from collection {collection_name}")
+            # Delete each document
+            store.collection(collection_name).document(doc.id).delete()
+            
+def generatedb(folder_path):
+    delete_all_collections()
+    # Loop through all CSV files in the folder
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.csv'):
+            # Read the CSV file into a DataFrame
+            csv_path = os.path.join(folder_path, filename)
+            df = pd.read_csv(csv_path)
+
+            # Create a new collection name based on the filename (without extension)
+            collection_name = os.path.splitext(filename)[0]
+
+            # Loop through each row in the DataFrame and add it to the Firestore collection
+            for index, row in df.iterrows():
+                # Use the value from the first column as the document ID
+                document_id = str(row.iloc[0])  # First column value is used as document ID
+
+                # Convert the row to a dictionary and add it to Firestore
+                store.collection(collection_name).document(document_id).set(row.to_dict())
+
+def admin():
+    # Streamlit App
+    st.title("Firestore Admin Panel")
+    
+    if st.sidebar.button("Create Database"):
+        folder_path = st.sidebar.text_input("Enter the folder path for CSV files", "")
+        if folder_path and os.path.exists(folder_path):
+            generatedb(folder_path)
+            st.success(f"Database created from the CSV files in `{folder_path}`!")
+        else:
+            st.sidebar.error("Please provide a valid folder path containing CSV files.")
         
-        st.success(f"Offer with coupon code '{offer_code}' has been removed.")
-
-    # Streamlit App Layout
-    st.title("Coupon Management")
-
-    # Fetch current offers to display and store in session state
-    if 'offers' not in st.session_state:
-        st.session_state.offers = get_offers()  # Load offers only once when the app is first loaded
-
-    # Display current special offers - dynamically updated
-    st.subheader("Current Special Offers")
-    st.write(st.session_state.offers)  # Display the offers stored in session state
-
-    # Admin options to add special offers
-    with st.form(key='offer_form'):
-        offer_code = st.text_input("Coupon Code")
-        promotion_type = st.selectbox("Promotion Type", ['Percentage', 'Flat Rate'])
-        discount = st.number_input("Discount Amount", min_value=0, max_value=100)
-        start_date = st.date_input("Start Date", pd.to_datetime('today'))
-        expiry_date = st.date_input("Expiry Date", pd.to_datetime('today'))
+    # Fetch all collections dynamically
+    collections = get_collections()
+    selected_collection = st.sidebar.selectbox("Select a collection", collections)
         
-        if st.form_submit_button("Add Offer"):
-            # Add offer only if it's not a duplicate
-            if add_offer(offer_code, promotion_type, discount, start_date, expiry_date):
-                # Update the session state with the new list of offers after adding
-                st.session_state.offers = get_offers()  # Refresh the offers data
-                # Update the displayed table with the new data
-                st.rerun()  # This will refresh the entire app and update the table immediately
+    if selected_collection:
+        st.subheader(f"Manage `{selected_collection}` Collection")
 
-    # Remove Offer Section
-    st.subheader("Remove Offer")
-    remove_offer_code = st.text_input("Enter Coupon Code to Remove")
-    if st.button("Remove Offer"):
-        remove_offer(remove_offer_code)
-        # Update the session state with the new list of offers after removal
-        st.session_state.offers = get_offers()  # Refresh the offers data
-        # Update the displayed table with the new data
-        st.rerun()  # This will refresh the entire app and update the table immediately
+        # Fetch and display data from the selected collection, but only once
+        if 'data' not in st.session_state or st.session_state.selected_collection != selected_collection:
+            data = fetch_data(selected_collection)
+            st.session_state.data = data
+            st.session_state.selected_collection = selected_collection
+        else:
+            data = st.session_state.data
 
-st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
+        if data:
+            df = pd.DataFrame(data)
+            st.dataframe(df)
+        else:
+            st.write("No data available in this collection.")
+
+        # Fetch fields and field types dynamically
+        fields_and_types = get_fields_and_types(selected_collection)
+
+        # Add Data Operation
+        operation = st.sidebar.radio("Select operation", ["Add", "Update", "Delete"])
+
+        if operation == "Add":
+            st.subheader(f"Add a new document to {selected_collection}")
+            
+            # Ensure the document ID field is preserved in session state
+            document_id_field = st.selectbox("Select a field to use as document ID", list(fields_and_types.keys()), key="document_id_field")
+            document_id_value = st.text_input(f"Enter value for {document_id_field}", "", key="document_id_value")
+
+            # Create a form for other fields
+            new_data = {}
+            for field, field_type in fields_and_types.items():
+                if field != document_id_field:  # Skip the selected document ID field
+                    if field_type == 'str':
+                        new_data[field] = st.text_input(f"Enter value for {field} (string)", key=f"str_{field}")
+                    elif field_type == 'int':
+                        new_data[field] = st.number_input(f"Enter value for {field} (integer)", step=1, key=f"int_{field}")
+                    elif field_type == 'float':
+                        new_data[field] = st.number_input(f"Enter value for {field} (float)", key=f"float_{field}")
+                    elif field_type == 'bool':
+                        new_data[field] = st.checkbox(f"Enter value for {field} (boolean)", key=f"bool_{field}")
+                    elif field_type == 'datetime':
+                        new_data[field] = st.date_input(f"Enter value for {field} (date)", key=f"datetime_{field}")
+                    else:
+                        new_data[field] = st.text_input(f"Enter value for {field} (other type)", key=f"other_{field}")
+
+            if st.button("Add Document"):
+                if document_id_value:
+                    # Add new document with the selected document ID field value
+                    new_data[document_id_field] = document_id_value
+                    add_data(selected_collection, document_id_value, new_data)
+                    st.success(f"Document with ID {document_id_value} added successfully!")
+                    st.session_state.data = fetch_data(selected_collection)  # Refresh the data
+                    st.session_state.selected_collection = selected_collection  # Retain the collection selection
+                    st.rerun()
+                else:
+                    st.error("Please provide a value for the selected document ID field.")
+
+        elif operation == "Update":
+            st.subheader(f"Update a document in `{selected_collection}`")
+            doc_id = st.text_input("Enter Document ID to update")
+            
+            if doc_id:  # Only proceed if document ID is provided
+                # Fetch the document by its ID
+                doc_ref = store.collection(selected_collection).document(doc_id)
+                doc = doc_ref.get()
+                
+                if doc.exists:
+                    doc_data = doc.to_dict()  # Get the document data as a dictionary
+                    updates = {}  # Dictionary to store the updates
+                    
+                    # Loop through each field and its type, pre-filling the form with existing data
+                    for field, field_type in fields_and_types.items():
+                        if field in doc_data:  # Check if the field exists in the document
+                            if field_type == 'str':
+                                updates[field] = st.text_input(f"Update `{field}` (string)", doc_data.get(field, ""))
+                            elif field_type == 'int':
+                                updates[field] = st.number_input(f"Update `{field}` (integer)", value=doc_data.get(field, 0))
+                            elif field_type == 'float':
+                                updates[field] = st.number_input(f"Update `{field}` (float)", value=doc_data.get(field, 0.0))
+                            elif field_type == 'bool':
+                                updates[field] = st.checkbox(f"Update `{field}` (boolean)", value=doc_data.get(field, False))
+                            elif field_type == 'datetime':
+                                updates[field] = st.date_input(f"Update `{field}` (date)", value=doc_data.get(field))
+                            else:
+                                updates[field] = st.text_input(f"Update `{field}` (other type)", doc_data.get(field, ""))
+                    
+                    # Update the document when the button is pressed
+                    if st.button("Update Document"):
+                        update_data(selected_collection, doc_id, updates)
+                        st.success("Document updated successfully!")
+                        st.session_state.data = fetch_data(selected_collection)  # Refresh the data
+                        st.rerun()  # Rerun the app to reflect the changes
+                else:
+                    st.error("Document not found!")
+
+
+        elif operation == "Delete":
+            st.subheader(f"Delete a document from `{selected_collection}`")
+            doc_id = st.text_input("Enter Document ID to delete")
+            if st.button("Delete Document"):
+                delete_data(selected_collection, doc_id)
+                st.success("Document deleted successfully!")
+                st.session_state.data = fetch_data(selected_collection)  # Refresh the data
+                st.rerun()
+
+        # Refresh Button
+        if st.button("Refresh Data"):
+            st.session_state.data = fetch_data(selected_collection)
+            st.rerun()
+
+# Call the admin function to run the Streamlit app
+admin()
+
+st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
     logout()
