@@ -2,9 +2,6 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import toml
 
-# Load Firebase secret from the .toml file
-firebase_secret = config['firebase']
-
 # Initialize Firebase Admin SDK with the credentials from the .toml file
 if not firebase_admin._apps:
     cred = credentials.Certificate({
