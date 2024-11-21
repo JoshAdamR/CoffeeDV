@@ -13,6 +13,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Table, TableStyle, Image
 from io import BytesIO
 
+from dbcoffee import customer_table, cart_table
+
 cookies = CookieController()
 cartItems = CookieController()
 
@@ -79,7 +81,8 @@ def add_entry(fullname, username, email, password, birthday, gender, datejoin, l
         "customer_id": customer_id,
         "customer_name": fullname,
         "join_date": datejoin,
-        "loyalty_point": loyalty_point
+        "loyalty_points": loyalty_point,
+        "email": email
     }
     store.collection("useracc").document(email).set(user_entry)
     store.collection("customer").document(email).set(cust_entry)
@@ -162,7 +165,7 @@ def getCookies(email_input):
     else:
         return None
 
-def create_pdf(entry):
+def create_pdf(entry, cart_data):
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter)
     
@@ -174,48 +177,48 @@ def create_pdf(entry):
     pdf.setFont("Helvetica", 12)
     pdf.setFillColor(colors.black)
     pdf.drawString(50, 730, f"Date: {entry.get('date', 'N/A')}")
-    pdf.drawString(400, 730, f"Invoice ID: {entry.get('invoice_id', 'N/A')}")
+    pdf.drawString(475, 730, f"Invoice ID: {entry.get('invoice_id', 'N/A')}")
     
     # Company Information
     pdf.setFont("Helvetica-Bold", 12)
     pdf.drawString(50, 700, "PyBean Company")
     pdf.setFont("Helvetica", 10)
-    pdf.drawString(50, 685, "123 Brew Lane")
-    pdf.drawString(50, 670, "Bean Town, USA")
+    pdf.drawString(50, 685, "Universiti Teknologi PETRONAS")
+    pdf.drawString(50, 670, "32610 Seri Iskandar, Perak Darul Ridzuan, Malaysia")
     pdf.drawString(50, 655, "Email: support@pybean.com")
 
     # User Details
     pdf.setFont("Helvetica-Bold", 12)
     pdf.drawString(50, 630, "Customer Details:")
     pdf.setFont("Helvetica", 10)
-    pdf.drawString(50, 615, f"User ID: {entry.get('id')}")
+    pdf.drawString(50, 615, f"Customer ID: {entry.get('customer_id')}")
     pdf.drawString(50, 600, f"Name: {entry.get('name', 'N/A')}")
-    pdf.drawString(50, 585, f"Email: {entry.get('email', 'N/A')}")
-    pdf.drawString(50, 570, f"Role: {entry.get('role', 'N/A')}")
+    pdf.drawString(50, 585, f"Email: {entry.get('email', 'N/A')}")  
     
     # Divider Line
     pdf.line(50, 560, 550, 560)
 
-    # Invoice Table (if applicable)
+    # Invoice Table
     pdf.setFont("Helvetica-Bold", 12)
     pdf.drawString(50, 540, "Items:")
     
-    data = [
-        ["Item", "Description", "Quantity", "Price (MYR)"],
-        ["Coffee Beans", "Premium Arabica Beans", 2, 20.00],
-        ["Grinder", "Electric Coffee Grinder", 1, 50.00],
-        ["Subscription", "Monthly Membership", 1, 10.00]
-    ]
+    # Add table data
+    data = [["Item", "Description", "Quantity", "Price (MYR)"]]
+    for item in cart_data:
+        # Format price to two decimals
+        formatted_price = "{:.2f}".format(item["price"])
+        data.append([item["item"], item["description"], item["quantity"], formatted_price])
     
-    # Calculate total price
-    total_price = sum(item[2] * item[3] for item in data[1:])
+    # Calculate total price and format it to two decimals
+    total_price = sum(item["quantity"] * item["price"] for item in cart_data)
+    formatted_total_price = "{:.2f}".format(total_price)
 
     # Add total row
-    data.append(["", "", "Total", total_price])
+    data.append(["", "", "Total", formatted_total_price])
     
     # Add table style
     table = Table(data, colWidths=[120, 250, 80, 80])
-    style = TableStyle([
+    style = TableStyle([ 
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#4B6584")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -229,16 +232,44 @@ def create_pdf(entry):
     # Place table
     table.wrapOn(pdf, 50, 200)
     table.drawOn(pdf, 50, 440)
-
-    # Display Total Price
-    pdf.setFont("Helvetica-Bold", 10)
-    pdf.drawString(480, 150, f"Total: ${total_price:.2f}")
     
-    # Footer Section
+    # Footer Section (Centered)
+    footer_text1 = "Thank you for choosing PyBean!"
+    footer_text2 = "For queries, contact us at support@pybean.com."
+    
+    # Calculate the X position to center the text
+    footer_text_width1 = pdf.stringWidth(footer_text1, "Helvetica-Oblique", 10)
+    footer_text_width2 = pdf.stringWidth(footer_text2, "Helvetica-Oblique", 10)
+    
+    # Center both lines horizontally
+    x_position1 = (612 - footer_text_width1) / 2
+    x_position2 = (612 - footer_text_width2) / 2
+
     pdf.setFont("Helvetica-Oblique", 10)
-    pdf.drawString(50, 50, "Thank you for choosing PyBean!")
-    pdf.drawString(50, 35, "For queries, contact us at support@pybean.com.")
+    pdf.drawString(x_position1, 50, footer_text1)
+    pdf.drawString(x_position2, 35, footer_text2)
     
     pdf.save()
     buffer.seek(0)
     return buffer
+
+
+def fetch_cart_data(invoice_id):
+    # Filter the DataFrame for the given invoice ID
+    filtered_data = cart_table[cart_table['invoice_id'] == invoice_id]
+
+    # Create a description by combining milk_type, sugar_level, and temperature
+    filtered_data['description'] = (
+        filtered_data['milk_type'].fillna("N/A") + ", " +
+        filtered_data['sugar_level'].fillna("N/A") + ", " +
+        filtered_data['temperature'].fillna("N/A")
+    )
+
+    # Select only the desired columns
+    selected_columns = filtered_data[['name', 'description', 'quantity', 'price']]
+    selected_columns.rename(columns={'name': 'item'}, inplace=True)
+
+    # Convert the filtered DataFrame to a list of dictionaries
+    cart_items = selected_columns.to_dict(orient='records')
+
+    return cart_items
