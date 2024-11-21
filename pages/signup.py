@@ -1,11 +1,9 @@
 import streamlit as st
 import pandas as pd
-from firebase_admin import credentials, firestore
 from time import sleep
 from datetime import datetime
 from navigation import make_sidebar, logout
 from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies
-
 
 make_sidebar()
 
