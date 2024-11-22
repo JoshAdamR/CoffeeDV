@@ -104,6 +104,8 @@ def inventory():
     st.subheader(f"Inventory for {selected_branch_id}")
     branch_inventory = inventory[inventory['branch_id'] == selected_branch_id_value]
 
+    st.dataframe(branch_inventory.drop(columns = ['inventory_id','branch_id','inv_branch_id']))
+
     # Update stock based on sales or restock
     action = st.radio("Select Action", ["Remove Items", "Restock Items"])
     selected_items = st.multiselect("Select Items", branch_inventory['inventory_name'].tolist())
