@@ -12,7 +12,7 @@ from firebase_config import store
 
 make_sidebar()
 
-st.write(cookies.getAll())
+# st.write(cookies.getAll())
 
 def notification_low(branch_inventory):
     low_stock_items = branch_inventory[branch_inventory['quantity_on_hand'] < branch_inventory['minimum_stock_level']]
