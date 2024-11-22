@@ -9,13 +9,18 @@ make_sidebar()
 
 clearCookies()
 
-st.header("Login")
-st.write("Please enter your email and password to log in:")
+st.markdown("""
+<div style="text-align: center; font-size: 36px; font-weight: bold; line-height: 1.5;">
+    ✨ Welcome to Login Page ✨
+    <br><br>
+</div>
+""", unsafe_allow_html=True)
+# st.write("Please enter your email and password to log in:")
 
 email = st.text_input("Email")
 password = st.text_input("Password", type='password')
 
-
+st.markdown("""<br>""", unsafe_allow_html=True)
 
 if st.button("Log In"):
     if (email and password):
@@ -61,13 +66,6 @@ if st.button("Sign Up"):
     st.success("Directing to Signup Page!")
     sleep(0.5)
     st.switch_page("pages/signup.py")
-
-# Display all entries from Firestore in a DataFrame, including roles
-st.subheader("Current Users in the Database")
-entries = get_entries("useracc")
-if entries:
-    df = pd.DataFrame(entries)
-    st.dataframe(df)
 
 
 # st.write(cookies.getAll())

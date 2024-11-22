@@ -3,6 +3,7 @@ from time import sleep
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 from streamlit.source_util import get_pages
 from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies
+from streamlit_cookies_controller import CookieController, RemoveEmptyElementContainer
 
 
 def get_current_page_name():
@@ -78,6 +79,8 @@ def clearCookies():
         cookies.remove("invoice_id")
     if cookies.get("status") is not None:
         cookies.remove("status")
+
+    RemoveEmptyElementContainer()
 
 def logout():
     # st.session_state.logged_in_cust = False
