@@ -1,11 +1,13 @@
 import streamlit as st
 from time import sleep
 import pandas as pd
-from navigation import make_sidebar
+from navigation import make_sidebar, clearCookies
 from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies
 
 
 make_sidebar()
+
+clearCookies()
 
 st.header("Login")
 st.write("Please enter your email and password to log in:")
@@ -66,10 +68,12 @@ entries = get_entries("useracc")
 if entries:
     df = pd.DataFrame(entries)
     st.dataframe(df)
-else:
-    st.write("No entries found.")
+
 
 # st.write(cookies.getAll())
+
+# st.write(cookies.get("birthday"))
+
 
 
 

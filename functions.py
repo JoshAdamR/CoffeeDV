@@ -71,7 +71,8 @@ def add_entry(fullname, username, email, password, birthday, gender, datejoin, l
         "email": email,
         "password": password,  # Consider hashing the password before storing
         "role": "customer",
-        "customer_id": customer_id
+        "customer_id": customer_id,
+        "fullname": fullname
     }
     cust_entry = {
         # "user_id": user_id,
@@ -82,7 +83,8 @@ def add_entry(fullname, username, email, password, birthday, gender, datejoin, l
         "customer_name": fullname,
         "join_date": datejoin,
         "loyalty_points": loyalty_point,
-        "email": email
+        "email": email,
+        "fullname": fullname
     }
     store.collection("useracc").document(email).set(user_entry)
     store.collection("customer").document(email).set(cust_entry)
@@ -105,6 +107,17 @@ def is_valid_password(password):
             any(char.isdigit() for char in password) and
             any(not char.isalnum() for char in password))
 
+# Function to validate the name
+def is_valid_name(name: str) -> bool:
+    # Convert to uppercase
+    name = name.upper()
+    
+    # Check if the name contains only alphabets and spaces
+    if re.match("^[A-Za-z\s]+$", name):
+        return name
+    else:
+        return None
+
 # Function to check for duplicate emails in Firestore
 def email_exists(email):
     user_ref = store.collection("useracc").document(email)
@@ -125,16 +138,6 @@ def fetch_user_by_id(table, email):
     else:
         return None
 
-def storeCookies(username,email,password,birthday,gender,age):
-    cookies.set("email", email)
-    cookies.set("password", password)
-    cookies.set("username", username)
-    cookies.set("birthday", birthday)
-    cookies.set("gender", gender)
-    cookies.set("age", age)
-    cookies.set("role", "customer")
-
-    RemoveEmptyElementContainer()
 
 def getCookies(email_input):
     """
@@ -160,6 +163,9 @@ def getCookies(email_input):
         cookies.set("age", cust_data.get("age"))
         cookies.set("role", user_data.get("role"))
         cookies.set("password", user_data.get("password"))
+        cookies.set("fullname", user_data.get("fullname"))
+
+        RemoveEmptyElementContainer()
         
         return user_data
     else:

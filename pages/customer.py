@@ -19,6 +19,9 @@ from io import BytesIO
 
 make_sidebar()
 
+
+st.write(cookies.getAll())
+
 #st.write(cookies.getAll())
 
 # Set up Stripe
@@ -42,11 +45,14 @@ def fetch_data_from_firestore():
     # Processing the tables
     branches = {row['branch_id']: row['branch_name'] for _, row in branch_table.iterrows()}
     products = product_table.to_dict(orient='records')
-    sizes = {row['size_id']: row['price'] for _, row in size_table.iterrows()}
-    milk = {row['milk_id']: row['price'] for _, row in milk_option_table.iterrows()}
-    addons = {row['add_on_id']: row['add_on_price'] for _, row in addon_table.iterrows()}
+    sizes = {
+        row['size_id']: {'name': row['size_name'], 'price': row['price']}
+        for _, row in size_table.iterrows()
+    }
+    milks = {row['type_of_milk']: row['price'] for _, row in milk_option_table.iterrows()}
+    addons = {row['add_on_name']: row['add_on_price'] for _, row in addon_table.iterrows()}
 
-    return branches, products, sizes, milk, addons
+    return branches, products, sizes, milks, addons
 
 def get_product_details():
     
@@ -176,25 +182,30 @@ def display_branch_and_menu(branches, products, sizes):
                     # Expander for Customization Options
                     if "selected_product_id" in st.session_state and st.session_state["selected_product_id"] == item["product_id"]:
                         with st.expander(f"🔧 Customize your {item['product_name']}"):
-                            size = st.selectbox(f"Size for {item['product_name']}", options=[details['name'] for details in sizes.values()], key=f"size_{item['product_id']}")
-                            add_on = st.multiselect(f"Add-Ons for {item['product_name']}", options=[details['name'] for details in add_ons.values()], key=f"addons_{item['product_id']}")
-                            # Set the variable to None if no selections are made
-                            add_on = ["None"] if not add_on else add_on
 
+                            size_options = [details['name'] for details in sizes.values()]
+                            add_ons_options = [details['name'] for details in add_ons.values()]
                             temperature_options = [details['name'] for details in temperatures.values()]
+                            sugar_options = [details['name'] for details in sugar_levels.values()]
+                            milk_options = [details['name'] for details in milk_types.values()]
+
+                            size = st.selectbox(f"Size for {item['product_name']}", options=size_options, key=f"size_{item['product_id']}")
+                            add_on = ["None"] if not (add_on := st.multiselect(f"Add-Ons for {item['product_name']}", options=add_ons_options, key=f"addons_{item['product_id']}")) else add_on
                             temperature = st.selectbox(f"Select Temperature", options=temperature_options, key=f"temperature_{item['product_id']}")
-                            sugar_level = st.selectbox(f"Sugar Level", options=[details['name'] for details in sugar_levels.values()], key=f"sugar_{item['product_id']}")
-                            milk_type = st.selectbox(f"Milk Type", options=[details['name'] for details in milk_types.values()], key=f"milk_{item['product_id']}")
+                            sugar_level = st.selectbox(f"Sugar Level", options=sugar_options, key=f"sugar_{item['product_id']}")
+                            milk_type = st.selectbox(f"Milk Type", options=milk_options, key=f"milk_{item['product_id']}")
 
                             # Add to Cart Button with Price Breakdown
                             if st.button(f"🛒 Add to Cart", key=f"add_to_cart_{item['product_id']}"):
-                                size_price = sizes.get(size, {}).get("price", 0)
-                                add_ons_prices = {addon: add_ons.get(addon, {}).get("price", 0) for addon in add_on}
-                                temperature_price = next((item['price'] for key, item in temperatures.items() if item['name'] == temperature), 0)
-                                milk_type_price = milk_types.get(milk_type, {}).get("price", 0)
+                                # Fetch corresponding prices using proper lookup
+                                size_price = next((details["price"] for key, details in sizes.items() if details["name"] == size), 0)
+                                add_ons_prices = {addon: next((price for name, price in addons.items() if name == addon), 0) for addon in add_on}
+                                temperature_price = next((item["price"] for key, item in temperatures.items() if item["name"] == temperature), 0)
+                                milk_type_price = next((price for name, price in milks.items() if name == milk_type), 0)
 
-                                total_price = item['base_price'] + size_price + sum(add_ons_prices.values()) + temperature_price + milk_type_price
-                                
+                                # Calculate total price
+                                total_price = item["base_price"] + size_price + sum(add_ons_prices.values()) + temperature_price + milk_type_price
+
                                 # Prepare Cart Item
                                 cart_id = get_next_cart_id()
                                 cart_item = {
@@ -219,6 +230,10 @@ def display_branch_and_menu(branches, products, sizes):
                                 # Success Confirmation
                                 st.success(f"✔️ Successfully added {item['product_name']} to the cart with Cart ID: {cart_id}!")
                                 st.info(f"Total Price: RM{total_price:.2f}")
+                                st.write(size_price)
+                                st.write(add_ons_prices)
+                                st.write(temperature_price)
+                                st.write(milk_type_price)
                                 st.session_state["selected_product_id"] = None
 
     # Additional UX improvements
@@ -241,8 +256,8 @@ def display_cart(email):
         st.markdown("### Cart Summary")
 
         # Convert cart items to a DataFrame for display
-        df = pd.DataFrame(cart_items)
-        st.dataframe(df)
+        # df = pd.DataFrame(cart_items)
+        # st.dataframe(df)
 
         total_price = 0
         coupon_discount = 0
@@ -875,9 +890,14 @@ def display_feedback(email):
 
 # Sidebar navigation
 def display_sidebar(branches, products, sizes):
+    # Center-aligning the text in the sidebar
+    st.sidebar.markdown(
+        f"<h3 style='text-align: center;'> <br><br>Welcome <br><br> {cookies.get('fullname')} <br><br><br></h3>", 
+        unsafe_allow_html=True
+    )
+
     page = st.sidebar.selectbox("Navigate to", ("Menu", "Cart", "Order Status", "Loyalty Program", "Feedback"))
     if page == "Menu":
-        st.title("PyBean Coffee Shop")
         st.subheader("Select Your Drinks")
         display_branch_and_menu(branches, products, sizes)
     elif page == "Cart":
@@ -889,46 +909,11 @@ def display_sidebar(branches, products, sizes):
     elif page == "Feedback":
         display_feedback(cookies.get("email"))
 
-branches, products, sizes, milk, addons = fetch_data_from_firestore()
+branches, products, sizes, milks, addons = fetch_data_from_firestore()
 sizes, add_ons, temperatures, sugar_levels, milk_types = get_product_details()
-
-# Initialize session state
-if "cart" not in st.session_state:
-    st.session_state["cart"] = []
-if "order_history" not in st.session_state:
-    st.session_state["order_history"] = []
-if "loyalty_points" not in st.session_state:
-    st.session_state["loyalty_points"] = 0
 
 # Display app content
 display_sidebar(branches, products, sizes)
-
-# Query to get "done" and "ongoing" carts
-all_cart = db.collection("cart").get()
-done = db.collection("cart").where("status", "==", "Done").get()
-ongoing = db.collection("cart").where("status", "==", "Preparing").get()
-
-# Convert query results to a list of dictionaries
-done_data = [doc.to_dict() for doc in done]
-ongoing_data = [doc.to_dict() for doc in ongoing]
-all_cart_data = [doc.to_dict() for doc in all_cart]
-
-# Convert the list of dictionaries to DataFrames
-done_df = pd.DataFrame(done_data)
-ongoing_df = pd.DataFrame(ongoing_data)
-all_cart_df = pd.DataFrame(all_cart_data)
-
-# Display the results in Streamlit
-#st.title("This is Status Done")
-#st.dataframe(done_df)
-
-#st.title("This is Status Ongoing")
-#st.dataframe(ongoing_df)
-
-#st.title("This is all cart")
-#st.dataframe(all_cart_df)
-
-
 
 st.sidebar.markdown("<br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
