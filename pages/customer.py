@@ -178,6 +178,9 @@ def display_branch_and_menu(branches, products, sizes):
                         with st.expander(f"🔧 Customize your {item['product_name']}"):
                             size = st.selectbox(f"Size for {item['product_name']}", options=[details['name'] for details in sizes.values()], key=f"size_{item['product_id']}")
                             add_on = st.multiselect(f"Add-Ons for {item['product_name']}", options=[details['name'] for details in add_ons.values()], key=f"addons_{item['product_id']}")
+                            # Set the variable to None if no selections are made
+                            add_on = ["None"] if not add_on else add_on
+
                             temperature_options = [details['name'] for details in temperatures.values()]
                             temperature = st.selectbox(f"Select Temperature", options=temperature_options, key=f"temperature_{item['product_id']}")
                             sugar_level = st.selectbox(f"Sugar Level", options=[details['name'] for details in sugar_levels.values()], key=f"sugar_{item['product_id']}")
@@ -275,7 +278,7 @@ def display_cart(email):
                 st.title(item['name'])
                 st.markdown(f"**Size:  {item['size']}**")
                 st.markdown(f"**Qty:  {item['quantity']}**")
-                st.markdown(f"**Addon:  {', '.join(item['addons']) if item['addons'] else 'None'}**")
+                st.markdown(f"**Addon:  {', '.join(item['addons'])}**")
                 st.markdown(f"**{item['temperature']} | {item['sugar_level']} | {item['milk_type']}**")
                 
 
@@ -331,11 +334,27 @@ def display_cart(email):
                 rm_discount = coupon_details.get("rm_discount", 0)
                 discount_percentage = coupon_details.get("discount_percentage", 0)
                 if rm_discount > 0:
-                    st.write(f"Discount: RM {rm_discount} off")
+                    # st.write(f"Discount: - RM {rm_discount}")
+                    st.markdown(
+                        f"""
+                        <div style="text-align: right; font-size: 24px; font-weight: bold;">
+                            <br><br> Discount: RM {rm_discount:.2f} off
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
                     coupon_discount = rm_discount
                 elif discount_percentage > 0:
                     discount_amount = (discount_percentage / 100) * total_price
-                    st.write(f"Discount: {discount_percentage}% off")
+                    # st.markdown(f"Discount: {discount_percentage}% off")
+                    st.markdown(
+                        f"""
+                        <div style="text-align: right; font-size: 24px; font-weight: bold;">
+                            <br><br> Discount: {discount_percentage}% off
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
                     coupon_discount = discount_amount
             else:
                 st.write("No discount available for this coupon.")
@@ -345,11 +364,11 @@ def display_cart(email):
         final_price = total_price - coupon_discount - loyalty_points_discount
         total_discount = coupon_discount + loyalty_points_discount
 
-        st.markdown("")
-        st.markdown("")
-        st.markdown("")
-        st.markdown("")
-        st.markdown("")
+        # st.markdown("")
+        # st.markdown("")
+        # st.markdown("")
+        # st.markdown("")
+        # st.markdown("")
         st.markdown(
             f"""
             <div style="text-align: right; font-size: 24px; font-weight: bold;">
@@ -456,6 +475,7 @@ def display_cart(email):
                             "loyalty_points_discount": loyalty_points_discount,
                             "total_price": total_price,
                             "final_price": final_price,
+                            "price_after_discount": item['discounted_price']/100
                         }, merge=True)
                     
                     cookies.set("invoice_id", invoice_id)

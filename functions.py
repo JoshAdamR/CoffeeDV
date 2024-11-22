@@ -297,7 +297,7 @@ def fetch_cart_data(invoice_id):
             "description": description,
             "addons": data.get("addons", 0),
             "quantity": data.get("quantity", 0),
-            "price": data.get("price", 0.0)
+            "price": data.get("price_after_discount", 0.0)
         })
 
     return cart_items
