@@ -8,6 +8,8 @@ from dbcoffee import customer_table, cart_table
 from datetime import datetime
 import pandas as pd
 
+# st.write(cookies.getAll())
+
 
 db = store
 invoice_id = cookies.get("invoice_id")

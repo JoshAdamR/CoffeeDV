@@ -7,6 +7,8 @@ from functions import add_entry, get_entries, is_valid_email, is_valid_password,
 
 make_sidebar()
 
+# st.write(cookies.getAll())
+
 clearCookies()
 
 st.markdown("""

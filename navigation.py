@@ -79,6 +79,10 @@ def clearCookies():
         cookies.remove("invoice_id")
     if cookies.get("status") is not None:
         cookies.remove("status")
+    if cookies.get("fullname") is not None:
+        cookies.remove("fullname")
+    if cookies.get("customer_id") is not None:
+        cookies.remove("customer_id")
 
     RemoveEmptyElementContainer()
 

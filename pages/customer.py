@@ -20,7 +20,7 @@ from io import BytesIO
 make_sidebar()
 #ssds
 
-#st.write(cookies.getAll())
+# st.write(cookies.getAll())
 
 # Set up Stripe
 stripe.api_key = "sk_test_CsnggH3iChIYjrFoue5y6M98"
