@@ -19,9 +19,6 @@ from io import BytesIO
 
 make_sidebar()
 
-
-st.write(cookies.getAll())
-
 #st.write(cookies.getAll())
 
 # Set up Stripe
@@ -230,10 +227,6 @@ def display_branch_and_menu(branches, products, sizes):
                                 # Success Confirmation
                                 st.success(f"✔️ Successfully added {item['product_name']} to the cart with Cart ID: {cart_id}!")
                                 st.info(f"Total Price: RM{total_price:.2f}")
-                                st.write(size_price)
-                                st.write(add_ons_prices)
-                                st.write(temperature_price)
-                                st.write(milk_type_price)
                                 st.session_state["selected_product_id"] = None
 
     # Additional UX improvements
@@ -490,7 +483,7 @@ def display_cart(email):
                             "loyalty_points_discount": loyalty_points_discount,
                             "total_price": total_price,
                             "final_price": final_price,
-                            "price_after_discount": item['discounted_price']/100
+                            "price_after_discount": round(item['discounted_price'] / 100, 2)
                         }, merge=True)
                     
                     cookies.set("invoice_id", invoice_id)
@@ -664,13 +657,16 @@ def display_orders(cart_items, branches):
         "sugar_level": "Sugar Level",
         "milk_type": "Milk Type",
         "status": "Status",
-        "price": "Price (RM)",
+        "price_after_discount": "Price (RM)",
         "quantity": "Quantity",
         "email": "Customer Email",
         "category": "Category",
         "addons": "Add-Ons"
     }
     df.rename(columns=column_mapping, inplace=True)
+
+    # Format 'Price (RM)' column to 2 decimal places for display
+    df['Price (RM)'] = df['Price (RM)'].apply(lambda x: f"{x:.2f}")
 
     # Columns to display
     display_columns = [
