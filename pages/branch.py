@@ -6,10 +6,29 @@ from functions import cookies
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from datetime import datetime
 
 from firebase_config import store 
 
 make_sidebar()
+
+st.write(cookies.getAll())
+
+def notification_low(branch_inventory):
+    low_stock_items = branch_inventory[branch_inventory['quantity_on_hand'] < branch_inventory['minimum_stock_level']]
+    if not low_stock_items.empty:
+        st.warning("Low stock for the following items:")
+        # Combine quantity_on_hand and metric into a single column
+        low_stock_items['Quantity'] = low_stock_items['quantity_on_hand'].astype(str) + " " + low_stock_items['metric']
+        low_stock_items['Inventory ID'] = low_stock_items['inventory_id']
+        low_stock_items['Item'] = low_stock_items['inventory_name']
+        low_stock_items['Minimum'] = low_stock_items['minimum_stock_level'].astype(str) + " " + low_stock_items['metric']
+        # Select only the required columns
+        columns_to_display = ['Inventory ID', 'Item', 'Quantity', 'Minimum']
+        low_stock_items_display = low_stock_items[columns_to_display]
+        low_stock_items_display.index = pd.RangeIndex(start=1, stop=len(low_stock_items_display) + 1, step=1)
+        # Write the modified DataFrame to the app
+        st.dataframe(low_stock_items_display, use_container_width = True)
 
 def inventory():
     st.title("Inventory Management")
@@ -87,13 +106,16 @@ def inventory():
     for branch in branch_query:
         branch_name = branch.to_dict().get("branch_name")
         break 
-
-    st.subheader(f"Welcome, {branch_name}!")
-
+    
     # Multi-Branch Support
     selected_branch_id = branch_name
     selected_branch = branches[branches['branch_name'] == selected_branch_id]
     selected_branch_id_value = selected_branch['branch_id'].values[0]
+
+    branch_inventory = inventory[inventory['branch_id'] == selected_branch_id_value]
+    notification_low(branch_inventory)
+
+    st.subheader(f"Welcome, {branch_name}!")
 
     # Display branch details
     st.subheader(f"Branch Details: {selected_branch['branch_name'].values[0]}")
@@ -102,9 +124,17 @@ def inventory():
 
     # Display inventory for the selected branch
     st.subheader(f"Inventory for {selected_branch_id}")
-    branch_inventory = inventory[inventory['branch_id'] == selected_branch_id_value]
 
-    st.dataframe(branch_inventory.drop(columns = ['inventory_id','branch_id','inv_branch_id']))
+    branch_inventory['Inventory ID'] = branch_inventory['inventory_id']
+    branch_inventory['Item'] = branch_inventory['inventory_name']
+    branch_inventory['Quantity'] = branch_inventory['quantity_on_hand'].astype(str) + " " + branch_inventory['metric']
+    branch_inventory['Minimum'] = branch_inventory['minimum_stock_level']
+    branch_inventory['Unit Price'] = branch_inventory['unit_price']
+    columns_to_display = ['Inventory ID', 'Item', 'Quantity', 'Minimum', 'Unit Price']
+    branch_inventory_display = branch_inventory[columns_to_display]
+    branch_inventory_display.index = pd.RangeIndex(start=1, stop=len(branch_inventory_display) + 1, step=1)
+    # Write the modified DataFrame to the app
+    st.dataframe(branch_inventory_display, use_container_width = True)
 
     # Update stock based on sales or restock
     action = st.radio("Select Action", ["Remove Items", "Restock Items"])
@@ -121,65 +151,7 @@ def inventory():
 
         st.rerun()
 
-    # Notifications for low stock (specific to the selected branch)
-    low_stock_items = branch_inventory[branch_inventory['quantity_on_hand'] < branch_inventory['minimum_stock_level']]
-    if not low_stock_items.empty:
-        st.warning("Low stock for the following items:")
-        st.write(low_stock_items)
-
     # Visualization Section
-    st.subheader("Inventory Data, Restock History, and Usage History")
-
-    # Filter usage and restock history by branch ID
-    branch_usage_history = usage_history[usage_history['branch_id'] == selected_branch_id_value]
-    branch_restock_history = restock_history[restock_history['branch_id'] == selected_branch_id_value]
-
-
-    # Create plots for inventory, restock, and usage history
-    fig, axs = plt.subplots(3, 1, figsize=(10, 15))
-
-    # Inventory plot (Quantity on hand per item) - Horizontal Bar Chart
-    sns.barplot(x='quantity_on_hand', y='inventory_name', data=branch_inventory, ax=axs[0])
-    axs[0].set_title('Inventory Data - Quantity on Hand')
-    axs[0].set_xlabel('Quantity')
-
-    # Add text annotations on bars for inventory data
-    for p in axs[0].patches:
-        axs[0].text(p.get_width() + 0.1, p.get_y() + p.get_height() / 2, f'{int(p.get_width())}', 
-                    ha='left', va='center')
-
-    # Restock history plot - Horizontal Bar Chart
-    if not branch_restock_history.empty:
-        restock_history_agg = branch_restock_history.groupby('inventory_id')['quantity'].sum().reset_index()
-        restock_history_agg = restock_history_agg.merge(inventory[['inventory_id', 'inventory_name']], on='inventory_id')
-        sns.barplot(x='quantity', y='inventory_name', data=restock_history_agg, ax=axs[1])
-        axs[1].set_title('Restock History')
-        axs[1].set_xlabel('Restocked Quantity')
-
-        # Add text annotations on bars for restock history
-        for p in axs[1].patches:
-            axs[1].text(p.get_width() + 0.1, p.get_y() + p.get_height() / 2, f'{int(p.get_width())}', 
-                        ha='left', va='center')
-    else:
-        axs[1].text(0.5, 0.5, 'No Restock History', ha='center', va='center')
-
-    # Usage history plot - Horizontal Bar Chart
-    if not branch_usage_history.empty:
-        usage_history_agg = branch_usage_history.groupby('inventory_id')['quantity'].sum().reset_index()
-        usage_history_agg = usage_history_agg.merge(inventory[['inventory_id', 'inventory_name']], on='inventory_id')
-        sns.barplot(x='quantity', y='inventory_name', data=usage_history_agg, ax=axs[2])
-        axs[2].set_title('Usage History')
-        axs[2].set_xlabel('Used Quantity')
-
-        # Add text annotations on bars for usage history
-        for p in axs[2].patches:
-            axs[2].text(p.get_width() + 0.1, p.get_y() + p.get_height() / 2, f'{int(p.get_width())}', 
-                        ha='left', va='center')
-    else:
-        axs[2].text(0.5, 0.5, 'No Usage History', ha='center', va='center')
-
-    plt.tight_layout()
-    st.pyplot(fig)
 
 def coupon():
     # Function to get all offers from the Firestore coupon collection
@@ -240,7 +212,19 @@ def coupon():
 
     # Display current special offers - dynamically updated
     st.subheader("Current Special Offers")
-    st.write(st.session_state.offers)  # Display the offers stored in session state
+    offer_df = pd.DataFrame()
+    offer_df['Type'] = st.session_state.offers['promotion_type']
+    offer_df['Code'] = st.session_state.offers['coupon_code']
+    offer_df['Start Date'] = st.session_state.offers['start_date']
+    offer_df['Discount'] = st.session_state.offers.apply(
+        lambda row: f"{row['discount_percentage']} %" if row['promotion_type'] == 'Percentage' else f"RM {row['rm_discount']}",
+        axis=1
+    )
+    offer_df['Expiry Date'] = st.session_state.offers['expiry_date']
+    columns_to_display = ['Type', 'Code', 'Start Date', 'Discount', 'Expiry Date']
+    offer_df_display = offer_df[columns_to_display]
+    offer_df_display.index = pd.RangeIndex(start=1, stop=len(offer_df_display) + 1, step=1)
+    st.dataframe(offer_df_display, use_container_width = True)  # Display the offers stored in session state
 
     # Admin options to add special offers
     with st.form(key='offer_form'):
@@ -270,12 +254,212 @@ def coupon():
 
     # Visualization Section
 
-page = st.sidebar.selectbox("Navigate to", ["Inventory Management", "Coupon Management"])
+def branch_order():
+    def get_ref(table):
+        ref = store.collection(table)
+        return ref, pd.DataFrame([doc.to_dict() for doc in ref.stream()])
+
+    branch_id = cookies.get("customer_id")
+    size_ref, size_table = get_ref('size')
+    inv_usage_ref, inv_usage = get_ref('inv_usage')
+    inventory_data_ref, inventory_data = get_ref('inventory')
+    inv_quantity_branch_ref, inv_quantity = get_ref('inv_quantity_branch')
+    inv_quantity_branch = inv_quantity[inv_quantity['branch_id'] == branch_id]
+    inventory_comb = pd.merge(inventory_data, inv_quantity_branch, on='inventory_id', how='inner')
+    branch_inventory = inventory_comb[inventory_comb['branch_id'] == branch_id]
+        
+    #['name', 'size', 'category', 'sugar_level', 'addons', 'milk_type', 'quantity', 'temperature']
+    def update_inventory(order_list):
+        # Deduct usage for each item in the order list
+        for order in order_list:
+            # Deduct quantity for the product 
+            def inventory_to_update(name):
+                usage_quantity_list = inv_usage[inv_usage['item_name'] == name]['usage']
+                for usage_quantity in usage_quantity_list:
+                    inventory_id = inv_usage[inv_usage['item_name'] == name]['inventory_id'].values[0]
+                    update_inventory_quantity(inv_quantity_branch_ref, inventory_id, inv_quantity_branch, usage_quantity, size)
+                
+            product_name = order.get('name')
+            size = order.get('size')  
+            if product_name:
+                inventory_to_update(product_name)
+
+            # Deduct quantity for add-ons
+            addons = order.get('addons', []) 
+            for addon_name in addons:
+                inventory_to_update(addon_name)
+
+            # Deduct quantity for milk option
+            milk_name = order.get('milk_type') 
+            if milk_name:
+                inventory_to_update(milk_name)
+
+            # Deduct quantity for temperature
+            temp_name = order.get('temperature') 
+            if temp_name:
+                inventory_to_update(temp_name)
+
+            # Deduct quantity for sugar level
+            sugar_name = order.get('sugar_level')
+            if sugar_name:
+                inventory_to_update(sugar_name)
+        
+    def update_inventory_quantity(inv_quantity_branch_ref, inventory_id, inv_quantity_branch, usage_quantity, size):
+        # Filter for the specific inventory_id
+        filtered_quantity = inv_quantity_branch[inv_quantity_branch['inventory_id'] == inventory_id]
+
+        # Check if the filtered DataFrame is empty
+        if filtered_quantity.empty:
+            st.error(f"Inventory ID {inventory_id} not found in branch inventory.")   
+            return  # Exit the function if no matching inventory is found
+
+        # Get the old quantity
+        old_quantity = filtered_quantity['quantity_on_hand'].values[0]
+
+        # Get the size multiplier
+        size_multiplier = size_table[size_table['size_name'] == size]['recipe_multiplier'].values
+        if len(size_multiplier) == 0:
+            st.error(f"Size '{size}' not found in size table.")
+            return  # Exit if size is invalid
+        size_multiplier = size_multiplier[0]
+
+        # Calculate the new quantity
+        used = usage_quantity * size_multiplier
+        new_quantity = max(old_quantity - used, 0)
+
+        # Update Firestore only if there's a change
+        if new_quantity != old_quantity:
+            inv_branch_id = filtered_quantity['inv_branch_id'].values[0]
+            inv_quantity_branch_ref.document(inv_branch_id).update({'quantity_on_hand': new_quantity})
+            
+            if used != 0:
+                store.collection('usage_history').add({
+                    'inventory_id': inventory_id,
+                    'quantity': used,
+                    'branch_id': branch_id
+                })
+
+    cart_ref = store.collection('cart')
+
+    # Function to load orders with status 'Preparing'
+    def load_orders():
+        query = cart_ref.where('status', '==', 'Preparing').where('branch_id', '==', branch_id)
+        orders = query.stream()
+        order_list = []
+        for order in orders:
+            order_data = order.to_dict()
+            order_data['id'] = order.id
+            order_list.append(order_data)
+        return order_list
+
+    # Function to complete orders by order_id
+    def complete_order_by_id(selected_order_id, orders):
+        # Filter the orders list for the selected order_id
+        filtered_orders = [order for order in orders if order['order_id'] == selected_order_id]
+
+        # Update the status of each matching order to 'Done'
+        for order in filtered_orders:
+            cart_ref.document(order['id']).update({'status': 'Done'})
+
+
+    # Streamlit layout
+    st.title("Branch Order Management")
+    
+    notification_low(branch_inventory)
+
+    # Refresh button
+    if st.button("Refresh"):
+        st.rerun()  # Refresh the app
+
+    # Load orders with status 'Preparing'
+    orders = load_orders()
+
+    if orders:
+        # Convert to DataFrame
+        order_df = pd.DataFrame(orders)
+
+        # Calculate total pending orders
+        total_pending_orders = order_df['order_id'].nunique()  # Unique order IDs
+        st.subheader(f"Total Pending Orders: {total_pending_orders}")
+
+        # Group orders by order_id and compute total_quantity, including ordered_time_date
+        grouped_df = (
+            order_df.groupby(['order_id', 'email', 'status', 'ordered_time_date'], as_index=False)
+            .agg(total_quantity=('quantity', 'sum'))
+        )
+
+        grouped_df['Inventory ID'] = grouped_df['order_id']
+        grouped_df['Email'] = grouped_df['email']
+        grouped_df['Total Item'] = grouped_df['total_quantity']
+        grouped_df['Order Date & Time'] = grouped_df['ordered_time_date']
+        grouped_df['Status'] = grouped_df['status']
+        columns_to_display = ['Inventory ID', 'Email', 'Total Item', 'Order Date & Time', 'Unit Status']
+        grouped_df_display = grouped_df[columns_to_display]
+        grouped_df_display.index = pd.RangeIndex(start=1, stop=len(grouped_df_display) + 1, step=1)
+
+        # Display grouped orders
+        st.subheader("Preparing Orders")
+        st.dataframe(grouped_df_display, use_container_width = True)
+        #st.write(order_df)
+
+        # Dropdown to select an order_id
+        order_ids = grouped_df['order_id'].tolist()
+        selected_order_id = st.selectbox("Select an Order ID to View Details", order_ids)
+
+        if selected_order_id:
+            # Filter and display items for the selected order_id
+            selected_items = order_df[order_df['order_id'] == selected_order_id]
+
+            # Select required columns
+            filtered_items = selected_items[
+                ['name', 'size', 'category', 'sugar_level', 'addons', 'milk_type', 'quantity', 'temperature']
+            ]
+
+            st.subheader(f"Items in Order ID: {selected_order_id}")
+        
+            for index, row in filtered_items.iterrows():
+                with st.expander(f"Item : {row['name']} (Quantity: {row['quantity']})"):
+                    st.markdown(f"**Size**: {row['size']}")
+                    st.markdown(f"**Category**: {row['category']}")
+                    st.markdown(f"**Sugar Level**: {row['sugar_level']}")
+                    
+                    # Handle Add-Ons as a numbered list
+                    if isinstance(row['addons'], list) and row['addons']:
+                        st.markdown("**Add-Ons:**")
+                        for idx, addon in enumerate(row['addons'], start=1):
+                            st.markdown(
+                                        f"""
+                                        <div style="margin-left: 20px;">
+                                            {idx}. {addon}
+                                        </div>
+                                        """,
+                                        unsafe_allow_html=True,
+                                    )
+                        st.markdown("")
+                        st.markdown("")
+                    else:
+                        st.markdown("**Add-Ons**: None")
+                    st.markdown(f"**Milk Type**: {row['milk_type']}")
+                    st.markdown(f"**Temperature**: {row['temperature']}")
+
+            # Button to complete the selected order
+            if st.button("Complete Order"):
+                complete_order_by_id(selected_order_id, orders)
+                st.success(f"Order ID {selected_order_id} has been marked as Done!")
+                update_inventory(orders)
+                st.rerun()  # Refresh the page after completing the order
+    else:
+        st.subheader("Total Pending Orders: 0")
+        st.write("No orders are currently in the 'Preparing' status.")
+
+page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management"])
 
 if page == "Inventory Management":
     inventory()
 elif page == "Coupon Management":
     coupon()
+elif page == "Order Management":
+    branch_order()
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
