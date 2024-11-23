@@ -12,7 +12,7 @@ if st.button("Show cookies"):
 
     st.write(x)
     
-    if x is None:
+    if x is not None:
         # Store a value in the browser cache
         st_javascript("""
         localStorage.setItem("my_key", x);
