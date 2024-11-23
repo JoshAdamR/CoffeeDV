@@ -379,8 +379,8 @@ def branch_order(branch_id):
         grouped_df['Total Item'] = grouped_df['total_quantity']
         grouped_df['Order Date & Time'] = grouped_df['ordered_time_date']
         grouped_df['Status'] = grouped_df['status']
-        columns_to_display = ['Inventory ID', 'Email', 'Total Item', 'Order Date & Time', 'Unit Status']
-        grouped_df_display = grouped_df
+        columns_to_display = ['Inventory ID', 'Email', 'Total Item', 'Order Date & Time', 'Status']
+        grouped_df_display = grouped_df[columns_to_display]
         grouped_df_display.index = pd.RangeIndex(start=1, stop=len(grouped_df_display) + 1, step=1)
 
         # Display grouped orders
