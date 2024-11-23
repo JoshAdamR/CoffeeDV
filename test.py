@@ -24,3 +24,19 @@ def get_item(variable_name):
     JSON.parse(localStorage.getItem("{variable_name}"));
     """)
     return result
+
+st.title("Browser Local Storage Example")
+
+# Save a value to localStorage
+if st.button("Save to Local Storage"):
+    set_item("username", "StreamlitUser")
+    st.success("Value saved to localStorage!")
+
+# Retrieve a value from localStorage
+if st.button("Get from Local Storage"):
+    username = get_item("username")
+    if username:
+        st.write(f"Retrieved value: {username}")
+    else:
+        st.warning("No value found in localStorage!")
+
