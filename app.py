@@ -6,7 +6,7 @@ from functions import add_entry, get_entries, is_valid_email, is_valid_password,
 
 
 make_sidebar()
-clearCookies()
+#clearCookies()
 
 page = st.sidebar.selectbox("Navigate to", ["About Us", "Login"])
 
