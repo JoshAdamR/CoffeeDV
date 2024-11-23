@@ -15,13 +15,10 @@ from io import BytesIO
 
 from dbcoffee import customer_table, cart_table
 
+from firebase_config import store  # Import Firestore client from config
+
 cookies = CookieController()
 cartItems = CookieController()
-
-# Initialize Firebase Admin SDK if not already initialized
-if not firebase_admin._apps:
-    cred = credentials.Certificate("firebase_credentials.json")
-    firebase_admin.initialize_app(cred)
 
 # Create Firestore client
 store = firestore.client()
