@@ -15,6 +15,7 @@ import webbrowser
 from PIL import Image
 import requests
 from io import BytesIO
+from time import sleep
 
 
 make_sidebar()
@@ -493,6 +494,7 @@ def display_cart(email):
                 else:
                     st.warning("Your cart is empty. Please add items to proceed.")
                 
+                sleep(10)
                 st.rerun()
 
         with clear_col[1]:
