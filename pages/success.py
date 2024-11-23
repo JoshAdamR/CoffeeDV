@@ -32,10 +32,6 @@ if customer_data:
     # Get the first customer entry (assuming one customer per email)
     customer_id = customer_data[0]['customer_id']
     customer_name = customer_data[0]['customer_name']
-else:
-    st.error("No customer details found for the provided email.")
-    customer_id = None  # Handle the case where no customer is found
-    customer_name = None
 
 cart_details_ref  = db.collection('cart').where("invoice_id", "==", invoice_id)
 
@@ -80,10 +76,6 @@ if invoice_id:
             file_name=f"{invoice_id}_{date}_{customer_name}.pdf",
             mime="application/pdf"
         )
-    else:
-        st.error("No data found for this Invoice ID.")
-else:
-    st.error("Please enter a valid Invoice ID.")
 
 # Display the message
 st.markdown("<br>", unsafe_allow_html=True)
