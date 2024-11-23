@@ -9,6 +9,9 @@ from streamlit_javascript import st_javascript
 x = st.text_input("stuff")
 
 if st.button("Show cookies"):
+
+    st.write(x)
+    
     if x is None:
         # Store a value in the browser cache
         st_javascript("""
