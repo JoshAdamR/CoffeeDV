@@ -456,8 +456,8 @@ def display_cart(email):
                         session = stripe.checkout.Session.create(
                             line_items=line_items,
                             mode="payment",
-                            success_url="http://localhost:8501/success",
-                            cancel_url="http://localhost:8501/customer",
+                            success_url="https://pybeancoffee.streamlit.app/success",
+                            cancel_url="https://pybeancoffee.streamlit.app/customer",
                             metadata=metadata, 
                             payment_method_types=[
                                 "card",
