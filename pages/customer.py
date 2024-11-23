@@ -19,9 +19,7 @@ from time import sleep
 
 
 make_sidebar()
-#ssds
 
-# st.write(cookies.getAll())
 stripe_secret = st.secrets.stripe 
 
 # Set up Stripe
@@ -146,13 +144,13 @@ def get_next_cart_id():
 def display_branch_and_menu(branches, products, sizes):
     # Sidebar Branch Selection
     branch_names = list(branches.values())
-    selected_branch_name = st.sidebar.selectbox("📍 Select Branch", branch_names)
+    selected_branch_name = st.selectbox("📍 Select Branch", branch_names)
 
     # Get the corresponding branch ID for the selected branch name
     selected_branch_id = next(branch_id for branch_id, branch_name in branches.items() if branch_name == selected_branch_name)
 
     # Category Selection with Icons
-    category_filter = st.sidebar.selectbox("🍽️ Select Category", ["All Drinks", "Coffee", "Tea"], index=0)
+    category_filter = st.selectbox("🍽️ Select Category", ["All Drinks", "Coffee", "Tea"], index=0)
 
     # Filter Products by Category and Branch
     filtered_menu = [item for item in products if category_filter == "All Drinks" or item.get("product_category") == category_filter]
@@ -457,8 +455,8 @@ def display_cart(email):
                         session = stripe.checkout.Session.create(
                             line_items=line_items,
                             mode="payment",
-                            success_url="https://pybeancoffee.streamlit.app/success",
-                            cancel_url="https://pybeancoffee.streamlit.app/customer",
+                            success_url="http://localhost:8501/success",
+                            cancel_url="http://localhost:8501/customer",
                             metadata=metadata, 
                             payment_method_types=[
                                 "card",
@@ -494,7 +492,7 @@ def display_cart(email):
                 else:
                     st.warning("Your cart is empty. Please add items to proceed.")
                 
-                sleep(10)
+                sleep(30)
                 st.rerun()
 
         with clear_col[1]:

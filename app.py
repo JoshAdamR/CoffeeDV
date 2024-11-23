@@ -3,17 +3,13 @@ from time import sleep
 import pandas as pd
 from navigation import make_sidebar, clearCookies, about_page
 from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies
-
+from streamlit_javascript import st_javascript
 
 make_sidebar()
-clearCookies()
 
-page = st.sidebar.selectbox("Navigate to", ["About Us", "Login"])
+page = st.sidebar.selectbox("Navigate to", ["Login", "About Us"])
 
-if page == "About Us":
-    about_page()
-
-elif page == "Login":
+if page == "Login":
     st.markdown("""
     <div style="text-align: center; font-size: 36px; font-weight: bold; line-height: 1.5;">
         ✨ Welcome to Login Page ✨
@@ -71,12 +67,5 @@ elif page == "Login":
         sleep(0.5)
         st.switch_page("pages/signup.py")
 
-
-# st.write(cookies.getAll())
-
-# st.write(cookies.get("birthday"))
-
-
-
-
-
+elif page == "About Us":
+    about_page()

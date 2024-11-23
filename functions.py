@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
 from streamlit_cookies_controller import CookieController, RemoveEmptyElementContainer
-
+from streamlit_javascript import st_javascript
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -18,7 +18,6 @@ from dbcoffee import customer_table, cart_table
 from firebase_config import store  # Import Firestore client from config
 
 cookies = CookieController()
-cartItems = CookieController()
 
 # Create Firestore client
 store = firestore.client()

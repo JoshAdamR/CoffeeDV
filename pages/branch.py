@@ -12,7 +12,8 @@ from firebase_config import store
 
 make_sidebar()
 
-# st.write(cookies.getAll())
+st.write(cookies.getAll())
+branch_id = cookies.get("customer_id")
 
 def notification_low(branch_inventory):
     low_stock_items = branch_inventory[branch_inventory['quantity_on_hand'] < branch_inventory['minimum_stock_level']]
@@ -30,7 +31,7 @@ def notification_low(branch_inventory):
         # Write the modified DataFrame to the app
         st.dataframe(low_stock_items_display, use_container_width = True)
 
-def inventory():
+def inventory(branch_id):
     st.title("Inventory Management")
 
     def get_ref(table):
@@ -95,35 +96,21 @@ def inventory():
 
     branches, inventory, usage_history, restock_history = readdb()
     
-    
-    # Query Firestore for a document where the 'email' field matches the value in cookies
-    branch_ref = store.collection('branch').where("email", "==", cookies.get("email"))
-
-    # Get the query results
-    branch_query = branch_ref.stream()
-
-    # If there are any matching documents, get the 'branch_name' from the first one
-    for branch in branch_query:
-        branch_name = branch.to_dict().get("branch_name")
-        break 
-    
     # Multi-Branch Support
-    selected_branch_id = branch_name
-    selected_branch = branches[branches['branch_name'] == selected_branch_id]
-    selected_branch_id_value = selected_branch['branch_id'].values[0]
-
-    branch_inventory = inventory[inventory['branch_id'] == selected_branch_id_value]
+    selected_branch = branches[branches['branch_id'] == branch_id]
+    branch_name = selected_branch['branch_name'].values[0]
+    branch_inventory = inventory[inventory['branch_id'] == branch_id]
     notification_low(branch_inventory)
 
     st.subheader(f"Welcome, {branch_name}!")
 
     # Display branch details
-    st.subheader(f"Branch Details: {selected_branch['branch_name'].values[0]}")
+    st.subheader(f"Branch Details: {branch_name}")
     st.write(f"Location: {selected_branch['location'].values[0]}")
     st.write(f"Operating Cost: ${selected_branch['operating_cost'].values[0]}")
 
     # Display inventory for the selected branch
-    st.subheader(f"Inventory for {selected_branch_id}")
+    st.subheader(f"Inventory for {branch_name}")
 
     branch_inventory['Inventory ID'] = branch_inventory['inventory_id']
     branch_inventory['Item'] = branch_inventory['inventory_name']
@@ -144,9 +131,9 @@ def inventory():
     if st.button("Update Stock"):
         for item in selected_items:
             if action == "Remove Items":
-                update_stock(item, quantity, "remove", selected_branch_id_value)  # Reduce quantity by specified amount for the selected branch
+                update_stock(item, quantity, "remove", branch_id)  # Reduce quantity by specified amount for the selected branch
             elif action == "Restock Items":
-                update_stock(item, quantity, "restock", selected_branch_id_value)  # Increase quantity by specified amount for the selected branch
+                update_stock(item, quantity, "restock", branch_id)  # Increase quantity by specified amount for the selected branch
         st.success(f"{action} updated!")
 
         st.rerun()
@@ -254,12 +241,11 @@ def coupon():
 
     # Visualization Section
 
-def branch_order():
+def branch_order(branch_id):
     def get_ref(table):
         ref = store.collection(table)
         return ref, pd.DataFrame([doc.to_dict() for doc in ref.stream()])
-
-    branch_id = cookies.get("customer_id")
+        
     size_ref, size_table = get_ref('size')
     inv_usage_ref, inv_usage = get_ref('inv_usage')
     inventory_data_ref, inventory_data = get_ref('inventory')
@@ -393,7 +379,7 @@ def branch_order():
         grouped_df['Total Item'] = grouped_df['total_quantity']
         grouped_df['Order Date & Time'] = grouped_df['ordered_time_date']
         grouped_df['Status'] = grouped_df['status']
-        columns_to_display = ['Inventory ID', 'Email', 'Total Item', 'Order Date & Time', 'Unit Status']
+        columns_to_display = ['Inventory ID', 'Email', 'Total Item', 'Order Date & Time', 'Status']
         grouped_df_display = grouped_df[columns_to_display]
         grouped_df_display.index = pd.RangeIndex(start=1, stop=len(grouped_df_display) + 1, step=1)
 
@@ -455,11 +441,11 @@ def branch_order():
 page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management"])
 
 if page == "Inventory Management":
-    inventory()
+    inventory(branch_id)
 elif page == "Coupon Management":
     coupon()
 elif page == "Order Management":
-    branch_order()
+    branch_order(branch_id)
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):

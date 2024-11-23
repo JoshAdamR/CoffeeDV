@@ -178,5 +178,3 @@ def about_page():
       <li>📈 Seamlessly track inventory and sales data in real time.</li>
     </ul>
     """, unsafe_allow_html=True)
-
-
