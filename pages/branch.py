@@ -98,7 +98,7 @@ def inventory(branch_id):
     
     # Multi-Branch Support
     selected_branch = branches[branches['branch_id'] == branch_id]
-
+    branch_name = selected_branch['branch_name'].values[0]
     branch_inventory = inventory[inventory['branch_id'] == branch_id]
     notification_low(branch_inventory)
 
