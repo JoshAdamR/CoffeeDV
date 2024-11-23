@@ -15,15 +15,17 @@ import webbrowser
 from PIL import Image
 import requests
 from io import BytesIO
+from time import sleep
 
 
 make_sidebar()
 #ssds
 
 # st.write(cookies.getAll())
+stripe_secret = st.secrets.stripe 
 
 # Set up Stripe
-stripe.api_key = "sk_test_CsnggH3iChIYjrFoue5y6M98"
+stripe.api_key = stripe_secret['stripe_id']
 
 # Initialize Firestore
 db = store
@@ -455,8 +457,8 @@ def display_cart(email):
                         session = stripe.checkout.Session.create(
                             line_items=line_items,
                             mode="payment",
-                            success_url="http://localhost:8501/success",
-                            cancel_url="http://localhost:8501/customer",
+                            success_url="https://pybeancoffee.streamlit.app/success",
+                            cancel_url="https://pybeancoffee.streamlit.app/customer",
                             metadata=metadata, 
                             payment_method_types=[
                                 "card",
@@ -465,9 +467,9 @@ def display_cart(email):
                         )
 
                         # Redirect to Stripe checkout
-                        # st.success("Checkout session created successfully!")
-                        # st.markdown(f"[Proceed to Payment]({session.url})")
-                        webbrowser.open(session.url)
+                        st.success("Checkout session created successfully!")
+                        st.markdown(f"[Proceed to Payment]({session.url})")
+                        # webbrowser.open(session.url)
 
                     except Exception as e:
                         st.error(f"An error occurred: {str(e)}")
@@ -492,6 +494,7 @@ def display_cart(email):
                 else:
                     st.warning("Your cart is empty. Please add items to proceed.")
                 
+                sleep(10)
                 st.rerun()
 
         with clear_col[1]:
