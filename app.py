@@ -2,31 +2,8 @@ import streamlit as st
 from time import sleep
 import pandas as pd
 from navigation import make_sidebar, clearCookies, about_page
-from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies
+from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies, set_cookie_item, get_cookie_item, delete_cookie_item, get_all_cookies
 from streamlit_javascript import st_javascript
-
-
-x = st.text_input("stuff")
-
-if st.button("Show cookies"):
-
-    st.write(x)
-    
-    if x is not None:
-        # Store a value in the browser cache
-        st_javascript("""
-        localStorage.setItem("my_key", x);
-        """)
-    
-        # Retrieve the value from the browser cache
-        result = st_javascript("""
-        localStorage.getItem("my_key");
-        """)
-    
-        st.write(f"Retrieved value from localStorage: {result}")
-    
-    else: 
-        st.write(f"there is no value in x")
 
 make_sidebar()
 
@@ -52,7 +29,7 @@ if page == "Login":
                 getCookies(email)
                 st.success(f"Welcome back, {user['username']}!")
                 # role = user.get("role", "customer")
-                while cookies.get("role") == 'admin' and cookies.get("status") == 'true':
+                while get_cookie_item("role") == 'admin' and get_cookie_item("status") == 'true':
                     # st.write("You are logged in as an **Admin**.")
                     # st.session_state.logged_in_admin = True
                     st.success("Logged in successfully!")
@@ -61,7 +38,7 @@ if page == "Login":
                     st.balloons()
                     
                     
-                while cookies.get("role") == 'customer' and cookies.get("status") == 'true':
+                while get_cookie_item("role") == 'customer' and get_cookie_item("status") == 'true':
                     # st.write("You are logged in as a **Customer**.")
                     # st.session_state.logged_in_cust = True
                     st.success("Logged in successfully!")
@@ -69,7 +46,7 @@ if page == "Login":
                     st.switch_page("pages/customer.py")
                     st.balloons()
 
-                while cookies.get("role") == 'branch' and cookies.get("status") == 'true':
+                while get_cookie_item("role") == 'branch' and get_cookie_item("status") == 'true':
                     # st.write("You are logged in as a **Customer**.")
                     # st.session_state.logged_in_cust = True
                     st.success("Logged in successfully!")
@@ -93,7 +70,7 @@ if page == "Login":
 elif page == "About Us":
     about_page()
 
-st.write(cookies.getAll())
+st.write(get_all_cookies())
 
 # st.write(cookies.get("birthday"))
 
