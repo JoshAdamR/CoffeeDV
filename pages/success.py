@@ -3,17 +3,16 @@ from time import sleep
 import streamlit.components.v1 as components
 from navigation import make_sidebar
 from firebase_config import store  # Import Firestore client from config
-from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies, create_pdf, fetch_cart_data
+from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies, create_pdf, fetch_cart_data, set_cookie_item, get_cookie_item, delete_cookie_item, get_all_cookies
 from dbcoffee import customer_table, cart_table
 from datetime import datetime
 import pandas as pd
 
-# st.write(cookies.getAll())
-
+# st.write(get_cookie_itemAll())
 
 db = store
-invoice_id = cookies.get("invoice_id")
-email = cookies.get("email")
+invoice_id = get_cookie_item("invoice_id")
+email = get_cookie_item("email")
 date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # Query Firestore to get customer details based on email
@@ -91,4 +90,4 @@ st.markdown("""
 You can now safely close this page.
 """)
 
-# st.write(cookies.getAll())
+# st.write(get_cookie_itemAll())
