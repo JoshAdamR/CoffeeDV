@@ -21,9 +21,10 @@ make_sidebar()
 #ssds
 
 # st.write(cookies.getAll())
+stripe_secret = st.secrets.stripe 
 
 # Set up Stripe
-stripe.api_key = "sk_test_CsnggH3iChIYjrFoue5y6M98"
+stripe.api_key = stripe_secret['stripe_id']
 
 # Initialize Firestore
 db = store
