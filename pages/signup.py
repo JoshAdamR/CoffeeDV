@@ -3,7 +3,7 @@ import pandas as pd
 from time import sleep
 from datetime import datetime
 from navigation import make_sidebar, logout
-from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, is_valid_name, set_cookie_item, get_cookie_item, delete_cookie_item, get_all_cookies
+from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, is_valid_name
 
 make_sidebar()
 
@@ -39,7 +39,6 @@ if st.button("Sign Up"):
             st.switch_page("app.py")
     else:
         st.error("Please fill in all fields.")
-
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Back"):
