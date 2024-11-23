@@ -8,12 +8,9 @@ from functions import add_entry, get_entries, is_valid_email, is_valid_password,
 make_sidebar()
 clearCookies()
 
-page = st.sidebar.selectbox("Navigate to", ["About Us", "Login"])
+page = st.sidebar.selectbox("Navigate to", ["Login", "Login"])
 
-if page == "About Us":
-    about_page()
-
-elif page == "Login":
+if page == "Login":
     st.markdown("""
     <div style="text-align: center; font-size: 36px; font-weight: bold; line-height: 1.5;">
         ✨ Welcome to Login Page ✨
@@ -71,7 +68,8 @@ elif page == "Login":
         sleep(0.5)
         st.switch_page("pages/signup.py")
 
-
+elif page == "About Us":
+    about_page()
 # st.write(cookies.getAll())
 
 # st.write(cookies.get("birthday"))
