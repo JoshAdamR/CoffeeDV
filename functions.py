@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
 from streamlit_cookies_controller import CookieController, RemoveEmptyElementContainer
-
+from streamlit_javascript import st_javascript
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -18,10 +18,62 @@ from dbcoffee import customer_table, cart_table
 from firebase_config import store  # Import Firestore client from config
 
 cookies = CookieController()
-cartItems = CookieController()
 
 # Create Firestore client
 store = firestore.client()
+
+def set_cookie_item(variable_name, value):
+    """
+    Set an item in browser localStorage.
+    
+    :param variable_name: The key/name of the variable to store.
+    :param value: The value to store.
+    """
+    st_javascript(f"""
+    localStorage.setItem("{variable_name}", JSON.stringify("{value}"));
+    console.log("Saved to localStorage: {variable_name} = {value}");
+    """)
+
+def get_cookie_item(variable_name):
+    """
+    Get an item from browser localStorage.
+    
+    :param variable_name: The key/name of the variable to retrieve.
+    :return: The value retrieved from localStorage.
+    """
+    result = st_javascript(f"""
+    JSON.parse(localStorage.getItem("{variable_name}"));
+    """)
+    return result
+
+def delete_cookie_item(cookie_name):
+    """
+    Delete a cookie from the browser.
+    
+    :param cookie_name: The name of the cookie to delete.
+    """
+    st_javascript(f"""
+    document.cookie = "{cookie_name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    console.log("Cookie deleted: {cookie_name}");
+    """)
+
+def get_all_cookies():
+    """
+    Retrieve all cookies stored in the browser.
+    
+    :return: A dictionary of cookie names and values.
+    """
+    cookies = st_javascript("""
+    const cookies = document.cookie
+        .split("; ")
+        .reduce((acc, cookie) => {
+            const [key, value] = cookie.split("=");
+            acc[key] = value;
+            return acc;
+        }, {});
+    cookies;
+    """)
+    return cookies
 
 def generate_id(prefix, collection_name, id_field):
     """
@@ -152,16 +204,16 @@ def getCookies(email_input):
 
     if user_data:
         # Store user data in cookies
-        cookies.set("status", 'true')
-        cookies.set("email", user_data.get("email"))
-        cookies.set("username", user_data.get("username"))
-        cookies.set("birthday", cust_data.get("birthday"))
-        cookies.set("gender", cust_data.get("gender"))
-        cookies.set("age", cust_data.get("age"))
-        cookies.set("role", user_data.get("role"))
-        cookies.set("password", user_data.get("password"))
-        cookies.set("fullname", user_data.get("fullname"))
-        cookies.set("customer_id", user_data.get("customer_id"))
+        set_cookie_item("status", 'true')
+        set_cookie_item("email", user_data.get("email"))
+        set_cookie_item("username", user_data.get("username"))
+        set_cookie_item("birthday", cust_data.get("birthday"))
+        set_cookie_item("gender", cust_data.get("gender"))
+        set_cookie_item("age", cust_data.get("age"))
+        set_cookie_item("role", user_data.get("role"))
+        set_cookie_item("password", user_data.get("password"))
+        set_cookie_item("fullname", user_data.get("fullname"))
+        set_cookie_item("customer_id", user_data.get("customer_id"))
 
         RemoveEmptyElementContainer()
         
