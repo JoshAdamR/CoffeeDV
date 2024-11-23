@@ -40,15 +40,6 @@ if st.button("Sign Up"):
     else:
         st.error("Please fill in all fields.")
 
-# Display all entries from Firestore in a DataFrame, including roles
-st.subheader("Current Users in the Database")
-entries = get_entries("useracc")
-if entries:
-    df = pd.DataFrame(entries)
-    st.dataframe(df)
-else:
-    st.write("No entries found.")
-
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Back"):
     logout()
