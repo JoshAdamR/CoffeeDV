@@ -3,16 +3,16 @@ from time import sleep
 import streamlit.components.v1 as components
 from navigation import make_sidebar
 from firebase_config import store  # Import Firestore client from config
-from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies, create_pdf, fetch_cart_data, set_cookie_item, get_cookie_item, delete_cookie_item, get_all_cookies
+from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies, create_pdf, fetch_cart_data
 from dbcoffee import customer_table, cart_table
 from datetime import datetime
 import pandas as pd
 
-# st.write(get_cookie_itemAll())
+# st.write(cookies.setAll())
 
 db = store
-invoice_id = get_cookie_item("invoice_id")
-email = get_cookie_item("email")
+invoice_id = cookies.get("invoice_id")
+email = cookies.get("email")
 date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # Query Firestore to get customer details based on email
@@ -79,10 +79,10 @@ if invoice_id:
             file_name=f"{invoice_id}_{date}_{customer_name}.pdf",
             mime="application/pdf"
         )
-#    else:
-#        st.error("No data found for this Invoice ID.")
-#else:
-#    st.error("Please enter a valid Invoice ID.")
+    else:
+        st.error("No data found for this Invoice ID.")
+else:
+    st.error("Please enter a valid Invoice ID.")
 
 # Display the message
 st.markdown("<br>", unsafe_allow_html=True)
@@ -90,4 +90,4 @@ st.markdown("""
 You can now safely close this page.
 """)
 
-# st.write(get_cookie_itemAll())
+# st.write(cookies.setAll())
