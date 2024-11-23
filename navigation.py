@@ -3,7 +3,7 @@ from time import sleep
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 from streamlit.source_util import get_pages
 import pandas as pd
-from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies, set_cookie_item, get_cookie_item, delete_cookie_item, get_all_cookies
+from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies
 from streamlit_cookies_controller import CookieController, RemoveEmptyElementContainer
 
 
@@ -60,30 +60,30 @@ def make_sidebar():
         #     st.switch_page("app.py")
 
 def clearCookies():
-    if get_cookie_item("email") is not None:
-        delete_cookie_item("email")
-    if get_cookie_item("email") is not None:
-        delete_cookie_item("email")
-    if get_cookie_item("username") is not None:
-        delete_cookie_item("username")
-    if get_cookie_item("birthday") is not None:
-        delete_cookie_item("birthday")
-    if get_cookie_item("gender") is not None:
-        delete_cookie_item("gender")
-    if get_cookie_item("age") is not None:
-        delete_cookie_item("age")
-    if get_cookie_item("role") is not None:
-        delete_cookie_item("role")
-    if get_cookie_item("password") is not None:
-        delete_cookie_item("password")
-    if get_cookie_item("invoice_id") is not None:
-        delete_cookie_item("invoice_id")
-    if get_cookie_item("status") is not None:
-        delete_cookie_item("status")
-    if get_cookie_item("fullname") is not None:
-        delete_cookie_item("fullname")
-    if get_cookie_item("customer_id") is not None:
-        delete_cookie_item("customer_id")
+    if cookies.get("email") is not None:
+        cookies.remove("email")
+    if cookies.get("email") is not None:
+        cookies.remove("email")
+    if cookies.get("username") is not None:
+        cookies.remove("username")
+    if cookies.get("birthday") is not None:
+        cookies.remove("birthday")
+    if cookies.get("gender") is not None:
+        cookies.remove("gender")
+    if cookies.get("age") is not None:
+        cookies.remove("age")
+    if cookies.get("role") is not None:
+        cookies.remove("role")
+    if cookies.get("password") is not None:
+        cookies.remove("password")
+    if cookies.get("invoice_id") is not None:
+        cookies.remove("invoice_id")
+    if cookies.get("status") is not None:
+        cookies.remove("status")
+    if cookies.get("fullname") is not None:
+        cookies.remove("fullname")
+    if cookies.get("customer_id") is not None:
+        cookies.remove("customer_id")
 
     RemoveEmptyElementContainer()
 
@@ -94,7 +94,7 @@ def logout():
     #st.info("Logged out successfully!")
     sleep(0.5)
 
-    st.write(get_all_cookies())
+    st.write(cookies.getAll())
     clearCookies()
     
     st.switch_page("app.py")
@@ -178,5 +178,3 @@ def about_page():
       <li>📈 Seamlessly track inventory and sales data in real time.</li>
     </ul>
     """, unsafe_allow_html=True)
-
-
