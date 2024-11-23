@@ -95,7 +95,7 @@ def logout():
     sleep(0.5)
 
     st.write(cookies.getAll())
-    #clearCookies()
+    clearCookies()
     
     st.switch_page("app.py")
 
