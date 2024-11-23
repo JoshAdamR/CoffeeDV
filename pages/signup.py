@@ -3,7 +3,7 @@ import pandas as pd
 from time import sleep
 from datetime import datetime
 from navigation import make_sidebar, logout
-from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, is_valid_name
+from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, is_valid_name, set_cookie_item, get_cookie_item, delete_cookie_item, get_all_cookies
 
 make_sidebar()
 
