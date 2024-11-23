@@ -3,7 +3,7 @@ from firebase_admin import credentials, firestore
 import streamlit as st
 
 # Retrieve Firebase credentials from Streamlit secrets
-firebase_secret = st.secrets.firebase
+firebase_secret = st.secrets.firebase 
 
 # Initialize Firebase Admin SDK
 if not firebase_admin._apps:

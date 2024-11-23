@@ -1,1 +1,3 @@
-customer_id,customer_name,birthdate,gender,loyalty_points,join_date
+email,customer_id,customer_name,birthdate,gender,loyalty_points,join_date
+admin@gmail.com,ADM000,admin,21/11/2024,Male,0,21/11/2024
+brancha@gmail.com,BRANCH001,brancha,22/11/2024,Male,0,21/11/2024

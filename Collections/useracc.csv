@@ -1,1 +1,3 @@
-email,username,password_hash,customer_id,role
+email,username,password,customer_id,role
+admin@gmail.com,admin,admin,ADM000,admin
+brancha@gmail.com,brancha,brancha,BRANCH001,branch

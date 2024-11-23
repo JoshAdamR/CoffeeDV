@@ -19,6 +19,8 @@ def readdb():
     useracc = get_ref('useracc')
     temperature = get_ref('temperature')
     sugar_level = get_ref('sugar_level')
-    return branch, product, size, milk_option, addon, coupon, useracc, temperature, sugar_level
+    customer = get_ref('customer')
+    cart = get_ref('cart')
+    return branch, product, size, milk_option, addon, coupon, useracc, temperature, sugar_level, customer, cart
 
-branch_table, product_table, size_table, milk_option_table, addon_table, coupon_table, user_table, temperature_table, sugar_level_table = readdb()
+branch_table, product_table, size_table, milk_option_table, addon_table, coupon_table, user_table, temperature_table, sugar_level_table, customer_table, cart_table = readdb()

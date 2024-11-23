@@ -11,10 +11,16 @@ from streamlit_extras.stylable_container import stylable_container
 import stripe
 import random
 from dbcoffee import branch_table, product_table, size_table, milk_option_table, addon_table, coupon_table, user_table, temperature_table, sugar_level_table
+import webbrowser
+from PIL import Image
+import requests
+from io import BytesIO
+
 
 make_sidebar()
+#ssds
 
-#st.write(cookies.getAll())
+# st.write(cookies.getAll())
 
 # Set up Stripe
 stripe.api_key = "sk_test_CsnggH3iChIYjrFoue5y6M98"
@@ -22,17 +28,29 @@ stripe.api_key = "sk_test_CsnggH3iChIYjrFoue5y6M98"
 # Initialize Firestore
 db = store
 
+import base64
+
+def resized_image_to_base64(image):
+    buffered = BytesIO()
+    image.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    return img_str
+
+
 # Fetch data from Firestore
 def fetch_data_from_firestore():
 
     # Processing the tables
     branches = {row['branch_id']: row['branch_name'] for _, row in branch_table.iterrows()}
     products = product_table.to_dict(orient='records')
-    sizes = {row['size_id']: row['price'] for _, row in size_table.iterrows()}
-    milk = {row['milk_id']: row['price'] for _, row in milk_option_table.iterrows()}
-    addons = {row['add_on_id']: row['add_on_price'] for _, row in addon_table.iterrows()}
+    sizes = {
+        row['size_id']: {'name': row['size_name'], 'price': row['price']}
+        for _, row in size_table.iterrows()
+    }
+    milks = {row['type_of_milk']: row['price'] for _, row in milk_option_table.iterrows()}
+    addons = {row['add_on_name']: row['add_on_price'] for _, row in addon_table.iterrows()}
 
-    return branches, products, sizes, milk, addons
+    return branches, products, sizes, milks, addons
 
 def get_product_details():
     
@@ -150,7 +168,7 @@ def display_branch_and_menu(branches, products, sizes):
             for col, item in zip(cols, row):
                 with col:
                     # Product Image and Name
-                    st.image(item.get("image_url", ""), use_container_width=True)
+                    st.image(item.get("image_url", ""), use_column_width  =True)
                     st.markdown(f"### {item.get('product_name', 'Unknown Product')}")
                     st.write(f"💲 RM{item.get('base_price', 0):.2f}")
                     
@@ -162,24 +180,30 @@ def display_branch_and_menu(branches, products, sizes):
                     # Expander for Customization Options
                     if "selected_product_id" in st.session_state and st.session_state["selected_product_id"] == item["product_id"]:
                         with st.expander(f"🔧 Customize your {item['product_name']}"):
-                            size = st.selectbox(f"Size for {item['product_name']}", options=[details['name'] for details in sizes.values()], key=f"size_{item['product_id']}")
-                            add_on = st.multiselect(f"Add-Ons for {item['product_name']}", options=[details['name'] for details in add_ons.values()], key=f"addons_{item['product_id']}")
-                            temperature_options = [details['name'] for details in temperatures.values()]
-                            temperature = st.selectbox(f"Select Temperature", options=temperature_options, key=f"temperature_{item['product_id']}")
-                            sugar_level = st.selectbox(f"Sugar Level", options=[details['name'] for details in sugar_levels.values()], key=f"sugar_{item['product_id']}")
-                            milk_type = st.selectbox(f"Milk Type", options=[details['name'] for details in milk_types.values()], key=f"milk_{item['product_id']}")
-                            quantity = st.number_input(f"Quantity", value=1, placeholder="Quantity")
 
+                            size_options = [details['name'] for details in sizes.values()]
+                            add_ons_options = [details['name'] for details in add_ons.values()]
+                            temperature_options = [details['name'] for details in temperatures.values()]
+                            sugar_options = [details['name'] for details in sugar_levels.values()]
+                            milk_options = [details['name'] for details in milk_types.values()]
+
+                            size = st.selectbox(f"Size for {item['product_name']}", options=size_options, key=f"size_{item['product_id']}")
+                            add_on = ["None"] if not (add_on := st.multiselect(f"Add-Ons for {item['product_name']}", options=add_ons_options, key=f"addons_{item['product_id']}")) else add_on
+                            temperature = st.selectbox(f"Select Temperature", options=temperature_options, key=f"temperature_{item['product_id']}")
+                            sugar_level = st.selectbox(f"Sugar Level", options=sugar_options, key=f"sugar_{item['product_id']}")
+                            milk_type = st.selectbox(f"Milk Type", options=milk_options, key=f"milk_{item['product_id']}")
 
                             # Add to Cart Button with Price Breakdown
                             if st.button(f"🛒 Add to Cart", key=f"add_to_cart_{item['product_id']}"):
-                                size_price = sizes.get(size, {}).get("price", 0)
-                                add_ons_prices = {addon: add_ons.get(addon, {}).get("price", 0) for addon in add_on}
-                                temperature_price = next((item['price'] for key, item in temperatures.items() if item['name'] == temperature), 0)
-                                milk_type_price = milk_types.get(milk_type, {}).get("price", 0)
+                                # Fetch corresponding prices using proper lookup
+                                size_price = next((details["price"] for key, details in sizes.items() if details["name"] == size), 0)
+                                add_ons_prices = {addon: next((price for name, price in addons.items() if name == addon), 0) for addon in add_on}
+                                temperature_price = next((item["price"] for key, item in temperatures.items() if item["name"] == temperature), 0)
+                                milk_type_price = next((price for name, price in milks.items() if name == milk_type), 0)
 
-                                total_price = item['base_price'] + size_price + sum(add_ons_prices.values()) + temperature_price + milk_type_price
-                                
+                                # Calculate total price
+                                total_price = item["base_price"] + size_price + sum(add_ons_prices.values()) + temperature_price + milk_type_price
+
                                 # Prepare Cart Item
                                 cart_id = get_next_cart_id()
                                 cart_item = {
@@ -195,7 +219,7 @@ def display_branch_and_menu(branches, products, sizes):
                                     "price": total_price,
                                     "status": "In Cart",
                                     "email": cookies.get("email"),
-                                    "quantity": quantity
+                                    "quantity": 1
                                 }
 
                                 # Save to Firebase
@@ -203,7 +227,7 @@ def display_branch_and_menu(branches, products, sizes):
                                 
                                 # Success Confirmation
                                 st.success(f"✔️ Successfully added {item['product_name']} to the cart with Cart ID: {cart_id}!")
-                                st.info(f"Total Price: RM{total_price*quantity:.2f}")
+                                st.info(f"Total Price: RM{total_price:.2f}")
                                 st.session_state["selected_product_id"] = None
 
     # Additional UX improvements
@@ -226,8 +250,8 @@ def display_cart(email):
         st.markdown("### Cart Summary")
 
         # Convert cart items to a DataFrame for display
-        df = pd.DataFrame(cart_items)
-        st.dataframe(df)
+        # df = pd.DataFrame(cart_items)
+        # st.dataframe(df)
 
         total_price = 0
         coupon_discount = 0
@@ -263,7 +287,7 @@ def display_cart(email):
                 st.title(item['name'])
                 st.markdown(f"**Size:  {item['size']}**")
                 st.markdown(f"**Qty:  {item['quantity']}**")
-                st.markdown(f"**Addon:  {', '.join(item['addons']) if item['addons'] else 'None'}**")
+                st.markdown(f"**Addon:  {', '.join(item['addons'])}**")
                 st.markdown(f"**{item['temperature']} | {item['sugar_level']} | {item['milk_type']}**")
                 
 
@@ -319,44 +343,41 @@ def display_cart(email):
                 rm_discount = coupon_details.get("rm_discount", 0)
                 discount_percentage = coupon_details.get("discount_percentage", 0)
                 if rm_discount > 0:
-                    st.write(f"Discount: RM {rm_discount} off")
+                    # st.write(f"Discount: - RM {rm_discount}")
+                    st.markdown(
+                        f"""
+                        <div style="text-align: right; font-size: 24px; font-weight: bold;">
+                            <br><br> Discount: RM {rm_discount:.2f} off
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
                     coupon_discount = rm_discount
                 elif discount_percentage > 0:
                     discount_amount = (discount_percentage / 100) * total_price
-                    st.write(f"Discount: {discount_percentage}% off")
+                    # st.markdown(f"Discount: {discount_percentage}% off")
+                    st.markdown(
+                        f"""
+                        <div style="text-align: right; font-size: 24px; font-weight: bold;">
+                            <br><br> Discount: {discount_percentage}% off
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
                     coupon_discount = discount_amount
             else:
                 st.write("No discount available for this coupon.")
         else:
             st.write("Invalid coupon code.")
-        
-        if st.button("Use Points"):
-            if loyalty_points > 0:
-                loyalty_points_discount = min(loyalty_points // 100, total_price)
-                points_used = loyalty_points_discount * 100  # Convert back to points
-
-                # Deduct the points used from the total loyalty points
-                new_points_balance = update_loyalty_points(email, 0, points_used)
-
-                if new_points_balance is not None:
-                    st.success(
-                        f"Loyalty Points Discount Applied: -RM {loyalty_points_discount:.2f}\n"
-                        f"Points Used: {points_used}\n"
-                        f"New Loyalty Points Balance: {new_points_balance}"
-                    )
-                else:
-                    st.error("Error updating loyalty points. Please try again.")
-            else:
-                st.warning("Not enough loyalty points for a discount!")
 
         final_price = total_price - coupon_discount - loyalty_points_discount
         total_discount = coupon_discount + loyalty_points_discount
 
-        st.markdown("")
-        st.markdown("")
-        st.markdown("")
-        st.markdown("")
-        st.markdown("")
+        # st.markdown("")
+        # st.markdown("")
+        # st.markdown("")
+        # st.markdown("")
+        # st.markdown("")
         st.markdown(
             f"""
             <div style="text-align: right; font-size: 24px; font-weight: bold;">
@@ -380,6 +401,7 @@ def display_cart(email):
                 
                 # Generate the next order ID
                 order_id = get_next_order_id()
+                invoice_id = get_next_invoice_id()
 
                 cart_ref = db.collection("cart").where("email", "==", email).where("status", "==", "In Cart")
                 cart_items = [{"id": doc.id, **doc.to_dict()} for doc in cart_ref.get()]
@@ -387,7 +409,7 @@ def display_cart(email):
                 # Preprocess cart_items to replace empty addons with "None"
                 for item in cart_items:
                     item_total = item['price'] * item['quantity']
-        
+
                     # Proportional discount for each item
                     proportionate_discount = (item_total / total_price) * total_discount
                     discounted_price = item_total - proportionate_discount
@@ -413,15 +435,16 @@ def display_cart(email):
                                     "currency": "myr",
                                     "product_data": {
                                         "name": item['name'],
-                                        "description": f"Size: {item['size']}, Add-on: {item['addons']}, Temperature: {item['temperature']}"
+                                        "description": f"Size: {item['size']}, Add-on: {', '.join(item['addons'])}, Temperature: {item['temperature']}"
                                     },
-                                    "unit_amount": item['price'] * 100,
+                                    "unit_amount": item['discounted_price'],
                                 },
                                 "quantity":  item['quantity'],
                             } for item in cart_items
                         ]
 
                         metadata = {
+                            "invoice_id": invoice_id,
                             "order_id": order_id,
                             "email": email,
                             "loyalty_points_used": loyalty_points_discount * 100,  # Convert back to points
@@ -442,31 +465,40 @@ def display_cart(email):
                         )
 
                         # Redirect to Stripe checkout
-                        st.success("Checkout session created successfully!")
-                        st.markdown(f"[Proceed to Payment]({session.url})")
+                        # st.success("Checkout session created successfully!")
+                        # st.markdown(f"[Proceed to Payment]({session.url})")
+                        webbrowser.open(session.url)
 
                     except Exception as e:
                         st.error(f"An error occurred: {str(e)}")
 
                     # Update Cart with new order_id and other details
                     for item in cart_items:
-                        db.collection("cart").document(item['id']).update({
+                        db.collection("cart").document(item['id']).set({
+                            "invoice_id": invoice_id,
                             "order_id": order_id,
                             "status": "Preparing",
                             "ordered_time_date": ordered_time_date,
-                            "discounted_price": item['discounted_price'],
-                            "loyalty_points_used": loyalty_points_discount * 100,  # Convert back to points
-                            "total_discount": total_discount,
-                            "final_price": final_price
-                        })
+                            "coupon_used": coupon_code,
+                            "coupon_discount": coupon_discount,
+                            "loyalty_points_discount": loyalty_points_discount,
+                            "total_price": total_price,
+                            "final_price": final_price,
+                            "price_after_discount": round(item['discounted_price'] / 100, 2)
+                        }, merge=True)
+                    
+                    cookies.set("invoice_id", invoice_id)
                         
                 else:
                     st.warning("Your cart is empty. Please add items to proceed.")
+                
+                st.rerun()
 
         with clear_col[1]:
             # Button for Clear Cart
             if st.button("Clear Cart"):
                 clear_cart(cookies.get("email"), status="In Cart")
+                st.rerun()
     else:
         st.info("Your cart is empty!")
 
@@ -493,7 +525,32 @@ def get_next_order_id():
 
     except Exception as e:
         print(f"An error occurred while retrieving the next cart ID: {e}")
-        return "CART001"  # Default value in case of errors
+        return "ORD001"  # Default value in case of errors
+    
+def get_next_invoice_id():
+    """
+    Retrieve the next cart order ID by querying the cart collection and finding the last created ID.
+    """
+    try:
+        # Reference to the cart collection
+        cart_ref = db.collection("cart")
+        
+        # Query to find the last cart by order_id in descending order
+        last_cart = cart_ref.order_by("invoice_id", direction=firestore.Query.DESCENDING).limit(1).stream()
+
+        # Iterate over the results to extract the last order_id
+        for doc in last_cart:
+            last_id = doc.to_dict().get("invoice_id", "")
+            if last_id.startswith("INV"):
+                last_number = int(last_id[3:])  # Extract the numeric part after "CART"
+                return f"INV{last_number + 1:03d}"  # Increment and format as CART###
+        
+        # If no documents exist or no valid order_id, start from CART001
+        return "INV001"
+
+    except Exception as e:
+        print(f"An error occurred while retrieving the next invoice ID: {e}")
+        return "INV001"  # Default value in case of errors
 
 def fetch_cart_items(email, status=None):
     """
@@ -548,6 +605,7 @@ def display_order_status(branches):
             display_orders(cart_items, branches)
         else:
             st.info("No orders are currently being prepared.")
+
     
     # Completed Orders
     with tab_completed:
@@ -592,13 +650,15 @@ def display_orders(cart_items, branches):
     # Rename and reorder columns for better readability
     column_mapping = {
         "branch_name": "Branch",
+        "invoice_id": "Invoice ID",
+        "cart_id": "Cart ID",
         "name": "Product Name",
         "size": "Size",
         "temperature": "Temperature",
         "sugar_level": "Sugar Level",
         "milk_type": "Milk Type",
         "status": "Status",
-        "price": "Price (RM)",
+        "price_after_discount": "Price (RM)",
         "quantity": "Quantity",
         "email": "Customer Email",
         "category": "Category",
@@ -606,18 +666,21 @@ def display_orders(cart_items, branches):
     }
     df.rename(columns=column_mapping, inplace=True)
 
+    # Format 'Price (RM)' column to 2 decimal places for display
+    df['Price (RM)'] = df['Price (RM)'].apply(lambda x: f"{x:.2f}")
+
     # Columns to display
     display_columns = [
-        "Branch", "Product Name", "Category", "Size", "Temperature",
+        "Branch", "Invoice ID", "Cart ID", "Product Name", "Category", "Size", "Temperature",
         "Sugar Level", "Milk Type", "Add-Ons", "Quantity", "Price (RM)", "Status"
     ]
 
     # Display the DataFrame with selected columns and color-coded status
     def color_status(val):
         if val == 'Preparing':
-            return 'background-color: #fff3cd;'  # Yellow for "Preparing"
+            return 'background-color: #FFA500;'  # Red for "Preparing"
         elif val == 'Done':
-            return 'background-color: #d4edda;'  # Green for "Done"
+            return 'background-color: #008000;'  # Green for "Done"
         return ''
 
     styled_df = df[display_columns].style.applymap(
@@ -627,24 +690,88 @@ def display_orders(cart_items, branches):
 
 def display_loyalty_program(email):
     st.title("🎉 Loyalty Program")
-    
-    # Retrieve loyalty points
-    loyalty_point = get_loyalty_points(email)
-    loyalty_points_discount = loyalty_point // 100
-    points_to_next_voucher = 100 - (loyalty_point % 100)
-    
+
+    # Fetch current loyalty points
+    def fetch_loyalty_points():
+        return get_loyalty_points(email)
+
+    loyalty_points = fetch_loyalty_points()
+    points_to_next_voucher = 100 - (loyalty_points % 100)
+
     # Section: Loyalty Points Summary
     st.subheader("✨ Your Points Summary")
-    st.metric("Loyalty Points", f"{loyalty_point} points")
-    
-    # Redemption Information
-    if loyalty_points_discount > 0:
-        st.success(f"💸 You can redeem RM{loyalty_points_discount}. Visit the counter to claim!")
+    points_display = st.empty()  # Placeholder for points metric
+    points_display.metric("Loyalty Points", f"{loyalty_points} points")
+    st.write("---")
+
+    # Section: Redeem Merchandise
+    st.subheader("🎁 Redeem Merchandise")
+
+    # Fetch merchandise options from Firebase
+    merchandise_ref = store.collection("merchandise")
+    merchandise_docs = merchandise_ref.get()
+    merchandise_options = [
+        {
+            "id": doc.id,
+            "name": doc.get("merch_name"),
+            "points_required": doc.get("points"),
+            "image_url": doc.get("image_url")
+        }
+        for doc in merchandise_docs
+    ]
+
+    if merchandise_options:
+        selected_merchandise = st.selectbox(
+            "Choose a merchandise to redeem:",
+            options=[item["name"] for item in merchandise_options]
+        )
+
+        selected_item = next(item for item in merchandise_options if item["name"] == selected_merchandise)
+        required_points = selected_item["points_required"]
+
+        # Resize and display merchandise image
+        def resize_image(image_url, size=(200, 200)):  # Adjust size as needed
+            response = requests.get(image_url)
+            if response.status_code == 200:
+                img = Image.open(BytesIO(response.content))
+                img = img.resize(size)  # Resize image
+                return img
+            else:
+                st.error("Image could not be loaded.")
+                return None
+
+        resized_image = resize_image(selected_item["image_url"])
+        if resized_image:
+            # Display the image at the center using markdown
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <img src="data:image/png;base64,{resized_image_to_base64(resized_image)}" alt="{selected_item['name']}" style="border-radius: 10px;">
+                    <p><b>{selected_item['name']}</b></p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        if loyalty_points >= required_points:
+            if st.button(f"Redeem {selected_merchandise}"):
+                # Deduct points and update Firebase
+                new_points_balance = deduct_loyalty_points(email, required_points)
+
+                if new_points_balance is not None:
+                    # Fetch and display updated loyalty points
+                    loyalty_points = fetch_loyalty_points()  # Refetch updated points
+                    points_display.metric("Loyalty Points", f"{loyalty_points} points")
+
+                    # Success message
+                    st.success(f"🎉 Successfully redeemed {selected_merchandise}! Your new balance of loyalty points is {loyalty_points} points.")
+        else:
+            st.info(f"🚀 Earn {required_points - loyalty_points} more points to redeem {selected_merchandise}!")
     else:
-        st.info(f"🚀 Earn {points_to_next_voucher} more points to redeem RM1 voucher!")
-    
-    st.write("---")  # Divider for better organization
-    
+        st.warning("⚠️ No merchandise available for redemption at the moment.")
+
+    st.write("---")
+
     # Section: How to Earn Points
     st.subheader("🛒 How to Earn Points")
     st.write("""
@@ -653,9 +780,35 @@ def display_loyalty_program(email):
     - 🏆 Participate in special promotions to earn extra rewards.
     """)
 
-    # Motivational Footer
-    st.write("---")
-    st.info("Keep earning points to enjoy more rewards. Thank you for being a valued customer! 🎉")
+def deduct_loyalty_points(email, points_to_deduct):
+    try:
+        # Fetch the current loyalty points of the user
+        customer_ref = store.collection("customer").document(email)
+        customer = customer_ref.get()
+
+        if customer.exists:
+            # Fetch current points
+            current_points = customer.to_dict().get("loyalty_points", 0)
+
+            if current_points >= points_to_deduct:
+                # Deduct points
+                new_balance = current_points - points_to_deduct
+
+                # Update the database
+                customer_ref.update({"loyalty_points": new_balance})
+
+                # Return the updated balance
+                return new_balance
+            else:
+                st.warning("⚠️ You don't have enough loyalty points to redeem this item.")
+                return None
+        else:
+            st.error(f"Customer with email {email} not found.")
+            return None
+    except Exception as e:
+        st.error(f"Error deducting loyalty points: {e}")
+        return None
+
 
 def get_next_feedback_id():
     try:
@@ -734,9 +887,14 @@ def display_feedback(email):
 
 # Sidebar navigation
 def display_sidebar(branches, products, sizes):
+    # Center-aligning the text in the sidebar
+    st.sidebar.markdown(
+        f"<h3 style='text-align: center;'> <br><br>Welcome <br><br> {cookies.get('fullname')} <br><br><br></h3>", 
+        unsafe_allow_html=True
+    )
+
     page = st.sidebar.selectbox("Navigate to", ("Menu", "Cart", "Order Status", "Loyalty Program", "Feedback"))
     if page == "Menu":
-        st.title("PyBean Coffee Shop")
         st.subheader("Select Your Drinks")
         display_branch_and_menu(branches, products, sizes)
     elif page == "Cart":
@@ -748,45 +906,12 @@ def display_sidebar(branches, products, sizes):
     elif page == "Feedback":
         display_feedback(cookies.get("email"))
 
-branches, products, sizes, milk, addons = fetch_data_from_firestore()
+branches, products, sizes, milks, addons = fetch_data_from_firestore()
 sizes, add_ons, temperatures, sugar_levels, milk_types = get_product_details()
-
-# Initialize session state
-if "cart" not in st.session_state:
-    st.session_state["cart"] = []
-if "order_history" not in st.session_state:
-    st.session_state["order_history"] = []
-if "loyalty_points" not in st.session_state:
-    st.session_state["loyalty_points"] = 0
 
 # Display app content
 display_sidebar(branches, products, sizes)
 
-# Query to get "done" and "ongoing" carts
-all_cart = db.collection("cart").get()
-done = db.collection("cart").where("status", "==", "Done").get()
-ongoing = db.collection("cart").where("status", "==", "Preparing").get()
-
-# Convert query results to a list of dictionaries
-done_data = [doc.to_dict() for doc in done]
-ongoing_data = [doc.to_dict() for doc in ongoing]
-all_cart_data = [doc.to_dict() for doc in all_cart]
-
-# Convert the list of dictionaries to DataFrames
-done_df = pd.DataFrame(done_data)
-ongoing_df = pd.DataFrame(ongoing_data)
-all_cart_df = pd.DataFrame(all_cart_data)
-
-# Display the results in Streamlit
-#st.title("This is Status Done")
-#st.dataframe(done_df)
-
-#st.title("This is Status Ongoing")
-#st.dataframe(ongoing_df)
-
-#st.title("This is all cart")
-#st.dataframe(all_cart_df)
-
-
+st.sidebar.markdown("<br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
     logout()
