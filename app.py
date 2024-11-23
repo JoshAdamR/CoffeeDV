@@ -3,10 +3,28 @@ from time import sleep
 import pandas as pd
 from navigation import make_sidebar, clearCookies, about_page
 from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies
+from streamlit_javascript import st_javascript
 
+
+x = st.text_input("stuff")
+
+if x is not None:
+    # Store a value in the browser cache
+    st_javascript("""
+    localStorage.setItem("my_key", x);
+    """)
+
+    # Retrieve the value from the browser cache
+    result = st_javascript("""
+    localStorage.getItem("my_key");
+    """)
+
+    st.write(f"Retrieved value from localStorage: {result}")
+
+else: 
+    st.write(f"there is no value in x")
 
 make_sidebar()
-# clearCookies()
 
 page = st.sidebar.selectbox("Navigate to", ["Login", "About Us"])
 
