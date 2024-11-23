@@ -488,7 +488,7 @@ def display_cart(email):
                             "price_after_discount": round(item['discounted_price'] / 100, 2)
                         }, merge=True)
                     
-                    set_cookie_item("invoice_id", invoice_id)
+                    cookies.set("invoice_id", invoice_id)
                         
                 else:
                     st.warning("Your cart is empty. Please add items to proceed.")
