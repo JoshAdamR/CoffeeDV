@@ -97,7 +97,7 @@ def inventory(branch_id):
     branches, inventory, usage_history, restock_history = readdb()
     
     # Multi-Branch Support
-    selected_branch = branches[branches['branch_id'] == 'BRANCH001']
+    selected_branch = branches[branches['branch_id'] == branch_id]
     branch_name = selected_branch['branch_name'].values[0]
     branch_inventory = inventory[inventory['branch_id'] == branch_id]
     notification_low(branch_inventory)
