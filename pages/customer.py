@@ -219,7 +219,7 @@ def display_branch_and_menu(branches, products, sizes):
                                     "milk_type": milk_type,
                                     "price": total_price,
                                     "status": "In Cart",
-                                    "email": get_cookie_item("email"),
+                                    "email": cookies.get("email"),
                                     "quantity": 1
                                 }
 
@@ -245,7 +245,7 @@ def display_cart(email):
     st.markdown(f"**Current Loyalty Points: {loyalty_points} points**")
 
     # Fetch cart items for the given email and status
-    cart_items = fetch_cart_items(email=get_cookie_item("email"), status="In Cart")
+    cart_items = fetch_cart_items(email=cookies.get("email"), status="In Cart")
 
     if cart_items:
         st.markdown("### Cart Summary")
@@ -499,7 +499,7 @@ def display_cart(email):
         with clear_col[1]:
             # Button for Clear Cart
             if st.button("Clear Cart"):
-                clear_cart(get_cookie_item("email"), status="In Cart")
+                clear_cart(cookies.get("email"), status="In Cart")
                 st.rerun()
     else:
         st.info("Your cart is empty!")
@@ -591,7 +591,7 @@ def clear_cart(email, status):
 def display_order_status(branches):
     st.title("Order Status")
     
-    email = get_cookie_item("email")  # Retrieve the email from cookies
+    email = cookies.get("email")  # Retrieve the email from cookies
     if not email:
         st.error("User email not found. Please log in.")
         return
@@ -892,7 +892,7 @@ def display_feedback(email):
 def display_sidebar(branches, products, sizes):
     # Center-aligning the text in the sidebar
     st.sidebar.markdown(
-        f"<h3 style='text-align: center;'> <br><br>Welcome <br><br> {get_cookie_item('fullname')} <br><br><br></h3>", 
+        f"<h3 style='text-align: center;'> <br><br>Welcome <br><br> {cookies.get('fullname')} <br><br><br></h3>", 
         unsafe_allow_html=True
     )
 
@@ -901,13 +901,13 @@ def display_sidebar(branches, products, sizes):
         st.subheader("Select Your Drinks")
         display_branch_and_menu(branches, products, sizes)
     elif page == "Cart":
-        display_cart(get_cookie_item("email"))
+        display_cart(cookies.get("email"))
     elif page == "Order Status":
         display_order_status(branches)
     elif page == "Loyalty Program":
-        display_loyalty_program(get_cookie_item("email"))
+        display_loyalty_program(cookies.get("email"))
     elif page == "Feedback":
-        display_feedback(get_cookie_item("email"))
+        display_feedback(cookies.get("email"))
 
 branches, products, sizes, milks, addons = fetch_data_from_firestore()
 sizes, add_ons, temperatures, sugar_levels, milk_types = get_product_details()
