@@ -5,7 +5,7 @@ from firebase_admin import credentials, firestore
 from firebase_config import store  # Import Firestore client from config
 from datetime import datetime
 from navigation import make_sidebar, logout
-from functions import cookies, set_cookie_item, get_cookie_item, delete_cookie_item, get_all_cookies
+from functions import cookies
 import pandas as pd
 from streamlit_extras.stylable_container import stylable_container
 import stripe
@@ -20,7 +20,7 @@ from time import sleep
 
 make_sidebar()
 
-st.write(get_all_cookies())
+# st.write(cookies.getAll())
 stripe_secret = st.secrets.stripe 
 
 # Set up Stripe
