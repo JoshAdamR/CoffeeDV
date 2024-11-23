@@ -751,6 +751,7 @@ def display_loyalty_program(email):
                 <div style="text-align: center;">
                     <img src="data:image/png;base64,{resized_image_to_base64(resized_image)}" alt="{selected_item['name']}" style="border-radius: 10px;">
                     <p><b>{selected_item['name']}</b></p>
+                    <p><b>{selected_item['points_required']} points</b></p>
                 </div>
                 """,
                 unsafe_allow_html=True,
