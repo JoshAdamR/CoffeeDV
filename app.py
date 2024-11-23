@@ -6,7 +6,7 @@ from functions import add_entry, get_entries, is_valid_email, is_valid_password,
 
 
 make_sidebar()
-clearCookies()
+# clearCookies()
 
 page = st.sidebar.selectbox("Navigate to", ["Login", "About Us"])
 
@@ -70,7 +70,8 @@ if page == "Login":
 
 elif page == "About Us":
     about_page()
-# st.write(cookies.getAll())
+
+st.write(cookies.getAll())
 
 # st.write(cookies.get("birthday"))
 
