@@ -6,6 +6,10 @@ from functions import add_entry, get_entries, is_valid_email, is_valid_password,
 from streamlit_javascript import st_javascript
 
 make_sidebar()
+<<<<<<< HEAD
+=======
+#clearCookies()
+>>>>>>> 157fcc2d08d9f5dc6e714586bb69eaa1fcd0df4b
 
 page = st.sidebar.selectbox("Navigate to", ["Login", "About Us"])
 

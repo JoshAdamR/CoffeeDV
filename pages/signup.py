@@ -40,7 +40,6 @@ if st.button("Sign Up"):
     else:
         st.error("Please fill in all fields.")
 
-
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Back"):
     logout()
