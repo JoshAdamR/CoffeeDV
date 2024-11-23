@@ -4,3 +4,4 @@ firebase-admin==6.1.0
 google-cloud-firestore==2.7.0
 matplotlib==3.7.1
 seaborn==0.12.2
+reportlab==4.2.5
