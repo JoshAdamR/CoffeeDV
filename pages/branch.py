@@ -12,7 +12,7 @@ from firebase_config import store
 
 make_sidebar()
 
-# st.write(cookies.getAll())
+st.write(cookies.getAll())
 branch_id = cookies.get("customer_id")
 
 def notification_low(branch_inventory):
