@@ -466,9 +466,9 @@ def display_cart(email):
                         )
 
                         # Redirect to Stripe checkout
-                        st.success("Checkout session created successfully!")
-                        st.markdown(f"[Proceed to Payment]({session.url})")
-                        # webbrowser.open(session.url)
+                        # st.success("Checkout session created successfully!")
+                        # st.markdown(f"[Proceed to Payment]({session.url})")
+                        webbrowser.open(session.url)
 
                     except Exception as e:
                         st.error(f"An error occurred: {str(e)}")
@@ -493,7 +493,7 @@ def display_cart(email):
                 else:
                     st.warning("Your cart is empty. Please add items to proceed.")
                 
-                
+                # st.rerun()
 
         with clear_col[1]:
             # Button for Clear Cart
