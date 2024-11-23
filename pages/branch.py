@@ -2,7 +2,7 @@ import streamlit as st
 # from inventory_page import inventory
 # from coupon_page import coupon
 from navigation import make_sidebar, logout
-from functions import cookies, set_cookie_item, get_cookie_item, delete_cookie_item, get_all_cookies
+from functions import cookies
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -12,8 +12,8 @@ from firebase_config import store
 
 make_sidebar()
 
-st.write(get_all_cookies())
-branch_id = get_all_cookies("customer_id")
+st.write(cookies.getAll())
+branch_id = cookies.get("customer_id")
 
 def notification_low(branch_inventory):
     low_stock_items = branch_inventory[branch_inventory['quantity_on_hand'] < branch_inventory['minimum_stock_level']]
