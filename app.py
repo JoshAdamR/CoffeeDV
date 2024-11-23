@@ -72,7 +72,7 @@ elif page == "Login":
         st.switch_page("pages/signup.py")
 
 
-# st.write(cookies.getAll())
+st.write(cookies.getAll())
 
 # st.write(cookies.get("birthday"))
 
