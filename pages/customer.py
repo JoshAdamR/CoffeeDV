@@ -19,9 +19,8 @@ from time import sleep
 
 
 make_sidebar()
-#ssds
 
-# st.write(cookies.getAll())
+st.write(cookies.getAll())
 stripe_secret = st.secrets.stripe 
 
 # Set up Stripe
