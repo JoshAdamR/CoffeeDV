@@ -13,6 +13,7 @@ from firebase_config import store
 make_sidebar()
 
 # st.write(cookies.getAll())
+branch_id = cookies.get("customer_id")
 
 def notification_low(branch_inventory):
     low_stock_items = branch_inventory[branch_inventory['quantity_on_hand'] < branch_inventory['minimum_stock_level']]
@@ -97,7 +98,7 @@ def inventory():
     
     
     # Query Firestore for a document where the 'email' field matches the value in cookies
-    branch_ref = store.collection('branch').where("email", "==", cookies.get("email"))
+    branch_ref = store.collection('branch').where("branch_id", "==", branch_id)
 
     # Get the query results
     branch_query = branch_ref.stream()
@@ -258,8 +259,7 @@ def branch_order():
     def get_ref(table):
         ref = store.collection(table)
         return ref, pd.DataFrame([doc.to_dict() for doc in ref.stream()])
-
-    branch_id = cookies.get("customer_id")
+        
     size_ref, size_table = get_ref('size')
     inv_usage_ref, inv_usage = get_ref('inv_usage')
     inventory_data_ref, inventory_data = get_ref('inventory')
