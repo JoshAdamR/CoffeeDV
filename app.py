@@ -8,21 +8,22 @@ from streamlit_javascript import st_javascript
 
 x = st.text_input("stuff")
 
-if x is not None:
-    # Store a value in the browser cache
-    st_javascript("""
-    localStorage.setItem("my_key", x);
-    """)
-
-    # Retrieve the value from the browser cache
-    result = st_javascript("""
-    localStorage.getItem("my_key");
-    """)
-
-    st.write(f"Retrieved value from localStorage: {result}")
-
-else: 
-    st.write(f"there is no value in x")
+if st.button("Show cookies"):
+    if x is not None:
+        # Store a value in the browser cache
+        st_javascript("""
+        localStorage.setItem("my_key", x);
+        """)
+    
+        # Retrieve the value from the browser cache
+        result = st_javascript("""
+        localStorage.getItem("my_key");
+        """)
+    
+        st.write(f"Retrieved value from localStorage: {result}")
+    
+    else: 
+        st.write(f"there is no value in x")
 
 make_sidebar()
 
