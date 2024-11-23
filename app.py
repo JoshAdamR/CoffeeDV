@@ -9,7 +9,7 @@ from streamlit_javascript import st_javascript
 x = st.text_input("stuff")
 
 if st.button("Show cookies"):
-    if x is not None:
+    if x is None:
         # Store a value in the browser cache
         st_javascript("""
         localStorage.setItem("my_key", x);
