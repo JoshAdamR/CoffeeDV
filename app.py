@@ -2,10 +2,14 @@ import streamlit as st
 from time import sleep
 import pandas as pd
 from navigation import make_sidebar, clearCookies, about_page
-from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies, set_cookie_item, get_cookie_item, delete_cookie_item, get_all_cookies
+from functions import add_entry, get_entries, is_valid_email, is_valid_password, email_exists, fetch_user, cookies, getCookies
 from streamlit_javascript import st_javascript
 
 make_sidebar()
+<<<<<<< HEAD
+=======
+#clearCookies()
+>>>>>>> 157fcc2d08d9f5dc6e714586bb69eaa1fcd0df4b
 
 page = st.sidebar.selectbox("Navigate to", ["Login", "About Us"])
 
@@ -29,7 +33,7 @@ if page == "Login":
                 getCookies(email)
                 st.success(f"Welcome back, {user['username']}!")
                 # role = user.get("role", "customer")
-                while get_cookie_item("role") == 'admin' and get_cookie_item("status") == 'true':
+                while cookies.get("role") == 'admin' and cookies.get("status") == 'true':
                     # st.write("You are logged in as an **Admin**.")
                     # st.session_state.logged_in_admin = True
                     st.success("Logged in successfully!")
@@ -38,7 +42,7 @@ if page == "Login":
                     st.balloons()
                     
                     
-                while get_cookie_item("role") == 'customer' and get_cookie_item("status") == 'true':
+                while cookies.get("role") == 'customer' and cookies.get("status") == 'true':
                     # st.write("You are logged in as a **Customer**.")
                     # st.session_state.logged_in_cust = True
                     st.success("Logged in successfully!")
@@ -46,7 +50,7 @@ if page == "Login":
                     st.switch_page("pages/customer.py")
                     st.balloons()
 
-                while get_cookie_item("role") == 'branch' and get_cookie_item("status") == 'true':
+                while cookies.get("role") == 'branch' and cookies.get("status") == 'true':
                     # st.write("You are logged in as a **Customer**.")
                     # st.session_state.logged_in_cust = True
                     st.success("Logged in successfully!")
@@ -69,12 +73,3 @@ if page == "Login":
 
 elif page == "About Us":
     about_page()
-
-st.write(get_all_cookies())
-
-# st.write(cookies.get("birthday"))
-
-
-
-
-
