@@ -98,14 +98,14 @@ def inventory(branch_id):
     
     # Multi-Branch Support
     selected_branch = branches[branches['branch_id'] == branch_id]
-    branch_name = selected_branch['branch_name']
+    branch_name = selected_branch['branch_name'].values[0]
     branch_inventory = inventory[inventory['branch_id'] == branch_id]
     notification_low(branch_inventory)
 
     st.subheader(f"Welcome, {branch_name}!")
 
     # Display branch details
-    st.subheader(f"Branch Details: {selected_branch['branch_name'].values[0]}")
+    st.subheader(f"Branch Details: {branch_name}")
     st.write(f"Location: {selected_branch['location'].values[0]}")
     st.write(f"Operating Cost: ${selected_branch['operating_cost'].values[0]}")
 
