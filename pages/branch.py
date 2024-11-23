@@ -96,24 +96,10 @@ def inventory(branch_id):
 
     branches, inventory, usage_history, restock_history = readdb()
     
-    
-    # Query Firestore for a document where the 'email' field matches the value in cookies
-    branch_ref = store.collection('branch').where("branch_id", "==", branch_id)
-
-    # Get the query results
-    branch_query = branch_ref.stream()
-
-    # If there are any matching documents, get the 'branch_name' from the first one
-    for branch in branch_query:
-        branch_name = branch.to_dict().get("branch_name")
-        break 
-    
     # Multi-Branch Support
-    selected_branch_id = branch_name
-    selected_branch = branches[branches['branch_name'] == selected_branch_id]
-    selected_branch_id_value = selected_branch['branch_id'].values[0]
+    selected_branch = branches[branches['branch_id'] == branch_id]
 
-    branch_inventory = inventory[inventory['branch_id'] == selected_branch_id_value]
+    branch_inventory = inventory[inventory['branch_id'] == branch_id]
     notification_low(branch_inventory)
 
     st.subheader(f"Welcome, {branch_name}!")
@@ -124,7 +110,7 @@ def inventory(branch_id):
     st.write(f"Operating Cost: ${selected_branch['operating_cost'].values[0]}")
 
     # Display inventory for the selected branch
-    st.subheader(f"Inventory for {selected_branch_id}")
+    st.subheader(f"Inventory for {selected_branch}")
 
     branch_inventory['Inventory ID'] = branch_inventory['inventory_id']
     branch_inventory['Item'] = branch_inventory['inventory_name']
@@ -145,9 +131,9 @@ def inventory(branch_id):
     if st.button("Update Stock"):
         for item in selected_items:
             if action == "Remove Items":
-                update_stock(item, quantity, "remove", selected_branch_id_value)  # Reduce quantity by specified amount for the selected branch
+                update_stock(item, quantity, "remove", branch_id)  # Reduce quantity by specified amount for the selected branch
             elif action == "Restock Items":
-                update_stock(item, quantity, "restock", selected_branch_id_value)  # Increase quantity by specified amount for the selected branch
+                update_stock(item, quantity, "restock", branch_id)  # Increase quantity by specified amount for the selected branch
         st.success(f"{action} updated!")
 
         st.rerun()
