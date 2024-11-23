@@ -110,7 +110,7 @@ def inventory(branch_id):
     st.write(f"Operating Cost: ${selected_branch['operating_cost'].values[0]}")
 
     # Display inventory for the selected branch
-    st.subheader(f"Inventory for {selected_branch}")
+    st.subheader(f"Inventory for {branch_name}")
 
     branch_inventory['Inventory ID'] = branch_inventory['inventory_id']
     branch_inventory['Item'] = branch_inventory['inventory_name']
