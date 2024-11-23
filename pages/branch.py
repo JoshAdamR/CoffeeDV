@@ -31,7 +31,7 @@ def notification_low(branch_inventory):
         # Write the modified DataFrame to the app
         st.dataframe(low_stock_items_display, use_container_width = True)
 
-def inventory():
+def inventory(branch_id):
     st.title("Inventory Management")
 
     def get_ref(table):
@@ -255,7 +255,7 @@ def coupon():
 
     # Visualization Section
 
-def branch_order():
+def branch_order(branch_id):
     def get_ref(table):
         ref = store.collection(table)
         return ref, pd.DataFrame([doc.to_dict() for doc in ref.stream()])
@@ -455,11 +455,11 @@ def branch_order():
 page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management"])
 
 if page == "Inventory Management":
-    inventory()
+    inventory(branch_id)
 elif page == "Coupon Management":
     coupon()
 elif page == "Order Management":
-    branch_order()
+    branch_order(branch_id)
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
