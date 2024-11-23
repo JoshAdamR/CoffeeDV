@@ -493,7 +493,7 @@ def display_cart(email):
                 else:
                     st.warning("Your cart is empty. Please add items to proceed.")
                 
-                st.rerun()
+                
 
         with clear_col[1]:
             # Button for Clear Cart
