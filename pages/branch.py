@@ -902,7 +902,8 @@ def dashboard():
             customer = get_ref('customer')
             inventory = get_ref('inventory')
             usage_history = get_ref('usage_history')
-
+            inv_quantity_branch = get_ref('inv_quantity_branch')
+            inventory_full = pd.merge(inventory, inv_quantity_branch, on='inventory_id', how='inner')
             # Date Range Filter
             sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
             min_date = sale['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
@@ -939,7 +940,7 @@ def dashboard():
 
     elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
-        display_low_stock_products(inventory, branch_id)
+        display_low_stock_products(inventory_full, branch_id)
         '''st.markdown("<hr>", unsafe_allow_html=True)
         calculate_inventory_turnover(data, selected_branch)
         #plot_inventory_turnover(data['sale'], data['inventory'])
