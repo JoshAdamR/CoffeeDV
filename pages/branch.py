@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
+from graph_function import
 
 from firebase_config import store 
 
@@ -438,8 +439,152 @@ def branch_order(branch_id):
         st.subheader("Total Pending Orders: 0")
         st.write("No orders are currently in the 'Preparing' status.")
 
-def dashboard(branch_id):
-    pass
+def dashboard():
+    # Assuming store.collection is iterable and get_ref is a callable function
+    data = []  # Initialize an empty list to store the references
+    
+    for collection in store.collection:
+        collection_name = collection.name  # Adjust this based on the structure of `collection`
+        ref = get_ref(collection_name)  # Get the reference for the collection
+        data.append(ref)  # Append the reference to the data list
+
+    selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
+                                                     "Sales Analytics Dashboard",
+                                                     "Customer Analytics Dashboard",
+                                                     "Inventory Analytics Dashboard",
+                                                     "Promotion and Discount Analytics",
+                                                     "Financial Analytics",
+                                                     "Operational Analytics",
+                                                     "Order Monitoring Dashboard"])
+    
+    # Convert sale_date to datetime if it's not already
+    data['sale']['sale_date'] = pd.to_datetime(data['sale']['sale_date'])
+
+    # Sidebar Filters: Branch, Time Period, and Date Range
+    with st.sidebar:
+        # Container with Border for Filters
+        with st.container():
+            st.subheader("Filter Data")
+
+            # Branch Filter
+            branches = ['All'] + list(data['sale']['branch_id'].unique())  # Assuming 'branch_id' is in data['sale']
+            selected_branch = st.selectbox('Select Branch:', branches)
+
+            # Time Period Filter
+            period = st.selectbox('Select Time Period:', ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'])
+
+            # Date Range Filter
+            min_date = data['sale']['sale_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
+            max_date = data['sale']['sale_date'].max()  # Maximum date in your dataset
+            start_date, end_date = st.date_input('Select Date Range:', [min_date, max_date])
+
+
+    # Apply the selected filters to sale_data
+    sale_data_filtered = data['sale'][
+        (data['sale']['sale_date'] >= pd.to_datetime(start_date)) & 
+        (data['sale']['sale_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
+    ]
+
+    # Apply the selected branch filter
+    if selected_branch != 'All':
+        sale_data_filtered = sale_data_filtered[sale_data_filtered['branch_id'] == selected_branch]
+
+    # Merge the filtered sale data with order data based on sale_id
+    order_data_filtered = data['order'].merge(sale_data_filtered[['sale_id']], on='sale_id', how='inner')
+    
+    # Filter the feedback data based on sale_id from the filtered sale data
+    filtered_feedback_data = data['feedback'][data['feedback']['sale_id'].isin(sale_data_filtered['sale_id'])]
+
+    # Assuming you have the operatingcost data in data['operatingcost']
+    operatingcost_data = data['operatingcost']
+
+    # Create a filtered version of operatingcost_data based on branch and time period filters
+    operatingcost_data_filtered = operatingcost_data.copy()
+
+    # Apply the selected branch filter
+    if selected_branch != 'All':
+        operatingcost_data_filtered = operatingcost_data_filtered[operatingcost_data_filtered['branch_id'] == selected_branch]
+    # Apply the time period filter (Monthly or Yearly)
+    if period == 'Monthly':
+        # Group by year and month (we'll extract these from the start_date and end_date)
+        operatingcost_data_filtered['year'] = pd.to_datetime(start_date).year
+        operatingcost_data_filtered['month'] = pd.to_datetime(start_date).month
+        operatingcost_data_filtered = operatingcost_data_filtered.groupby(['branch_id', 'year', 'month']).sum().reset_index()
+    elif period == 'Yearly':
+        # Group by year
+        operatingcost_data_filtered['year'] = pd.to_datetime(start_date).year
+        operatingcost_data_filtered = operatingcost_data_filtered.groupby(['branch_id', 'year']).sum().reset_index()
+    
+
+    # Now handle the different views based on user selection
+    if selection == "Dataset Summary":
+        st.title("Data Overview")
+        display_dataset_summary(data)
+
+    elif selection == "Sales Analytics Dashboard":
+        st.title("Sales Analytics Dashboard")
+        st.markdown("<hr>", unsafe_allow_html=True)
+        plot_best_worst_sellers(order_data_filtered, data['product'])
+        st.markdown("<hr>", unsafe_allow_html=True)
+        plot_total_sales(sale_data_filtered, order_data_filtered, period)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        plot_sales_by_product(order_data_filtered, data['product'])
+        st.markdown("<hr>", unsafe_allow_html=True)
+        plot_sales_by_time_of_day(sale_data_filtered)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        calculate_profit(sale_data_filtered, order_data_filtered, data['product'], data['addon'], period)
+
+    elif selection == "Customer Analytics Dashboard":
+        st.title("Customer Analytics Dashboard")
+        # Filter customers using the filtered sales data
+        filtered_customers = data['customer'][data['customer']['customer_id'].isin(sale_data_filtered['customer_id'])]
+        # Pass the filtered data to the plotting functions
+        st.markdown("<hr>", unsafe_allow_html=True)
+        plot_customer_demographics(filtered_customers)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        plot_order_frequency_history(order_data_filtered, sale_data_filtered)
+
+    elif selection == "Inventory Analytics Dashboard":
+        st.title("Inventory Analytics Dashboard")
+        display_low_stock_products(data['inventory'], selected_branch)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        calculate_inventory_turnover(data, selected_branch)
+        #plot_inventory_turnover(data['sale'], data['inventory'])
+        #plot_stock_levels(data['sale'], data['order'], data['inventory'])
+        #display_low_stock_alerts(data['inventory'])
+        #plot_inventory_cost_analysis(data['product'])
+
+
+    elif selection == "Promotion and Discount Analytics":
+        st.title("Promotion and Discount Analytics")
+        # Use the already filtered `sale_data_filtered`
+        # Add a radio button to toggle between Sales or Orders for Promotion Performance Chart
+        metric = st.radio("Select Metric for Promotion Performance", ["Sales", "Orders"])
+        # Plot Promotion Performance based on selected metric
+        plot_promotion_performance(sale_data_filtered, metric)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        # Plot Coupon Usage Over Time
+        plot_coupon_usage_over_time(sale_data_filtered)
+
+    elif selection == "Financial Analytics":
+        st.title("Financial Analytics")
+        st.markdown("<hr>", unsafe_allow_html=True)
+        profit_margin_analysis(order_data_filtered, sale_data_filtered, data['product'])
+        st.markdown("<hr>", unsafe_allow_html=True)
+        cost_analysis(data['operatingcost'], operatingcost_data_filtered)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        revenue_streams_analysis(order_data_filtered, data['product'])
+
+    elif selection == "Operational Analytics":
+        st.title("Operational Analytics")
+        st.markdown("<hr>", unsafe_allow_html=True)
+        customer_feedback_ratings(data, sale_data_filtered, period)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        order_processing_times(sale_data_filtered)
+
+    elif selection == "Order Monitoring Dashboard":
+        order_monitoring_dashboard(sale_data_filtered)
+    
 
     
 page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management"])
