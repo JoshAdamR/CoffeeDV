@@ -763,14 +763,14 @@ def dashboard():
             # Aggregate profit by week
             sale['date'] = sale['ordered_time_date'].dt.to_period('W').dt.start_time
             usage_merge['date'] = usage_merge['date'].dt.to_period('W').dt.start_time
-            profit_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
 
         elif time_period == "Monthly":
             # Aggregate profit by month
             sale['date'] = sale['ordered_time_date'].dt.to_period('M').dt.start_time
             usage_merge['date'] = usage_merge['date'].dt.to_period('M').dt.start_time
-            profit_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
 
 
