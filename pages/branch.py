@@ -881,10 +881,10 @@ def dashboard():
         # Filter data for the selected branch and time period
         inventory_branch = inventory[inventory['branch_id'] == selected_branch]
         usage_branch = usage[usage['branch_id'] == selected_branch]
-
+        st.write("No low stock items found.")
         # Calculate turnover rate (e.g., usage / average inventory)
         inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']
-        #inventory_branch = pd.merge(usage_branch, inventory_branch, on='inventory_id', how='inner')
+        inventory_branch = pd.merge(usage_branch, inventory_branch, on='inventory_id', how='inner')
         inventory_branch['turnover'] =  usage_branch['quantity']*inventory_branch['unit_price'] / inventory_branch['total_inventory']
         
         # Create an interactive Plotly graph
