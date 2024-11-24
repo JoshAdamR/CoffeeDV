@@ -956,7 +956,7 @@ def dashboard():
 
         # Filter sales with coupons and group by date for coupon-based sales
         coupon_sales = sale_data[sale_data['coupon_used'] != 'None']
-        coupon_sales_by_date = coupon_sales.groupby('sale_date')['price_after_discount'].sum()
+        coupon_sales_by_date = coupon_sales.groupby('ordered_time_date')['price_after_discount'].sum()
 
         # Plot coupon usage over time as a line chart
         fig2 = go.Figure()
