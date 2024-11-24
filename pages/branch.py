@@ -950,6 +950,26 @@ def dashboard():
         # Display the pie chart in Streamlit
         st.plotly_chart(fig1)
 
+    # Function to plot Coupon Usage Over Time Chart
+    def plot_coupon_usage_over_time(sale_data):
+        st.header("B. Coupon Usage Over Time")
+
+        # Filter sales with coupons and group by date for coupon-based sales
+        coupon_sales = sale_data[sale_data['coupon_code'] != 'None']
+        coupon_sales_by_date = coupon_sales.groupby('sale_date')['price_after_discount'].sum()
+
+        # Plot coupon usage over time as a line chart
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(x=coupon_sales_by_date.index, y=coupon_sales_by_date.values, mode='lines+markers', name='Coupon Sales'))
+        fig2.update_layout(
+            title='Sales Generated from Coupons Over Time',
+            xaxis_title='Date',
+            yaxis_title='Coupon-Related Sales Amount'
+        )
+
+        # Display the chart in Streamlit
+        st.plotly_chart(fig2)
+
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
                                                      "Inventory Analytics Dashboard",
