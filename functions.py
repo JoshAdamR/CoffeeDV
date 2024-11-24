@@ -122,7 +122,7 @@ def email_exists(email):
 # Function to fetch user by email and password from Firestore
 def fetch_user(email, password):
     users_ref = store.collection("useracc")
-    query = users_ref.filter("email", "==", email).filter("password", "==", password).limit(1)
+    query = users_ref.where(field_path="email", op_string="==", value=email).where(field_path="password", op_string="==", value=password).limit(1)
     user = query.get()
     return user[0].to_dict() if user else None
 
