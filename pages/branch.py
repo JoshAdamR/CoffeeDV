@@ -1291,7 +1291,7 @@ def dashboard():
                                                      "Customer Analytics Dashboard",
                                                      "Inventory Analytics Dashboard",
                                                      "Promotion and Discount Analytics",
-                                                     "Financial Analytics",])w
+                                                     "Financial Analytics",])
                                                      #"Operational Analytics",
                                                      #"Order Monitoring Dashboard",
                                                      #"About Page"])
