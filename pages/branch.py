@@ -483,14 +483,14 @@ def dashboard():
     
         # Define period mapping for aggregation
         period_mapping = {
-            'Daily': ('%Y-%m-%d', np.array(sale_data['ordered_time_date'].dt.date)),
-            'Weekly': ('%Y-%m-%d', np.array(sale_data['ordered_time_date'].dt.to_period('W').dt.start_time)),
-            'Monthly': ('%Y-%m', np.array(sale_data['ordered_time_date'].dt.to_period('M').dt.start_time)),
-            'Quarterly': ('%Y-Q%q', np.array(sale_data['ordered_time_date'].dt.to_period('Q').dt.start_time)),
-            'Yearly': ('%Y', np.array(sale_data['ordered_time_date'].dt.to_period('Y').dt.start_time)),
+            'Daily': ('%Y-%m-%d', sale_data['ordered_time_date'].dt.date),
+            'Weekly': ('%Y-%m-%d', sale_data['ordered_time_date'].dt.to_period('W').dt.start_time),
+            'Monthly': ('%Y-%m', sale_data['ordered_time_date'].dt.to_period('M').dt.start_time),
+            'Quarterly': ('%Y-Q%q', sale_data['ordered_time_date'].dt.to_period('Q').dt.start_time),
+            'Yearly': ('%Y', sale_data['ordered_time_date'].dt.to_period('Y').dt.start_time),
         }
     
-        x_axis_format, sale_data['period'] = period_mapping.get(period, ('%Y-%m-%d', np.array(sale_data['ordered_time_date'].dt.date)))
+        x_axis_format, sale_data['period'] = period_mapping.get(period, ('%Y-%m-%d', sale_data['ordered_time_date'].dt.date))
     
         # Aggregate sales data
         total_sales = sale_data.groupby('period').agg(
@@ -699,7 +699,7 @@ def dashboard():
         sale_data['ordered_time_date'] = pd.to_datetime(sale_data['ordered_time_date'], errors='coerce')
         
         # Create a new column for the hour of the day
-        sale_data['hour'] = np.array(sale_data['ordered_time_date'].dt.hour)
+        sale_data['hour'] = sale_data['ordered_time_date'].dt.hour
 
         # Group the sales data by hour and calculate the total sales
         sales_by_hour = sale_data.groupby('hour')['price_after_discount'].sum().reset_index()
@@ -752,36 +752,36 @@ def dashboard():
         # Group by the selected time period
         if time_period == "Daily":
             # Aggregate profit by day
-            sale['date'] = np.array(sale['ordered_time_date'].dt.date)
-            usage_merge['date'] = np.array(usage_merge['date'].dt.date)
+            sale['date'] = sale['ordered_time_date'].dt.date
+            usage_merge['date'] = usage_merge['date'].dt.date
             revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()            
 
         elif time_period == "Weekly":
             # Aggregate profit by week
-            sale['date'] = np.array(sale['ordered_time_date'].dt.to_period('W').dt.start_time)
-            usage_merge['date'] = np.array(usage_merge['date'].dt.to_period('W').dt.start_time)
+            sale['date'] = sale['ordered_time_date'].dt.to_period('W').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('W').dt.start_time
             revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
 
         elif time_period == "Monthly":
             # Aggregate profit by month
-            sale['date'] = np.array(sale['ordered_time_date'].dt.to_period('M').dt.start_time)
-            usage_merge['date'] = np.array(usage_merge['date'].dt.to_period('M').dt.start_time)
+            sale['date'] = sale['ordered_time_date'].dt.to_period('M').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('M').dt.start_time
             revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
             
         elif time_period == "Quarterly":
             # Aggregate profit by month
-            sale['date'] = np.array(sale['ordered_time_date'].dt.to_period('Q').dt.start_time)
-            usage_merge['date'] = np.array(usage_merge['date'].dt.to_period('Q').dt.start_time)
+            sale['date'] = sale['ordered_time_date'].dt.to_period('Q').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('Q').dt.start_time
             revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
 
         elif time_period == "Yearly":
             # Aggregate profit by month
-            sale['date'] = np.array(sale['ordered_time_date'].dt.to_period('Y').dt.start_time)
-            usage_merge['date'] = np.array(usage_merge['date'].dt.to_period('Y').dt.start_time)
+            sale['date'] = sale['ordered_time_date'].dt.to_period('Y').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('Y').dt.start_time
             revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
 
