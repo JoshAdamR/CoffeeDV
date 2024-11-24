@@ -463,118 +463,118 @@ def dashboard():
             for _, row in worst_sellers.iterrows():
                 st.error(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
 
-        def plot_total_sales(sale_data, order_data, period):
-            st.header("A. Total Sales Overview")
-        
-            # Convert `sale_date` to datetime
-            sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
-        
-            # Summarize quantity sold per `sale_id` from `order_data`
-            order_quantity = order_data.groupby('sale_id')['quantity'].sum().reset_index()
-            order_quantity.rename(columns={'quantity': 'quantity_sold'}, inplace=True)
-        
-            # Merge quantity data with sales data
-            sale_data = sale_data.merge(order_quantity, on='sale_id', how='left')
-        
-            # Define period mapping for aggregation
-            period_mapping = {
-                'Daily': ('%Y-%m-%d', sale_data['sale_date'].dt.date),
-                'Weekly': ('%Y-%m-%d', sale_data['sale_date'].dt.to_period('W').dt.start_time),
-                'Monthly': ('%Y-%m', sale_data['sale_date'].dt.to_period('M').dt.start_time),
-                'Quarterly': ('%Y-Q%q', sale_data['sale_date'].dt.to_period('Q').dt.start_time),
-                'Yearly': ('%Y', sale_data['sale_date'].dt.to_period('Y').dt.start_time),
-            }
-        
-            x_axis_format, sale_data['period'] = period_mapping.get(period, ('%Y-%m-%d', sale_data['sale_date'].dt.date))
-        
-            # Aggregate sales data
-            total_sales = sale_data.groupby('period').agg(
-                total_revenue=('final_amount', 'sum'),
-                quantity_sold=('quantity_sold', 'sum')
-            ).reset_index()
-        
-            # Find the max and min values for revenue and quantity sold directly from the aggregated data
-            max_revenue_day = total_sales.loc[total_sales['total_revenue'].idxmax()]
-            max_revenue_value = max_revenue_day['total_revenue']
-            max_revenue_date = max_revenue_day['period']
-        
-            min_revenue_day = total_sales.loc[total_sales['total_revenue'].idxmin()]
-            min_revenue_value = min_revenue_day['total_revenue']
-            min_revenue_date = min_revenue_day['period']
-        
-            max_quantity_day = total_sales.loc[total_sales['quantity_sold'].idxmax()]
-            max_quantity_value = max_quantity_day['quantity_sold']
-            max_quantity_date = max_quantity_day['period']
-        
-            min_quantity_day = total_sales.loc[total_sales['quantity_sold'].idxmin()]
-            min_quantity_value = min_quantity_day['quantity_sold']
-            min_quantity_date = min_quantity_day['period']
-        
-            summary_stats = {
-                "Total Revenue": sale_data['final_amount'].sum(),
-                "Average Revenue": sale_data['final_amount'].mean(),
-                "Max Revenue (Day)": max_revenue_value,
-                "Max Revenue Date": max_revenue_date,
-                "Min Revenue (Day)": min_revenue_value,
-                "Min Revenue Date": min_revenue_date,
-                "Total Quantity Sold": sale_data['quantity_sold'].sum(),
-                "Average Quantity Sold": sale_data['quantity_sold'].mean(),
-                "Max Quantity Sold (Day)": max_quantity_value,
-                "Max Quantity Date": max_quantity_date,
-                "Min Quantity Sold (Day)": min_quantity_value,
-                "Min Quantity Date": min_quantity_date
-            }
-        
-            # Display summary statistics in metric cards
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("Total Revenue", f"${summary_stats['Total Revenue']:.2f}")
-                st.metric("Average Revenue", f"${summary_stats['Average Revenue']:.2f}")
-                st.metric("Max Revenue (Day)", f"${summary_stats['Max Revenue (Day)']:.2f}", f"Date: {summary_stats['Max Revenue Date']:%Y-%m-%d}")
-                st.metric("Min Revenue (Day)", f"${summary_stats['Min Revenue (Day)']:.2f}", f"Date: {summary_stats['Min Revenue Date']:%Y-%m-%d}")
-            with col2:
-                st.metric("Total Quantity Sold", f"{summary_stats['Total Quantity Sold']:.0f}")
-                st.metric("Average Quantity Sold", f"{summary_stats['Average Quantity Sold']:.2f}")
-                st.metric("Max Quantity Sold (Day)", f"{summary_stats['Max Quantity Sold (Day)']:.0f}", f"Date: {summary_stats['Max Quantity Date']:%Y-%m-%d}")
-                st.metric("Min Quantity Sold (Day)", f"{summary_stats['Min Quantity Sold (Day)']:.0f}", f"Date: {summary_stats['Min Quantity Date']:%Y-%m-%d}")
-        
-            # Plot Total Revenue
-            st.subheader("⦁ Total Revenue")
-            graph_type_revenue = st.selectbox("Select Graph Type for Revenue", ["Line Graph", "Bar Chart"], key="revenue_graph_select")
-        
-            if graph_type_revenue == "Line Graph":
-                fig_revenue = px.line(total_sales, x='period', y='total_revenue', title='Total Revenue Over Time', markers=True)
-            else:
-                fig_revenue = px.bar(total_sales, x='period', y='total_revenue', title='Total Revenue Over Time', text='total_revenue', color='total_revenue', color_continuous_scale='Blues')
-                fig_revenue.update_traces(texttemplate='%{text:.2f}')
-        
-            fig_revenue.update_layout(
-                xaxis_title='Time Period',
-                yaxis_title='Total Revenue',
-                xaxis=dict(tickangle=45),
-                autosize=True,
-                margin=dict(l=20, r=20, t=50, b=20)
-            )
-            st.plotly_chart(fig_revenue)
-        
-            # Plot Quantity Sold
-            st.subheader("⦁ Quantity Sold")
-            graph_type_quantity = st.selectbox("Select Graph Type for Quantity", ["Line Graph", "Bar Chart"], key="quantity_graph_select")
-        
-            if graph_type_quantity == "Line Graph":
-                fig_quantity = px.line(total_sales, x='period', y='quantity_sold', title='Quantity Sold Over Time', markers=True)
-            else:
-                fig_quantity = px.bar(total_sales, x='period', y='quantity_sold', title='Quantity Sold Over Time', text='quantity_sold', color='quantity_sold', color_continuous_scale='Blues')
-                fig_quantity.update_traces(texttemplate='%{text:.0f}')
-        
-            fig_quantity.update_layout(
-                xaxis_title='Time Period',
-                yaxis_title='Quantity Sold',
-                xaxis=dict(tickangle=45),
-                autosize=True,
-                margin=dict(l=20, r=20, t=50, b=20)
-            )
-            st.plotly_chart(fig_quantity)
+    def plot_total_sales(sale_data, order_data, period):
+        st.header("A. Total Sales Overview")
+    
+        # Convert `sale_date` to datetime
+        sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
+    
+        # Summarize quantity sold per `sale_id` from `order_data`
+        order_quantity = order_data.groupby('sale_id')['quantity'].sum().reset_index()
+        order_quantity.rename(columns={'quantity': 'quantity_sold'}, inplace=True)
+    
+        # Merge quantity data with sales data
+        sale_data = sale_data.merge(order_quantity, on='sale_id', how='left')
+    
+        # Define period mapping for aggregation
+        period_mapping = {
+            'Daily': ('%Y-%m-%d', sale_data['sale_date'].dt.date),
+            'Weekly': ('%Y-%m-%d', sale_data['sale_date'].dt.to_period('W').dt.start_time),
+            'Monthly': ('%Y-%m', sale_data['sale_date'].dt.to_period('M').dt.start_time),
+            'Quarterly': ('%Y-Q%q', sale_data['sale_date'].dt.to_period('Q').dt.start_time),
+            'Yearly': ('%Y', sale_data['sale_date'].dt.to_period('Y').dt.start_time),
+        }
+    
+        x_axis_format, sale_data['period'] = period_mapping.get(period, ('%Y-%m-%d', sale_data['sale_date'].dt.date))
+    
+        # Aggregate sales data
+        total_sales = sale_data.groupby('period').agg(
+            total_revenue=('final_amount', 'sum'),
+            quantity_sold=('quantity_sold', 'sum')
+        ).reset_index()
+    
+        # Find the max and min values for revenue and quantity sold directly from the aggregated data
+        max_revenue_day = total_sales.loc[total_sales['total_revenue'].idxmax()]
+        max_revenue_value = max_revenue_day['total_revenue']
+        max_revenue_date = max_revenue_day['period']
+    
+        min_revenue_day = total_sales.loc[total_sales['total_revenue'].idxmin()]
+        min_revenue_value = min_revenue_day['total_revenue']
+        min_revenue_date = min_revenue_day['period']
+    
+        max_quantity_day = total_sales.loc[total_sales['quantity_sold'].idxmax()]
+        max_quantity_value = max_quantity_day['quantity_sold']
+        max_quantity_date = max_quantity_day['period']
+    
+        min_quantity_day = total_sales.loc[total_sales['quantity_sold'].idxmin()]
+        min_quantity_value = min_quantity_day['quantity_sold']
+        min_quantity_date = min_quantity_day['period']
+    
+        summary_stats = {
+            "Total Revenue": sale_data['final_amount'].sum(),
+            "Average Revenue": sale_data['final_amount'].mean(),
+            "Max Revenue (Day)": max_revenue_value,
+            "Max Revenue Date": max_revenue_date,
+            "Min Revenue (Day)": min_revenue_value,
+            "Min Revenue Date": min_revenue_date,
+            "Total Quantity Sold": sale_data['quantity_sold'].sum(),
+            "Average Quantity Sold": sale_data['quantity_sold'].mean(),
+            "Max Quantity Sold (Day)": max_quantity_value,
+            "Max Quantity Date": max_quantity_date,
+            "Min Quantity Sold (Day)": min_quantity_value,
+            "Min Quantity Date": min_quantity_date
+        }
+    
+        # Display summary statistics in metric cards
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Total Revenue", f"${summary_stats['Total Revenue']:.2f}")
+            st.metric("Average Revenue", f"${summary_stats['Average Revenue']:.2f}")
+            st.metric("Max Revenue (Day)", f"${summary_stats['Max Revenue (Day)']:.2f}", f"Date: {summary_stats['Max Revenue Date']:%Y-%m-%d}")
+            st.metric("Min Revenue (Day)", f"${summary_stats['Min Revenue (Day)']:.2f}", f"Date: {summary_stats['Min Revenue Date']:%Y-%m-%d}")
+        with col2:
+            st.metric("Total Quantity Sold", f"{summary_stats['Total Quantity Sold']:.0f}")
+            st.metric("Average Quantity Sold", f"{summary_stats['Average Quantity Sold']:.2f}")
+            st.metric("Max Quantity Sold (Day)", f"{summary_stats['Max Quantity Sold (Day)']:.0f}", f"Date: {summary_stats['Max Quantity Date']:%Y-%m-%d}")
+            st.metric("Min Quantity Sold (Day)", f"{summary_stats['Min Quantity Sold (Day)']:.0f}", f"Date: {summary_stats['Min Quantity Date']:%Y-%m-%d}")
+    
+        # Plot Total Revenue
+        st.subheader("⦁ Total Revenue")
+        graph_type_revenue = st.selectbox("Select Graph Type for Revenue", ["Line Graph", "Bar Chart"], key="revenue_graph_select")
+    
+        if graph_type_revenue == "Line Graph":
+            fig_revenue = px.line(total_sales, x='period', y='total_revenue', title='Total Revenue Over Time', markers=True)
+        else:
+            fig_revenue = px.bar(total_sales, x='period', y='total_revenue', title='Total Revenue Over Time', text='total_revenue', color='total_revenue', color_continuous_scale='Blues')
+            fig_revenue.update_traces(texttemplate='%{text:.2f}')
+    
+        fig_revenue.update_layout(
+            xaxis_title='Time Period',
+            yaxis_title='Total Revenue',
+            xaxis=dict(tickangle=45),
+            autosize=True,
+            margin=dict(l=20, r=20, t=50, b=20)
+        )
+        st.plotly_chart(fig_revenue)
+    
+        # Plot Quantity Sold
+        st.subheader("⦁ Quantity Sold")
+        graph_type_quantity = st.selectbox("Select Graph Type for Quantity", ["Line Graph", "Bar Chart"], key="quantity_graph_select")
+    
+        if graph_type_quantity == "Line Graph":
+            fig_quantity = px.line(total_sales, x='period', y='quantity_sold', title='Quantity Sold Over Time', markers=True)
+        else:
+            fig_quantity = px.bar(total_sales, x='period', y='quantity_sold', title='Quantity Sold Over Time', text='quantity_sold', color='quantity_sold', color_continuous_scale='Blues')
+            fig_quantity.update_traces(texttemplate='%{text:.0f}')
+    
+        fig_quantity.update_layout(
+            xaxis_title='Time Period',
+            yaxis_title='Quantity Sold',
+            xaxis=dict(tickangle=45),
+            autosize=True,
+            margin=dict(l=20, r=20, t=50, b=20)
+        )
+        st.plotly_chart(fig_quantity)
 
 
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
@@ -587,13 +587,13 @@ def dashboard():
                                                      "Order Monitoring Dashboard",
                                                      "About Page"])
         
-    period = st.selectbox('Select Time Period:', ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'])
         
     # Sidebar Filters: Branch, Time Period, and Date Range
     with st.sidebar:
         # Container with Border for Filters
         with st.container():
             st.subheader("Filter Data")
+            period = st.selectbox('Select Time Period:', ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'])
                 
     cart_table = get_ref('cart')#.where('status', '==', 'Done')
     sale = cart_table[cart_table['status'] == 'Done']
