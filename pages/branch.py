@@ -902,7 +902,7 @@ def dashboard():
         elif time_period == "Yearly":
             usage['date'] = usage['date'].dt.to_period('Y').dt.start_time
 
-        timely_usage = usage.groupby('date')['inventory_id'].sum().reset_index()
+        timely_usage = usage.groupby('inventory_id')['quantity'].sum().reset_index()
         turnover = pd.merge(timely_usage, inventory, on='inventory_id', how='inner')
         timely_turnover = turnover['quantity']/turnover['quantity_on_hand']
         st.write(turnover['quantity'])
