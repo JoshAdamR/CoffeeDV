@@ -455,12 +455,11 @@ def dashboard():
                                                      "Financial Analytics",
                                                      "Operational Analytics",
                                                      "Order Monitoring Dashboard"])
-        for item in data['cart']:
-            if isinstance(item, dict) and 'ordered_time_date' in item:
-                item['ordered_time_date'] = pd.to_datetime(item['ordered_time_date'], errors='coerce')
+    for item in data['cart']:
+        if isinstance(item, dict) and 'ordered_time_date' in item:
+            item['ordered_time_date'] = pd.to_datetime(item['ordered_time_date'], errors='coerce')
 
-
-    # Sidebar Filters: Branch, Time Period, and Date Range
+# Sidebar Filters: Branch, Time Period, and Date Range
     with st.sidebar:
         # Container with Border for Filters
         with st.container():
