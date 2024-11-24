@@ -908,7 +908,7 @@ def dashboard():
             timely_usage = usage['date'].dt.to_period('Y').dt.start_time
             timely_inventory = inventory['quantity_on_hand'] 
 
-        timely_turnover = (timely_usage / timely_inventory).fillna(0)
+        timely_turnover = (timely_usage / timely_inventory).fillna(0)*1000
         st.write(timely_turnover)
         # Create an interactive Plotly graph
         fig = go.Figure()
@@ -916,7 +916,7 @@ def dashboard():
         # Add the turnover rate line (Light Blue)
         fig.add_trace(go.Scatter(
             x=timely_turnover.index,
-            y=timely_turnover.values*1000,
+            y=timely_turnover.values,
             mode='lines',
             name='Inventory Turnover',
             line=dict(color='lightblue')
