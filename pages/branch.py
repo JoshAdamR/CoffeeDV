@@ -439,33 +439,24 @@ def branch_order(branch_id):
 
 def dashboard():
         
-    def plot_best_worst_sellers(order_data, product_data):
-        sale = get_ref('cart').where('status', '==', 'Done')
-        
+    def plot_best_worst_sellers(sale):
         # Group by product and sum the quantity sold for each product
         sales_by_product = sale.groupby('product_name')['quantity'].sum().reset_index()
-    
         # Rename columns for clarity
         sales_by_product.rename(columns={'product_name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
-    
         # Sort the products by total quantity sold to identify best and worst sellers
         sales_by_product_sorted = sales_by_product.sort_values(by='Quantity Sold', ascending=False)
-    
         # Get top 3 best sellers based on quantity sold
         best_sellers = sales_by_product_sorted.head(3)
-    
         # Get bottom 3 worst sellers based on quantity sold
         worst_sellers = sales_by_product_sorted.tail(3)
-    
         # Create two columns for displaying Best and Worst Sellers side by side
         col1, col2 = st.columns(2)
-    
         # Display Best Sellers in the first column
         with col1:
             st.subheader("Top 3 Best Sellers")
             for _, row in best_sellers.iterrows():
                 st.success(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
-    
         # Display Worst Sellers in the second column
         with col2:
             st.subheader("Bottom 3 Worst Sellers")
@@ -487,6 +478,8 @@ def dashboard():
         # Container with Border for Filters
         with st.container():
             st.subheader("Filter Data")
+                
+    sale = get_ref('cart').where('status', '==', 'Done')
                 
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
