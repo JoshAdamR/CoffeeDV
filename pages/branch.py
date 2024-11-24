@@ -955,7 +955,7 @@ def dashboard():
         st.header("B. Coupon Usage Over Time")
 
         # Filter sales with coupons and group by date for coupon-based sales
-        coupon_sales = sale_data[sale_data['coupon_code'] != 'None']
+        coupon_sales = sale_data[sale_data['coupon_used'] != 'None']
         coupon_sales_by_date = coupon_sales.groupby('sale_date')['price_after_discount'].sum()
 
         # Plot coupon usage over time as a line chart
