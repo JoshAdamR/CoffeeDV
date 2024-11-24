@@ -909,7 +909,7 @@ def dashboard():
             timely_inventory = inventory['quantity_on_hand'] 
 
         timely_turnover = (timely_usage / timely_inventory).fillna(0)
-
+        st.write(timely_turnover)
         # Create an interactive Plotly graph
         fig = go.Figure()
 
