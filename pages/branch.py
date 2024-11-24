@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
 from firebase_config import store
+import plotly.express as px
+import plotly.graph_objects as go
 
 make_sidebar()
 

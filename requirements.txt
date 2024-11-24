@@ -11,3 +11,4 @@ toml==0.10.2
 reportlab==4.2.5
 pillow
 requests
+plotly==5.17.0
