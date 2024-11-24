@@ -901,8 +901,8 @@ def dashboard():
 
         # Add the turnover rate line (Light Blue)
         fig.add_trace(go.Scatter(
-            x=turnover.index,
-            y=turnover.values,
+            x=inventory['turnover'].index,
+            y=inventory['turnover'].values,
             mode='lines',
             name='Inventory Turnover',
             line=dict(color='lightblue')
