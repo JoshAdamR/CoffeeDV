@@ -7,6 +7,7 @@ from streamlit_javascript import st_javascript
 
 make_sidebar()
 
+st.write(cookies.getAll())
 #clearCookies()
 
 page = st.sidebar.selectbox("Navigate to", ["Login", "About Us"])
