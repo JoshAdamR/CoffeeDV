@@ -109,7 +109,7 @@ def is_valid_name(name: str) -> bool:
     name = name.upper()
     
     # Check if the name contains only alphabets and spaces
-    if re.match(r"^[A-Za-z\s]+$", name):
+    if re.match("^[A-Za-z\s]+$", name):
         return name
     else:
         return None
