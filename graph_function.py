@@ -9,10 +9,8 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 import datetime
-from datetime import datetime
+from datetime import datetime, timedelta
 import time 
-from streamlit_autorefresh import st_autorefresh
-from datetime import timedelta
 
 def gf():
     def display_dataset_summary(data):
