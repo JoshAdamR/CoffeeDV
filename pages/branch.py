@@ -741,7 +741,7 @@ def dashboard():
 
     def calculate_profit(sale, time_period):
         st.header("D. Profit Calculation")
-        
+        inv_usage = get_ref('inv_usage')
         usage_history = get_ref('usage_history')
         sale['revenue'] = sale['quantity']*sale['price_after_discount']
         #revenue = sale['revenue'].sum()
