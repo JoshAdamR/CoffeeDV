@@ -979,7 +979,7 @@ def dashboard():
         # Merge data and calculate profit margin
         merged_data = pd.merge(order_data, sale_data_filtered, on='cart_id')
         merged_data.rename(columns={'name': 'product_name'}, inplace=True)
-        merged_data = pd.merge(merged_data, product_data, on='product_name')
+        merged_data = pd.merge(merged_data, product_data, on='name')
         
         # Ensure numerical columns are in correct format
         merged_data['total_amount'] = pd.to_numeric(merged_data['total_amount'], errors='coerce')
