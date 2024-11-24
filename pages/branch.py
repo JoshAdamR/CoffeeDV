@@ -879,12 +879,15 @@ def dashboard():
     def calculate_inventory_turnover(inventory, usage, selected_branch, time_period):
 
         # Filter data for the selected branch and time period
-        inventory_branch = inventory[inventory['branch'] == selected_branch]
-        usage_branch = usage[usage['branch'] == selected_branch]
+        inventory_branch = inventory[inventory['branch_id'] == selected_branch]
+        usage_branch = usage[usage['branch_id'] == selected_branch]
 
         # Calculate turnover rate (e.g., usage / average inventory)
-        inventory_branch['average_inventory'] = (inventory_branch['beginning_inventory'] + inventory_branch['ending_inventory']) / 2
-        inventory_branch['turnover'] = usage_branch['usage'] / inventory_branch['average_inventory']
+        inventory_branch['total_inventory'] = inventory_branch['quantiy_on_hand'] * inventory_branch['unit_price']
+        inventory_branch = pd.merge(usage_branch, inventory_branch, on='inventory_id', how='inner')
+        inventory_branch['turnover'] =  inventory_branch['usage']*inventory_branch['unit_price'] / inventory_branch['average_inventory']
+
+        st.write(inventory_branch)
 
         # Create an interactive Plotly graph
         fig = go.Figure()
