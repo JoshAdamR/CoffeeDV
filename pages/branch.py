@@ -587,7 +587,7 @@ def dashboard():
     
 
     
-page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management"])
+page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management", "Dashboards"])
 
 if page == "Inventory Management":
     inventory(branch_id)
