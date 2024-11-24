@@ -480,7 +480,7 @@ def dashboard():
             st.subheader("Filter Data")
                 
     sale_table = get_ref('cart')#.where('status', '==', 'Done')
-    sale = sale_table[sale_table['statue'] == 'Done']
+    sale = sale_table[sale_table['status'] == 'Done']
                 
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
