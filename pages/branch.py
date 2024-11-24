@@ -911,6 +911,45 @@ def dashboard():
         # Show the graph
         fig.show()
 
+
+    def plot_promotion_performance(sale_data, metric):
+        st.header("A. Promotion Performance")
+        
+        # Add a promotion type column based on coupon_code presence
+        sale_data['promotion_type'] = sale_data['coupon_used'].apply(lambda x: 'Promotion' if x != 'None' else 'Non-Promotion')
+
+        if metric == "Sales":
+            # Group by promotion type and calculate total sales
+            promotion_sales_df = sale_data.groupby('promotion_type')['price_after_discount'].sum().reset_index()
+            # Display total sales amounts as metrics
+            promotion_sales = promotion_sales_df.set_index('promotion_type')['price_after_discount']
+            col1, col2 = st.columns(2)  # Create two columns for metrics
+            col1.metric("Total Sales (Promotion)", round(promotion_sales.get('Promotion', 0), 2))
+            col2.metric("Total Sales (Non-Promotion)", round(promotion_sales.get('Non-Promotion', 0), 2))
+            values = promotion_sales_df['price_after_discount']
+            labels = promotion_sales_df['promotion_type']
+        elif metric == "Orders":
+            # Group by promotion type and calculate total orders
+            promotion_sales_df = sale_data.groupby('promotion_type').size().reset_index(name='order_count')
+            promotion_sales_df.rename(columns={'order_count': 'price_after_discount'}, inplace=True)
+            # Display total number of orders as metrics
+            promotion_orders = promotion_sales_df.set_index('promotion_type')['price_after_discount']
+            col1, col2 = st.columns(2)  # Create two columns for metrics
+            col1.metric("Total Orders (Promotion)", promotion_orders.get('Promotion', 0))
+            col2.metric("Total Orders (Non-Promotion)", promotion_orders.get('Non-Promotion', 0))
+            values = promotion_sales_df['price_after_discount']
+            labels = promotion_sales_df['promotion_type']
+        
+        # Plot promotion performance as a pie chart
+        fig1 = go.Figure()
+        fig1.add_trace(go.Pie(labels=labels, values=values, name='Impact'))
+        fig1.update_layout(
+            title=f'Impact During Promotional vs Non-Promotional Periods ({metric})'
+        )
+
+        # Display the pie chart in Streamlit
+        st.plotly_chart(fig1)
+
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
                                                      "Inventory Analytics Dashboard",
@@ -985,7 +1024,7 @@ def dashboard():
         #plot_inventory_cost_analysis(data['product'])
 
 
-    '''elif selection == "Promotion and Discount Analytics":
+    elif selection == "Promotion and Discount Analytics":
         st.title("Promotion and Discount Analytics")
         # Use the already filtered `sale_data_filtered`
         # Add a radio button to toggle between Sales or Orders for Promotion Performance Chart
