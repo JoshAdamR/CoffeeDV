@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
-import graph_function
+from graph_function import gf
 from firebase_config import store 
 
 make_sidebar()
@@ -518,20 +518,20 @@ def dashboard():
     # Now handle the different views based on user selection
     if selection == "Dataset Summary":
         st.title("Data Overview")
-        display_dataset_summary(data)
+        gf.display_dataset_summary(data)
 
     elif selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_best_worst_sellers(order_data_filtered, data['product'])
+        gf.plot_best_worst_sellers(order_data_filtered, data['product'])
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_total_sales(sale_data_filtered, order_data_filtered, period)
+        gf.plot_total_sales(sale_data_filtered, order_data_filtered, period)
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_sales_by_product(order_data_filtered, data['product'])
+        gf.plot_sales_by_product(order_data_filtered, data['product'])
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_sales_by_time_of_day(sale_data_filtered)
+        gf.plot_sales_by_time_of_day(sale_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
-        calculate_profit(sale_data_filtered, order_data_filtered, data['product'], data['addon'], period)
+        gf.calculate_profit(sale_data_filtered, order_data_filtered, data['product'], data['addon'], period)
 
     elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
@@ -539,15 +539,15 @@ def dashboard():
         filtered_customers = data['customer'][data['customer']['customer_id'].isin(sale_data_filtered['customer_id'])]
         # Pass the filtered data to the plotting functions
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_customer_demographics(filtered_customers)
+        gf.plot_customer_demographics(filtered_customers)
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_order_frequency_history(order_data_filtered, sale_data_filtered)
+        gf.plot_order_frequency_history(order_data_filtered, sale_data_filtered)
 
     elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
-        display_low_stock_products(data['inventory'], selected_branch)
+        gf.display_low_stock_products(data['inventory'], selected_branch)
         st.markdown("<hr>", unsafe_allow_html=True)
-        calculate_inventory_turnover(data, selected_branch)
+        gf.calculate_inventory_turnover(data, selected_branch)
         #plot_inventory_turnover(data['sale'], data['inventory'])
         #plot_stock_levels(data['sale'], data['order'], data['inventory'])
         #display_low_stock_alerts(data['inventory'])
@@ -560,29 +560,29 @@ def dashboard():
         # Add a radio button to toggle between Sales or Orders for Promotion Performance Chart
         metric = st.radio("Select Metric for Promotion Performance", ["Sales", "Orders"])
         # Plot Promotion Performance based on selected metric
-        plot_promotion_performance(sale_data_filtered, metric)
+        gf.plot_promotion_performance(sale_data_filtered, metric)
         st.markdown("<hr>", unsafe_allow_html=True)
         # Plot Coupon Usage Over Time
-        plot_coupon_usage_over_time(sale_data_filtered)
+        gf.plot_coupon_usage_over_time(sale_data_filtered)
 
     elif selection == "Financial Analytics":
         st.title("Financial Analytics")
         st.markdown("<hr>", unsafe_allow_html=True)
-        profit_margin_analysis(order_data_filtered, sale_data_filtered, data['product'])
+        gf.profit_margin_analysis(order_data_filtered, sale_data_filtered, data['product'])
         st.markdown("<hr>", unsafe_allow_html=True)
-        cost_analysis(data['operatingcost'], operatingcost_data_filtered)
+        gf.cost_analysis(data['operatingcost'], operatingcost_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
-        revenue_streams_analysis(order_data_filtered, data['product'])
+        gf.revenue_streams_analysis(order_data_filtered, data['product'])
 
     elif selection == "Operational Analytics":
         st.title("Operational Analytics")
         st.markdown("<hr>", unsafe_allow_html=True)
-        customer_feedback_ratings(data, sale_data_filtered, period)
+        gf.customer_feedback_ratings(data, sale_data_filtered, period)
         st.markdown("<hr>", unsafe_allow_html=True)
-        order_processing_times(sale_data_filtered)
+        gf.order_processing_times(sale_data_filtered)
 
     elif selection == "Order Monitoring Dashboard":
-        order_monitoring_dashboard(sale_data_filtered)
+        gf.order_monitoring_dashboard(sale_data_filtered)
     
 
     
