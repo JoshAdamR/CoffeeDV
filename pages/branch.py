@@ -904,8 +904,8 @@ def dashboard():
 
         turnover = pd.merge(timely_usage, inventory, on='inventory_id', how='inner')
         timely_turnover = turnover['quantity']/turnover['quantity_on_hand']
-        st.write(timely_usage)
-        st.write(timely_inventory)
+        st.write(turnover['quantity'])
+        st.write(turnover['quantity_on_hand'])
         st.write(timely_turnover)
         # Create an interactive Plotly graph
         fig = go.Figure()
