@@ -882,17 +882,18 @@ def dashboard():
         # Debug: Check the inventory table
         print("Updated Inventory Table:")
         print(inventory.head())
-
+        st.write(usage)
         # Group by the selected time period
         if time_period == "Daily":
             # Aggregate usage by day
-            usage['dates'] = usage['date'].dt.date
+            usage['date'] = usage['date'].dt.date
 
         elif time_period == "Weekly":
             # Aggregate usage by week
-            usage['dates'] = usage['date'].dt.to_period('W').dt.start_time
+            usage['date'] = usage['date'].dt.to_period('W').dt.start_time
 
         st.write(usage)
+        revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
 
         inventory = pd.merge(usage, inventory, on='inventory_id', how='inner')
 
