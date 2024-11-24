@@ -881,13 +881,11 @@ def dashboard():
         # Filter data for the selected branch and time period
         inventory_branch = inventory[inventory['branch_id'] == selected_branch]
         usage_branch = usage[usage['branch_id'] == selected_branch]
-        st.write(inventory_branch)
 
         # Calculate turnover rate (e.g., usage / average inventory)
         inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']
-        st.write(inventory_branch)
         inventory_branch = pd.merge(usage_branch, inventory_branch, on='inventory_id', how='inner')
-        inventory_branch['turnover'] =  usage_branch['usage']*inventory_branch['unit_price'] / inventory_branch['average_inventory']
+        inventory_branch['turnover'] =  inventory_branch['quantity']*inventory_branch['unit_price'] / inventory_branch['average_inventory']
 
         st.write(inventory_branch)
 
