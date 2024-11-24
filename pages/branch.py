@@ -455,9 +455,9 @@ def dashboard():
                                                      "Financial Analytics",
                                                      "Operational Analytics",
                                                      "Order Monitoring Dashboard"])
-    
+        
     # Convert sale_date to datetime if it's not already
-    data['cart']['ordered_time_date'] = pd.to_datetime(data['cart']['ordered_time_date'])
+    data['cart']['ordered_time_date'] = pd.to_datetime(data['cart']['ordered_time_date'], errors='coerce')
 
     # Sidebar Filters: Branch, Time Period, and Date Range
     with st.sidebar:
