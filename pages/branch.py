@@ -972,7 +972,7 @@ def dashboard():
 
     # Financial Analytics
 
-    def calculate_profit(sale, inventory, usage_history, time_period):
+    def profit_margin_analysis(sale, inventory, usage_history, time_period):
         st.header("D. Profit Calculation")
 
         sale['revenue'] = sale['quantity']*sale['price_after_discount']
@@ -1404,7 +1404,7 @@ def dashboard():
     elif selection == "Financial Analytics":
         st.title("Financial Analytics")
         st.markdown("<hr>", unsafe_allow_html=True)
-        profit_margin_analysis(order_data_filtered, sale_data_filtered, product)
+        profit_margin_analysis(sale, inventory, usage_history, time_period)
         st.markdown("<hr>", unsafe_allow_html=True)
         cost_analysis(data['operatingcost'], operatingcost_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
