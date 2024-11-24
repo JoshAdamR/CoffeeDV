@@ -842,8 +842,7 @@ def dashboard():
 
     
 
-    selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
-                                                     "Sales Analytics Dashboard",
+    selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
                                                      "Inventory Analytics Dashboard",
                                                      "Promotion and Discount Analytics",
