@@ -989,7 +989,7 @@ def dashboard():
         st.title("Inventory Analytics Dashboard")
         display_low_stock_products(inventory_full, branch_id)
         st.markdown("<hr>", unsafe_allow_html=True)
-        calculate_inventory_turnover(inventory_full, restock_history, usage_history branch_id)
+        calculate_inventory_turnover(inventory_full, restock_history, usage_history. branch_id)
         #plot_inventory_turnover(data['sale'], data['inventory'])
         #plot_stock_levels(data['sale'], data['order'], data['inventory'])
         #display_low_stock_alerts(data['inventory'])
