@@ -841,7 +841,7 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_sales_by_time_of_day(sale_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
-        calculate_profit(sale)
+        calculate_profit(sale, time_period)
 
     '''elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
