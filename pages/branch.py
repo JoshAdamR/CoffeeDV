@@ -66,6 +66,7 @@ def inventory(branch_id):
                     'inventory_id': inventory_id,
                     'quantity': quantity,
                     'branch_id': branch_id
+                    'date' : datetime.now()
                 })
             elif action == "restock":
                 new_quantity = current_quantity + quantity
@@ -74,6 +75,7 @@ def inventory(branch_id):
                     'inventory_id': inventory_id,
                     'quantity': quantity,
                     'branch_id': branch_id
+                    'date' : datetime.now()
                 })
             else:
                 st.error("Invalid action. Use 'remove' or 'restock'.")
@@ -324,6 +326,7 @@ def branch_order(branch_id):
                     'inventory_id': inventory_id,
                     'quantity': used,
                     'branch_id': branch_id
+                    'date' : datetime.now()
                 })
 
     cart_ref = store.collection('cart')
@@ -736,6 +739,60 @@ def dashboard():
         # Render the Plotly chart in Streamlit
         st.plotly_chart(fig)
 
+    def calculate_profit(sale, time_period):
+        st.header("D. Profit Calculation")
+        
+        usage_history = get_ref('usage_history')
+        sale['revenue'] = sale['quantity']*sale['price_after_discount']
+        #revenue = sale['revenue'].sum()
+        usage_merge = pd.merge(usage_history, inv_usage, on='inventory_id', how='inner')
+        usage_merge['cost'] = usage_merge['usage'] * usage_merge['quantity']
+        #cost = usage_merge['cost'].sum()
+        #profit = revenue - cost
+
+        # Group by the selected time period
+        if time_period == "Daily":
+            # Aggregate profit by day
+            sale['ordered_time_date'] = sale['ordered_time_date'].dt.date
+            usage_merge['ordered_time_date'] = usage_merge['ordered_time_date'].dt.date
+            revenue_aggregated = sale.groupby('ordered_time_date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()            
+
+        elif time_period == "Weekly":
+            # Aggregate profit by week
+            merged_data['week'] = merged_data['ordered_time_date'].dt.to_period('W').dt.start_time
+            usage_merge['week'] = usage_merge['ordered_time_date'].dt.to_period('W').dt.start_time
+            profit_aggregated = merged_data.groupby('week')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('week')['cost'].sum().reset_index()
+
+        elif time_period == "Monthly":
+            # Aggregate profit by month
+            merged_data['month'] = merged_data['ordered_time_date'].dt.to_period('M').dt.start_time
+            usage_merge['month'] = usage_merge['ordered_time_date'].dt.to_period('M').dt.start_time
+            profit_aggregated = merged_data.groupby('month')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('month')['cost'].sum().reset_index()
+        
+        profit_aggregated = revenue_aggregated - cost_aggregated
+        
+        # Plot the profit based on the selected time period
+        st.subheader(f"⦁ Profit ({time_period})")
+        graph_type_profit = st.selectbox(f"Select Graph Type for Profit ({time_period})", ["Line Graph", "Bar Chart"], key=f"profit_graph_{time_period}")
+        
+        if graph_type_profit == "Line Graph":
+            fig_profit = px.line(profit_aggregated, x=profit_aggregated.columns[0], y='profit', title=f'{time_period} Profit Over Time', markers=True)
+            fig_profit.update_layout(
+                xaxis_title=f'{time_period} Period',
+                yaxis_title='Profit'
+            )
+            st.plotly_chart(fig_profit)
+        else:
+            fig_profit = px.bar(profit_aggregated, x=profit_aggregated.columns[0], y='profit', title=f'{time_period} Profit Over Time', text='profit', color='profit', color_continuous_scale='Blues')
+            fig_profit.update_traces(texttemplate='%{text:.2f}')
+            fig_profit.update_layout(
+                xaxis_title=f'{time_period} Period',
+                yaxis_title='Profit'
+            )
+            st.plotly_chart(fig_profit)
     
 
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
@@ -760,6 +817,7 @@ def dashboard():
     sale = cart_table[cart_table['status'] == 'Done']
     order = cart_table[cart_table['status'] != 'In Cart']
     product = get_ref('product')
+    addon = get_ref('addon')
 
     # Date Range Filter
     sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
@@ -782,10 +840,10 @@ def dashboard():
         plot_sales_by_product(order)
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_sales_by_time_of_day(sale_data_filtered)
-        '''st.markdown("<hr>", unsafe_allow_html=True)
-        calculate_profit(sale_data_filtered, order_data_filtered, data['product'], data['addon'], period)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        calculate_profit(sale)
 
-    elif selection == "Customer Analytics Dashboard":
+    '''elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
         # Filter customers using the filtered sales data
         filtered_customers = data['customer'][data['customer']['customer_id'].isin(sale_data_filtered['customer_id'])]
