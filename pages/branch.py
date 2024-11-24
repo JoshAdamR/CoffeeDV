@@ -754,29 +754,26 @@ def dashboard():
         # Group by the selected time period
         if time_period == "Daily":
             # Aggregate profit by day
-            sale['ordered_time_date'] = sale['ordered_time_date'].dt.date
-            usage_merge['date'] = usage_merge['date'].dt.date
+            sale['datetime'] = sale['ordered_time_date'].dt.date
+            usage_merge['datetime'] = usage_merge['date'].dt.date
             revenue_aggregated = sale.groupby('ordered_time_date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()            
 
         elif time_period == "Weekly":
             # Aggregate profit by week
-            merged_data['week'] = merged_data['ordered_time_date'].dt.to_period('W').dt.start_time
-            usage_merge['week'] = usage_merge['date'].dt.to_period('W').dt.start_time
+            merged_data['datetime'] = merged_data['ordered_time_date'].dt.to_period('W').dt.start_time
+            usage_merge['datetime'] = usage_merge['date'].dt.to_period('W').dt.start_time
             profit_aggregated = merged_data.groupby('week')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('week')['cost'].sum().reset_index()
 
         elif time_period == "Monthly":
             # Aggregate profit by month
-            merged_data['month'] = merged_data['ordered_time_date'].dt.to_period('M').dt.start_time
-            usage_merge['month'] = usage_merge['date'].dt.to_period('M').dt.start_time
+            merged_data['datetime'] = merged_data['ordered_time_date'].dt.to_period('M').dt.start_time
+            usage_merge['datetime'] = usage_merge['date'].dt.to_period('M').dt.start_time
             profit_aggregated = merged_data.groupby('month')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('month')['cost'].sum().reset_index()
 
-        
-        revenue_aggregated['date'] = revenue_aggregated['ordered_time_date'] 
-
-        profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='date', how='inner')
+        profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='datetime', how='inner')
         profit_aggregated['profit'] = profit_aggregated['revenue'] - profit_aggregated['cost']
 
         # Plot the profit based on the selected time period
@@ -784,14 +781,14 @@ def dashboard():
         graph_type_profit = st.selectbox(f"Select Graph Type for Profit ({time_period})", ["Line Graph", "Bar Chart"], key=f"profit_graph_{time_period}")
         
         if graph_type_profit == "Line Graph":
-            fig_profit = px.line(profit_aggregated, x=profit_aggregated['date'], y='profit', title=f'{time_period} Profit Over Time', markers=True)
+            fig_profit = px.line(profit_aggregated, x=profit_aggregated['datetime'], y='profit', title=f'{time_period} Profit Over Time', markers=True)
             fig_profit.update_layout(
                 xaxis_title=f'{time_period} Period',
                 yaxis_title='Profit'
             )
             st.plotly_chart(fig_profit)
         else:
-            fig_profit = px.bar(profit_aggregated, x=profit_aggregated['date'], y='profit', title=f'{time_period} Profit Over Time', text='profit', color='profit', color_continuous_scale='Blues')
+            fig_profit = px.bar(profit_aggregated, x=profit_aggregated['datetime'], y='profit', title=f'{time_period} Profit Over Time', text='profit', color='profit', color_continuous_scale='Blues')
             fig_profit.update_traces(texttemplate='%{text:.2f}')
             fig_profit.update_layout(
                 xaxis_title=f'{time_period} Period',
