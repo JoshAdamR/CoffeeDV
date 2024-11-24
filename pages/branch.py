@@ -881,6 +881,7 @@ def dashboard():
         # Filter data for the selected branch and time period
         inventory_branch = inventory[inventory['branch_id'] == selected_branch]
         usage_branch = usage[usage['branch_id'] == selected_branch]
+        st.write(inventory_branch)
 
         # Calculate turnover rate (e.g., usage / average inventory)
         inventory_branch['total_inventory'] = inventory_branch['quantiy_on_hand'] * inventory_branch['unit_price']
