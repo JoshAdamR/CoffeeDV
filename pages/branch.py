@@ -944,7 +944,7 @@ def dashboard():
         fig1 = go.Figure()
         fig1.add_trace(go.Pie(labels=labels, values=values, name='Impact'))
         fig1.update_layout(
-            title=f'Impact During Promotional vs Non-Promotional Periods ({metric})
+            title=f'Impact During Promotional vs Non-Promotional Periods ({metric})'
         )
 
         # Display the pie chart in Streamlit
@@ -1052,7 +1052,7 @@ def dashboard():
         order_processing_times(sale_data_filtered)
 
     elif selection == "Order Monitoring Dashboard":
-        order_monitoring_dashboard(sale_data_filtered)'''
+        order_monitoring_dashboard(sale_data_filtered)
     
 
     
