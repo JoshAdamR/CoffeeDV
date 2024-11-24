@@ -886,6 +886,8 @@ def dashboard():
         inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']
         inventory_branch = pd.merge(usage_branch, inventory_branch, on='inventory_id', how='inner')
         inventory_branch['turnover'] =  usage_branch['quantity']*inventory_branch['unit_price'] / inventory_branch['total_inventory']
+
+        st.write(inventory_branch)
         
         # Create an interactive Plotly graph
         fig = go.Figure()
