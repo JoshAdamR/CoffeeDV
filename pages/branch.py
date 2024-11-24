@@ -438,6 +438,10 @@ def branch_order(branch_id):
         st.subheader("Total Pending Orders: 0")
         st.write("No orders are currently in the 'Preparing' status.")
 
+def dashboard(branch_id):
+    pass
+
+    
 page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management"])
 
 if page == "Inventory Management":
@@ -446,6 +450,8 @@ elif page == "Coupon Management":
     coupon()
 elif page == "Order Management":
     branch_order(branch_id)
+elif page == "Dashboards":
+    dashboard(branch_id)
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
