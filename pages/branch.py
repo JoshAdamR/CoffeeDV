@@ -65,7 +65,7 @@ def inventory(branch_id):
                 store.collection('usage_history').add({
                     'inventory_id': inventory_id,
                     'quantity': quantity,
-                    'branch_id': branch_id
+                    'branch_id': branch_id,
                     'date' : datetime.now()
                 })
             elif action == "restock":
@@ -74,7 +74,7 @@ def inventory(branch_id):
                 store.collection('restock_history').add({
                     'inventory_id': inventory_id,
                     'quantity': quantity,
-                    'branch_id': branch_id
+                    'branch_id': branch_id,
                     'date' : datetime.now()
                 })
             else:
@@ -325,7 +325,7 @@ def branch_order(branch_id):
                 store.collection('usage_history').add({
                     'inventory_id': inventory_id,
                     'quantity': used,
-                    'branch_id': branch_id
+                    'branch_id': branch_id,
                     'date' : datetime.now()
                 })
 
@@ -773,7 +773,7 @@ def dashboard():
             cost_aggregated = usage_merge.groupby('month')['cost'].sum().reset_index()
         
         profit_aggregated = revenue_aggregated - cost_aggregated
-        
+
         # Plot the profit based on the selected time period
         st.subheader(f"⦁ Profit ({time_period})")
         graph_type_profit = st.selectbox(f"Select Graph Type for Profit ({time_period})", ["Line Graph", "Bar Chart"], key=f"profit_graph_{time_period}")
