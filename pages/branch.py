@@ -810,6 +810,36 @@ def dashboard():
                 yaxis_title='Profit'
             )
             st.plotly_chart(fig_profit)
+
+    def plot_customer_demographics(customer_data):
+        st.subheader("A. Customer Demographics")
+
+        # Create age groups for categorization
+        age_group = pd.cut(customer_data['age'], bins=[0, 18, 30, 40, 50, float('inf')], 
+                        labels=['<18', '18-30', '30-40', '40-50', '50+'])
+        
+        # Count number of customers by age group
+        age_group_counts = age_group.value_counts().reset_index()
+        age_group_counts.columns = ['Age Group', 'Number of Customers']
+        
+        # Select graph type from the user
+        demographic_graph_type = st.selectbox("Select Graph Type", ["Bar Chart", "Pie Chart"])
+
+        # Plot the demographic categories
+        if demographic_graph_type == "Bar Chart":
+            fig = px.bar(age_group_counts, x='Age Group', y='Number of Customers',
+                        title='Customer Age Demographics',
+                        labels={'Number of Customers': 'Number of Customers'},
+                        hover_data=['Number of Customers'])
+            # Ensure the bar chart is sorted by age group
+            fig.update_xaxes(categoryorder='array', categoryarray=['<18', '18-30', '30-40', '40-50', '50+'])
+            st.plotly_chart(fig)
+        elif demographic_graph_type == "Pie Chart":
+            fig = px.pie(age_group_counts, values='Number of Customers', names='Age Group',
+                        title='Customer Age Demographics',
+                        hover_data=['Number of Customers'])
+            st.plotly_chart(fig)
+
     
 
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
@@ -835,6 +865,7 @@ def dashboard():
     order = cart_table[cart_table['status'] != 'In Cart']
     product = get_ref('product')
     addon = get_ref('addon')
+    customer = get_ref('customer')
 
     # Date Range Filter
     sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
@@ -860,14 +891,14 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         calculate_profit(sale, period)
 
-    '''elif selection == "Customer Analytics Dashboard":
+    elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
         # Filter customers using the filtered sales data
-        filtered_customers = data['customer'][data['customer']['customer_id'].isin(sale_data_filtered['customer_id'])]
+        filtered_customers = customer[customer['customer_id'].isin(sale_data_filtered['customer_id'])]
         # Pass the filtered data to the plotting functions
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_customer_demographics(filtered_customers)
-        st.markdown("<hr>", unsafe_allow_html=True)
+        '''st.markdown("<hr>", unsafe_allow_html=True)
         plot_order_frequency_history(order_data_filtered, sale_data_filtered)
 
     elif selection == "Inventory Analytics Dashboard":
