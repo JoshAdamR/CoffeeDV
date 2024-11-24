@@ -878,39 +878,37 @@ def dashboard():
     
     def calculate_inventory_turnover(inventory, usage, selected_branch, time_period):
 
-        usage = usage[usage['branch_id'] == selected_branch]
-        # Debug: Check the inventory table
-        st.write("Updated Inventory Table:")
-        st.write(inventory.head())
-        st.write(usage)
-        # Group by the selected time period
-        if time_period == "Daily":
-            # Aggregate usage by day
-            usage['date'] = usage['date'].dt.date
+        # Filter data for the selected branch and time period
+        inventory_branch = inventory[inventory['branch'] == selected_branch]
+        usage_branch = usage[usage['branch'] == selected_branch]
 
-        elif time_period == "Weekly":
-            # Aggregate usage by week
-            usage['date'] = usage['date'].dt.to_period('W').dt.start_time
-
-        #revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
-
-        inventory = pd.merge(usage, inventory, on='inventory_id', how='inner')
-
-        inventory['turnover'] = inventory['quantity']/inventory['quantity_on_hand']
-
-        st.write(usage)
+        # Calculate turnover rate (e.g., usage / average inventory)
+        inventory_branch['average_inventory'] = (inventory_branch['beginning_inventory'] + inventory_branch['ending_inventory']) / 2
+        inventory_branch['turnover'] = usage_branch['usage'] / inventory_branch['average_inventory']
 
         # Create an interactive Plotly graph
         fig = go.Figure()
 
         # Add the turnover rate line (Light Blue)
         fig.add_trace(go.Scatter(
-            x=inventory['turnover'].index,
-            y=inventory['turnover'].values,
+            x=inventory_branch['date'],  # Assuming 'date' column exists
+            y=inventory_branch['turnover'],
             mode='lines',
             name='Inventory Turnover',
             line=dict(color='lightblue')
         ))
+
+        # Customize the layout
+        fig.update_layout(
+            title=f'Inventory Turnover - {selected_branch} ({time_period})',
+            xaxis_title='Date',
+            yaxis_title='Turnover Rate',
+            template='plotly_white',
+            legend=dict(orientation='h', x=0.5, xanchor='center')
+        )
+
+        # Show the graph
+        fig.show()
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
