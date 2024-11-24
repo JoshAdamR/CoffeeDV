@@ -437,13 +437,8 @@ def branch_order(branch_id):
         st.subheader("Total Pending Orders: 0")
         st.write("No orders are currently in the 'Preparing' status.")
 
-def dashboard():        
-    # Sidebar Filters: Branch, Time Period, and Date Range
-    with st.sidebar:
-        # Container with Border for Filters
-        with st.container():
-            st.subheader("Filter Data")
-    
+def dashboard():
+        
     def plot_best_worst_sellers(order_data, product_data):
         sale = get_ref('cart').where('status', '==', 'Done')
         
@@ -476,6 +471,22 @@ def dashboard():
             st.subheader("Bottom 3 Worst Sellers")
             for _, row in worst_sellers.iterrows():
                 st.error(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
+
+
+    selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
+                                                     "Sales Analytics Dashboard",
+                                                     "Customer Analytics Dashboard",
+                                                     "Inventory Analytics Dashboard",
+                                                     "Promotion and Discount Analytics",
+                                                     "Financial Analytics",
+                                                     "Operational Analytics",
+                                                     "Order Monitoring Dashboard",
+                                                     "About Page"])
+    # Sidebar Filters: Branch, Time Period, and Date Range
+    with st.sidebar:
+        # Container with Border for Filters
+        with st.container():
+            st.subheader("Filter Data")
                 
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
