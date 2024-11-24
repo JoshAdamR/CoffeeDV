@@ -109,7 +109,7 @@ def is_valid_name(name: str) -> bool:
     name = name.upper()
     
     # Check if the name contains only alphabets and spaces
-    if re.match("^[A-Za-z\s]+$", name):
+    if re.match(r"^[A-Za-z\s]+$", name):
         return name
     else:
         return None
@@ -122,7 +122,7 @@ def email_exists(email):
 # Function to fetch user by email and password from Firestore
 def fetch_user(email, password):
     users_ref = store.collection("useracc")
-    query = users_ref.where("email", "==", email).where("password", "==", password).limit(1)
+    query = users_ref.filter("email", "==", email).filter("password", "==", password).limit(1)
     user = query.get()
     return user[0].to_dict() if user else None
 
