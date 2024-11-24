@@ -878,8 +878,7 @@ def dashboard():
     
     def calculate_inventory_turnover(inventory, usage, selected_branch, time_period):
 
-        usage = usage[usage['branch_id'] == 'BRANCH001']
-        st.write(usage)
+        usage = usage[usage['branch_id'] == selected_branch]
         # Debug: Check the inventory table
         print("Updated Inventory Table:")
         print(inventory.head())
@@ -892,6 +891,8 @@ def dashboard():
         elif time_period == "Weekly":
             # Aggregate usage by week
             usage['date'] = usage['date'].dt.to_period('W').dt.start_time
+
+        st.write(usage)
 
         inventory = pd.merge(usage, inventory, on='inventory_id', how='inner')
 
