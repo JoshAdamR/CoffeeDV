@@ -977,7 +977,7 @@ def dashboard():
         st.header("A. Profit Margin Analysis")
         
         # Merge data and calculate profit margin
-        merged_data = pd.merge(order_data, sale_data_filtered, on='sale_id')
+        merged_data = pd.merge(order_data, sale_data_filtered, on='cart_id')
         merged_data = pd.merge(merged_data, product_data, on='product_id')
         
         # Ensure numerical columns are in correct format
