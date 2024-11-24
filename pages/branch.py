@@ -441,9 +441,9 @@ def dashboard():
         
     def plot_best_worst_sellers(sale):
         # Group by product and sum the quantity sold for each product
-        sales_by_product = sale.groupby('product_name')['quantity'].sum().reset_index()
+        sales_by_product = sale.groupby('name')['quantity'].sum().reset_index()
         # Rename columns for clarity
-        sales_by_product.rename(columns={'product_name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
+        sales_by_product.rename(columns={'name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
         # Sort the products by total quantity sold to identify best and worst sellers
         sales_by_product_sorted = sales_by_product.sort_values(by='Quantity Sold', ascending=False)
         # Get top 3 best sellers based on quantity sold
