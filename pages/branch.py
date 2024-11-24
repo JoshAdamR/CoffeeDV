@@ -974,7 +974,7 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_order_frequency_history(sale_data_filtered)
 
-    elif selection == "Inventory Analytics Dashboard":
+    '''elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
         display_low_stock_products(inventory_full, branch_id)
         st.markdown("<hr>", unsafe_allow_html=True)
@@ -985,7 +985,7 @@ def dashboard():
         #plot_inventory_cost_analysis(data['product'])
 
 
-    '''elif selection == "Promotion and Discount Analytics":
+    elif selection == "Promotion and Discount Analytics":
         st.title("Promotion and Discount Analytics")
         # Use the already filtered `sale_data_filtered`
         # Add a radio button to toggle between Sales or Orders for Promotion Performance Chart
