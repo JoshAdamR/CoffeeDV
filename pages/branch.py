@@ -886,11 +886,11 @@ def dashboard():
         # Group by the selected time period
         if time_period == "Daily":
             # Aggregate usage by day
-            usage['date'] = usage['date'].dt.date
+            usage['dates'] = usage['date'].dt.date
 
         elif time_period == "Weekly":
             # Aggregate usage by week
-            usage['date'] = usage['date'].dt.to_period('W').dt.start_time
+            usage['dates'] = usage['date'].dt.to_period('W').dt.start_time
 
         st.write(usage)
 
