@@ -739,11 +739,9 @@ def dashboard():
         # Render the Plotly chart in Streamlit
         st.plotly_chart(fig)
 
-    def calculate_profit(sale, time_period):
+    def calculate_profit(sale, inventory, usage_history, time_period):
         st.header("D. Profit Calculation")
 
-        inventory = get_ref('inventory')
-        usage_history = get_ref('usage_history')
         sale['revenue'] = sale['quantity']*sale['price_after_discount']
         #revenue = sale['revenue'].sum()
         usage_merge = pd.merge(usage_history, inventory, on='inventory_id', how='inner')
@@ -852,6 +850,31 @@ def dashboard():
                     labels={'sale_date': 'Date', 'Number of Orders': 'Number of Orders'})
         st.plotly_chart(fig)
 
+    def display_low_stock_products(inventory_filtered, selected_branch):
+
+        st.subheader("Low Stock Products")
+        st.write("Selected Branch:", selected_branch)
+
+        # Filter inventory by branch
+        if selected_branch != 'All':
+            inventory_filtered = inventory_filtered[inventory_filtered['branch_id'] == selected_branch]
+
+        # Identify low stock items
+        low_stock = inventory_filtered[
+            inventory_filtered['quantity_on_hand'] < inventory_filtered['minimum_stock_level']
+        ]
+
+        # Display low stock items
+        if not low_stock.empty:
+            for _, row in low_stock.iterrows():
+                st.markdown(f"""
+                <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-bottom: 10px;">
+                    <h4>{row['inventory_name']}</h4>
+                    <p>Current Amount: {row['quantity_on_hand']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.write("No low stock items found.")
     
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
@@ -877,6 +900,8 @@ def dashboard():
             product = get_ref('product')
             addon = get_ref('addon')
             customer = get_ref('customer')
+            inventory = get_ref('inventory')
+            usage_history = get_ref('usage_history')
 
             # Date Range Filter
             sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
@@ -900,7 +925,7 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_sales_by_time_of_day(sale_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
-        calculate_profit(sale, period)
+        calculate_profit(sale, inventory, usage_history, period)
 
     elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
@@ -912,10 +937,10 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_order_frequency_history(sale_data_filtered)
 
-    '''elif selection == "Inventory Analytics Dashboard":
+    elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
-        display_low_stock_products(data['inventory'], selected_branch)
-        st.markdown("<hr>", unsafe_allow_html=True)
+        display_low_stock_products(inventory, selected_branch)
+        '''st.markdown("<hr>", unsafe_allow_html=True)
         calculate_inventory_turnover(data, selected_branch)
         #plot_inventory_turnover(data['sale'], data['inventory'])
         #plot_stock_levels(data['sale'], data['order'], data['inventory'])
