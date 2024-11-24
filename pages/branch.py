@@ -10,6 +10,7 @@ from datetime import datetime
 from graph_function import gf
 from firebase_config import store 
 
+
 make_sidebar()
 
 #st.write(cookies.getAll())
