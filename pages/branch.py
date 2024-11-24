@@ -511,8 +511,8 @@ def dashboard():
         min_quantity_date = min_quantity_day['period']
     
         summary_stats = {
-            "Total Revenue": sale_data['final_amount'].sum(),
-            "Average Revenue": sale_data['final_amount'].mean(),
+            "Total Revenue": sale_data['price_after_discount'].sum(),
+            "Average Revenue": sale_data['price_after_discount'].mean(),
             "Max Revenue (Day)": max_revenue_value,
             "Max Revenue Date": max_revenue_date,
             "Min Revenue (Day)": min_revenue_value,
