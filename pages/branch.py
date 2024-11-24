@@ -442,7 +442,7 @@ def branch_order(branch_id):
         st.subheader("Total Pending Orders: 0")
         st.write("No orders are currently in the 'Preparing' status.")
 
-def dashboard():
+'''def dashboard():
         
     def plot_best_worst_sellers(sale):
         # Group by product and sum the quantity sold for each product
@@ -985,7 +985,7 @@ def dashboard():
         #plot_inventory_cost_analysis(data['product'])
 
 
-    '''elif selection == "Promotion and Discount Analytics":
+    elif selection == "Promotion and Discount Analytics":
         st.title("Promotion and Discount Analytics")
         # Use the already filtered `sale_data_filtered`
         # Add a radio button to toggle between Sales or Orders for Promotion Performance Chart
@@ -1013,9 +1013,9 @@ def dashboard():
         order_processing_times(sale_data_filtered)
 
     elif selection == "Order Monitoring Dashboard":
-        order_monitoring_dashboard(sale_data_filtered)'''
+        order_monitoring_dashboard(sale_data_filtered)
     
-
+'''
     
 page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management", "Dashboards"])
 
