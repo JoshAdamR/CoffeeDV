@@ -485,7 +485,7 @@ def dashboard():
             'Yearly': ('%Y', sale_data['ordered_time_date'].dt.to_period('Y').dt.start_time),
         }
     
-        x_axis_format, sale_data['period'] = period_mapping.get(period, ('%Y-%m-%d', sale_data['sale_date'].dt.date))
+        x_axis_format, sale_data['period'] = period_mapping.get(period, ('%Y-%m-%d', sale_data['ordered_time_date'].dt.date))
     
         # Aggregate sales data
         total_sales = sale_data.groupby('period').agg(
