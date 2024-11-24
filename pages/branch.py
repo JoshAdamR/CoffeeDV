@@ -467,7 +467,7 @@ def dashboard():
         st.header("A. Total Sales Overview")
     
         # Convert `sale_date` to datetime
-        sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
+        sale_data['ordered_time_date'] = pd.to_datetime(sale_data['ordered_time_date'], errors='coerce')
     
         # Summarize quantity sold per `sale_id` from `order_data`
         order_quantity = order_data.groupby('sale_id')['quantity'].sum().reset_index()
