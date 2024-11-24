@@ -2,3 +2,13 @@ email,username,password,customer_id,role
 admin@gmail.com,admin,admin,ADM000,admin
 brancha@gmail.com,brancha,brancha,BRANCH001,branch
 user1@gmail.com,user1,Abc123!!!,CUST001,customer
+user2@gmail.com,user2,Abc123!!!,CUST002,customer
+user3@gmail.com,user3,Abc123!!!,CUST003,customer
+user4@gmail.com,user4,Abc123!!!,CUST004,customer
+user5@gmail.com,user5,Abc123!!!,CUST005,customer
+user6@gmail.com,user6,Abc123!!!,CUST006,customer
+user7@gmail.com,user7,Abc123!!!,CUST007,customer
+user8@gmail.com,user8,Abc123!!!,CUST008,customer
+user9@gmail.com,user9,Abc123!!!,CUST009,customer
+user10@gmail.com,user10,Abc123!!!,CUST010,customer
+user11@gmail.com,user11,Abc123!!!,CUST011,customer
