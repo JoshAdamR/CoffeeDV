@@ -455,7 +455,7 @@ def dashboard():
                                                      "Financial Analytics",
                                                      "Operational Analytics",
                                                      "Order Monitoring Dashboard"])
-    st.write(data['cart']['ordered_time_date')
+    st.write(data['cart']['ordered_time_date'])
     # Convert sale_date to datetime if it's not already
     data['cart']['ordered_time_date'] = pd.to_datetime(data['cart']['ordered_time_date'])
         
