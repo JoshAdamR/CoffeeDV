@@ -876,6 +876,51 @@ def dashboard():
         else:
             st.write("No low stock items found.")
     
+    def calculate_inventory_turnover(inventory, restock, usage, selected_branch):
+
+        restock = restock[restock['branch_id'] == selected_branch]
+        usage = usage[usage['branch_id'] == selected_branch]
+        
+        # Debug: Check the inventory table
+        print("Updated Inventory Table:")
+        print(inventory.head())
+
+        # Group by the selected time period
+        if time_period == "Daily":
+            # Aggregate profit by day
+            timely_usage = usage['date'].dt.date
+            timely_inventory = inventory['quantity_on_hand']           
+
+        elif time_period == "Weekly":
+            # Aggregate profit by week
+            timely_usage= usage['date'].dt.to_period('W').dt.start_time
+            timely_inventory = inventory['quantity_on_hand'] 
+
+        elif time_period == "Monthly":
+            timely_usage= usage['date'].dt.to_period('M').dt.start_time
+            timely_inventory = inventory['quantity_on_hand'] 
+
+        elif time_period == "Quarterly":
+            timely_usage= usage['date'].dt.to_period('Q').dt.start_time
+            timely_inventory = inventory['quantity_on_hand'] 
+
+        elif time_period == "Yearly":
+            timely_usage= usage['date'].dt.to_period('Y').dt.start_time
+            timely_inventory = inventory['quantity_on_hand'] 
+
+        timely_turnover = (timely_usage / timely_inventory).fillna(0)
+
+        # Create an interactive Plotly graph
+        fig = go.Figure()
+
+        # Add the turnover rate line (Light Blue)
+        fig.add_trace(go.Scatter(
+            x=timely_turnover.index,
+            y=timely_turnover.values,
+            mode='lines',
+            name='Inventory Turnover',
+            line=dict(color='lightblue')
+        ))
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
@@ -904,6 +949,8 @@ def dashboard():
             usage_history = get_ref('usage_history')
             inv_quantity_branch = get_ref('inv_quantity_branch')
             inventory_full = pd.merge(inventory, inv_quantity_branch, on='inventory_id', how='inner')
+            restock = get_ref('restock_history')  # Access the restock table
+            usage = get_ref('usage_history')
             # Date Range Filter
             sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
             min_date = sale['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
@@ -941,7 +988,7 @@ def dashboard():
     elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
         display_low_stock_products(inventory_full, branch_id)
-        '''st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)
         calculate_inventory_turnover(data, selected_branch)
         #plot_inventory_turnover(data['sale'], data['inventory'])
         #plot_stock_levels(data['sale'], data['order'], data['inventory'])
