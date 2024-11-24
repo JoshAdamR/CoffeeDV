@@ -814,8 +814,17 @@ def dashboard():
     def plot_customer_demographics(customer_data):
         st.subheader("A. Customer Demographics")
 
+        def calculate_age(dob):
+            """Calculate age from date of birth."""
+            today = date.today()
+            age = today.year - dob.year
+            # Check if birthday has occurred this year
+            if (today.month, today.day) < (dob.month, dob.day):
+                age -= 1
+            return age
+
         # Create age groups for categorization
-        age_group = pd.cut(customer_data['age'], bins=[0, 18, 30, 40, 50, float('inf')], 
+        age_group = pd.cut(calculate_age(customer_data['birthdate']), bins=[0, 18, 30, 40, 50, float('inf')], 
                         labels=['<18', '18-30', '30-40', '40-50', '50+'])
         
         # Count number of customers by age group
