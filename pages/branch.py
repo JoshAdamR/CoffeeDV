@@ -444,7 +444,7 @@ def dashboard():
     data = []  # Initialize an empty list to store the references
 
     for collection in store.collection():
-        data.append(get_ref(collection.name))  # Append the reference to the data list
+        data.append(get_ref(collection.id))  # Append the reference to the data list
 
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
                                                      "Sales Analytics Dashboard",
