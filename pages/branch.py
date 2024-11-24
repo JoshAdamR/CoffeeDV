@@ -470,7 +470,7 @@ def dashboard():
         sale_data['ordered_time_date'] = pd.to_datetime(sale_data['ordered_time_date'], errors='coerce')
     
         # Summarize quantity sold per `sale_id` from `order_data`
-        order_quantity = order_data.groupby('sale_id')['quantity'].sum().reset_index()
+        order_quantity = order_data.groupby('cart_id')['quantity'].sum().reset_index()
         order_quantity.rename(columns={'quantity': 'quantity_sold'}, inplace=True)
     
         # Merge quantity data with sales data
@@ -478,19 +478,19 @@ def dashboard():
     
         # Define period mapping for aggregation
         period_mapping = {
-            'Daily': ('%Y-%m-%d', sale_data['sale_date'].dt.date),
-            'Weekly': ('%Y-%m-%d', sale_data['sale_date'].dt.to_period('W').dt.start_time),
-            'Monthly': ('%Y-%m', sale_data['sale_date'].dt.to_period('M').dt.start_time),
-            'Quarterly': ('%Y-Q%q', sale_data['sale_date'].dt.to_period('Q').dt.start_time),
-            'Yearly': ('%Y', sale_data['sale_date'].dt.to_period('Y').dt.start_time),
+            'Daily': ('%Y-%m-%d', sale_data['ordered_time_date'].dt.date),
+            'Weekly': ('%Y-%m-%d', sale_data['ordered_time_date'].dt.to_period('W').dt.start_time),
+            'Monthly': ('%Y-%m', sale_data['ordered_time_date'].dt.to_period('M').dt.start_time),
+            'Quarterly': ('%Y-Q%q', sale_data['ordered_time_date'].dt.to_period('Q').dt.start_time),
+            'Yearly': ('%Y', sale_data['ordered_time_date'].dt.to_period('Y').dt.start_time),
         }
     
         x_axis_format, sale_data['period'] = period_mapping.get(period, ('%Y-%m-%d', sale_data['sale_date'].dt.date))
     
         # Aggregate sales data
         total_sales = sale_data.groupby('period').agg(
-            total_revenue=('final_amount', 'sum'),
-            quantity_sold=('quantity_sold', 'sum')
+            total_revenue=('price_after_discount', 'sum'),
+            quantity_sold=('quantity', 'sum')
         ).reset_index()
     
         # Find the max and min values for revenue and quantity sold directly from the aggregated data
