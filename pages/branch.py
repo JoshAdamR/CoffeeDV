@@ -1325,6 +1325,10 @@ def dashboard():
                 (sale['ordered_time_date'] >= pd.to_datetime(start_date)) & 
                 (sale['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
             ]
+            order_data_filtered = order[
+                (order['ordered_time_date'] >= pd.to_datetime(start_date)) & 
+                (order['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
+            ]
 
                 
     if selection == "Sales Analytics Dashboard":
