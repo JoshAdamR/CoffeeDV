@@ -443,7 +443,8 @@ def dashboard():
     # Assuming store.collection is iterable and get_ref is a callable function
     data = []  # Initialize an empty list to store the references
 
-    for collection in store.collection():
+    collections = store.collections()  # Returns an iterable of collection references
+    for collection in collections:
         data.append(get_ref(collection.id))  # Append the reference to the data list
 
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
