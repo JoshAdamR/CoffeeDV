@@ -884,7 +884,7 @@ def dashboard():
         st.write(inventory_branch)
 
         # Calculate turnover rate (e.g., usage / average inventory)
-        inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']\
+        inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']
         st.write(inventory_branch)
         inventory_branch = pd.merge(usage_branch, inventory_branch, on='inventory_id', how='inner')
         inventory_branch['turnover'] =  usage_branch['usage']*inventory_branch['unit_price'] / inventory_branch['average_inventory']
