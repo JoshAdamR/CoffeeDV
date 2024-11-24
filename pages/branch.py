@@ -596,7 +596,7 @@ elif page == "Coupon Management":
 elif page == "Order Management":
     branch_order(branch_id)
 elif page == "Dashboards":
-    dashboard(branch_id)
+    dashboard()
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
