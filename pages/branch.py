@@ -884,7 +884,7 @@ def dashboard():
         print("Updated Inventory Table:")
         print(inventory.head())
 
-        # Group by the selected time period
+        '''# Group by the selected time period
         if time_period == "Daily":
             # Aggregate profit by day
             usage['date'] = usage['date'].dt.date
@@ -900,9 +900,10 @@ def dashboard():
             usage['date'] = usage['date'].dt.to_period('Q').dt.start_time
 
         elif time_period == "Yearly":
-            usage['date'] = usage['date'].dt.to_period('Y').dt.start_time
+            usage['date'] = usage['date'].dt.to_period('Y').dt.start_time'''
 
         timely_usage = usage.groupby('inventory_id')['quantity'].sum().reset_index()
+        
         turnover = pd.merge(timely_usage, inventory, on='inventory_id', how='inner')
         timely_turnover = turnover['quantity']/turnover['quantity_on_hand']
         st.write(turnover['quantity'])
