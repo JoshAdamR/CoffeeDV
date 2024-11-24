@@ -893,7 +893,7 @@ def dashboard():
     elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
         # Filter customers using the filtered sales data
-        filtered_customers = customer[customer['customer_id'].isin(sale_data_filtered['customer_id'])]
+        filtered_customers = customer[customer['email'].isin(sale_data_filtered['email'])]
         # Pass the filtered data to the plotting functions
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_customer_demographics(filtered_customers)
