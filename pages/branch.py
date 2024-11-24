@@ -741,12 +741,13 @@ def dashboard():
 
     def calculate_profit(sale, time_period):
         st.header("D. Profit Calculation")
-        inv_usage = get_ref('inv_usage')
+
+        inventory = get_ref('inventory')
         usage_history = get_ref('usage_history')
         sale['revenue'] = sale['quantity']*sale['price_after_discount']
         #revenue = sale['revenue'].sum()
-        usage_merge = pd.merge(usage_history, inv_usage, on='inventory_id', how='inner')
-        usage_merge['cost'] = usage_merge['usage'] * usage_merge['quantity']
+        usage_merge = pd.merge(usage_history, inventory, on='inventory_id', how='inner')
+        usage_merge['cost'] = usage_merge['unit_price'] * usage_merge['quantity']
         #cost = usage_merge['cost'].sum()
         #profit = revenue - cost
         
