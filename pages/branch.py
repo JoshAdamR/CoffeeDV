@@ -972,48 +972,75 @@ def dashboard():
 
     # Financial Analytics
 
-    # Function to perform Profit Margin Analysis
-    def profit_margin_analysis(order_data, sale_data_filtered, product_data):
-        st.header("A. Profit Margin Analysis")
+    def calculate_profit(sale, inventory, usage_history, time_period):
+        st.header("D. Profit Calculation")
+
+        sale['revenue'] = sale['quantity']*sale['price_after_discount']
+        #revenue = sale['revenue'].sum()
+        usage_merge = pd.merge(usage_history, inventory, on='inventory_id', how='inner')
+        usage_merge['cost'] = usage_merge['unit_price'] * usage_merge['quantity']
+        #cost = usage_merge['cost'].sum()
+        #profit = revenue - cost
         
-        # Merge data and calculate profit margin
-        merged_data = pd.merge(order_data, sale_data_filtered, on='cart_id')
-        merged_data.rename(columns={'name': 'product_name'}, inplace=True)
-        merged_data = pd.merge(merged_data, product_data, on='name')
+        # Group by the selected time period
+        if time_period == "Daily":
+            # Aggregate profit by day
+            sale['date'] = sale['ordered_time_date'].dt.date
+            usage_merge['date'] = usage_merge['date'].dt.date
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()            
+
+        elif time_period == "Weekly":
+            # Aggregate profit by week
+            sale['date'] = sale['ordered_time_date'].dt.to_period('W').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('W').dt.start_time
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
+
+        elif time_period == "Monthly":
+            # Aggregate profit by month
+            sale['date'] = sale['ordered_time_date'].dt.to_period('M').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('M').dt.start_time
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
+            
+        elif time_period == "Quarterly":
+            # Aggregate profit by month
+            sale['date'] = sale['ordered_time_date'].dt.to_period('Q').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('Q').dt.start_time
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
+
+        elif time_period == "Yearly":
+            # Aggregate profit by month
+            sale['date'] = sale['ordered_time_date'].dt.to_period('Y').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('Y').dt.start_time
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
+
+
+        profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='date', how='inner')
+        profit_aggregated['profit'] = profit_aggregated['revenue'] - profit_aggregated['cost']
+
+        # Plot the profit based on the selected time period
+        st.subheader(f"⦁ Profit ({time_period})")
+        graph_type_profit = st.selectbox(f"Select Graph Type for Profit ({time_period})", ["Line Graph", "Bar Chart"], key=f"profit_graph_{time_period}")
         
-        # Ensure numerical columns are in correct format
-        merged_data['total_amount'] = pd.to_numeric(merged_data['total_amount'], errors='coerce')
-        merged_data['cogs'] = pd.to_numeric(merged_data['cogs'], errors='coerce')
-        
-        # Calculate Profit Margin as (total_amount - cogs) / total_amount * 100
-        merged_data['Profit Margin'] = (merged_data['total_amount'] - merged_data['cogs']) / merged_data['total_amount'] * 100
-        
-        # Aggregate profit margin by product name
-        profit_margin_data = merged_data.groupby('product_name')['Profit Margin'].mean().reset_index()
-        
-        # Create three columns layout for the cards
-        col1, col2, col3 = st.columns(3)
-        
-        # Card 1: Average Profit Margin
-        avg_profit_margin = merged_data['Profit Margin'].mean()
-        col1.metric("Average Profit Margin", f"{avg_profit_margin:.2f}%")
-        
-        # Card 2: Product with Highest Profit Margin
-        highest_margin_product = profit_margin_data.loc[profit_margin_data['Profit Margin'].idxmax()]
-        col2.metric(f"Highest Profit Margin Product: {highest_margin_product['product_name']}", 
-                    f"{highest_margin_product['Profit Margin']:.2f}%")
-        
-        # Card 3: Product with Lowest Profit Margin
-        lowest_margin_product = profit_margin_data.loc[profit_margin_data['Profit Margin'].idxmin()]
-        col3.metric(f"Lowest Profit Margin Product: {lowest_margin_product['product_name']}", 
-                    f"{lowest_margin_product['Profit Margin']:.2f}%")
-        
-        # Create bar chart for profit margin analysis
-        fig_profit_margin = px.bar(profit_margin_data, x='product_name', y='Profit Margin',
-                                title='Profit Margin Analysis',
-                                labels={'Profit Margin': 'Profit Margin (%)'},
-                                text='Profit Margin')
-        st.plotly_chart(fig_profit_margin)
+        if graph_type_profit == "Line Graph":
+            fig_profit = px.line(profit_aggregated, x=profit_aggregated['date'], y='profit', title=f'{time_period} Profit Over Time', markers=True)
+            fig_profit.update_layout(
+                xaxis_title=f'{time_period} Period',
+                yaxis_title='Profit'
+            )
+            st.plotly_chart(fig_profit)
+        else:
+            fig_profit = px.bar(profit_aggregated, x=profit_aggregated['date'], y='profit', title=f'{time_period} Profit Over Time', text='profit', color='profit', color_continuous_scale='Blues')
+            fig_profit.update_traces(texttemplate='%{text:.2f}')
+            fig_profit.update_layout(
+                xaxis_title=f'{time_period} Period',
+                yaxis_title='Profit'
+            )
+            st.plotly_chart(fig_profit)
 
 
     def cost_analysis(operatingcost_data, operatingcost_data_filtered):
