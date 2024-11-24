@@ -719,7 +719,7 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_total_sales(sale, order, period)
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_sales_by_product(order, data['product'])
+        plot_sales_by_product(order)
         '''st.markdown("<hr>", unsafe_allow_html=True)
         plot_sales_by_time_of_day(sale_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
