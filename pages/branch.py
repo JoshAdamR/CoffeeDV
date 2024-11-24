@@ -878,7 +878,7 @@ def dashboard():
     
     def calculate_inventory_turnover(inventory, usage, selected_branch, time_period):
 
-        usage = usage[usage['branch_id'] == selected_branch]
+        #usage = usage[usage['branch_id'] == selected_branch]
         st.write(usage)
         # Debug: Check the inventory table
         print("Updated Inventory Table:")
