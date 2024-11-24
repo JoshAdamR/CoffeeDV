@@ -762,6 +762,7 @@ def dashboard():
     product = get_ref('product')
 
     # Date Range Filter
+    sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
     min_date = sale['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
     max_date = sale['ordered_time_date'].max()  # Maximum date in your dataset
     start_date, end_date = st.date_input('Select Date Range:', [min_date, max_date])
