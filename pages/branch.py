@@ -1325,10 +1325,7 @@ def dashboard():
                 (sale['ordered_time_date'] >= pd.to_datetime(start_date)) & 
                 (sale['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
             ]
-            order_data_filtered = order[
-                (order['ordered_time_date'] >= pd.to_datetime(start_date)) & 
-                (order['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
-            ]
+            order_data_filtered = order.merge(sale_data_filtered[['cart_id']], on='cart_id', how='inner')
 
                 
     if selection == "Sales Analytics Dashboard":
