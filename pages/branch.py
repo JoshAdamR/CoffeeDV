@@ -457,7 +457,10 @@ def dashboard():
                                                      "Order Monitoring Dashboard"])
         
     # Convert sale_date to datetime if it's not already
-    data['cart']['ordered_time_date'] = pd.to_datetime(data['cart']['ordered_time_date'], errors='coerce')
+    for cart_item in data['cart']:
+        if 'ordered_time_date' in cart_item:  # Ensure the key exists
+            cart_item['ordered_time_date'] = pd.to_datetime(cart_item['ordered_time_date'], errors='coerce')
+
 
     # Sidebar Filters: Branch, Time Period, and Date Range
     with st.sidebar:
