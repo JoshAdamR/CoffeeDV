@@ -939,7 +939,7 @@ def dashboard():
 
     elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
-        display_low_stock_products(inventory, selected_branch)
+        display_low_stock_products(inventory, branch_id)
         '''st.markdown("<hr>", unsafe_allow_html=True)
         calculate_inventory_turnover(data, selected_branch)
         #plot_inventory_turnover(data['sale'], data['inventory'])
