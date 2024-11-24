@@ -884,38 +884,25 @@ def dashboard():
         print("Updated Inventory Table:")
         print(inventory.head())
 
-        '''# Group by the selected time period
+        # Group by the selected time period
         if time_period == "Daily":
-            # Aggregate profit by day
+            # Aggregate usage by day
             usage['date'] = usage['date'].dt.date
 
         elif time_period == "Weekly":
-            # Aggregate profit by week
+            # Aggregate usage by week
             usage['date'] = usage['date'].dt.to_period('W').dt.start_time
 
-        elif time_period == "Monthly":
-            usage['date'] = usage['date'].dt.to_period('M').dt.start_time
+        inventory = pd.merge(usage, inventory, on='inventory_id', how='inner')
+        inventory['turnover'] = inventory['quantity_used']/inventory['quantity_on_hand']
 
-        elif time_period == "Quarterly":
-            usage['date'] = usage['date'].dt.to_period('Q').dt.start_time
-
-        elif time_period == "Yearly":
-            usage['date'] = usage['date'].dt.to_period('Y').dt.start_time'''
-
-        timely_usage = usage.groupby('inventory_id')['quantity'].sum().reset_index()
-        
-        turnover = pd.merge(timely_usage, inventory, on='inventory_id', how='inner')
-        timely_turnover = turnover['quantity']/turnover['quantity_on_hand']
-        st.write(turnover['quantity'])
-        st.write(turnover['quantity_on_hand'])
-        st.write(timely_turnover)
         # Create an interactive Plotly graph
         fig = go.Figure()
 
         # Add the turnover rate line (Light Blue)
         fig.add_trace(go.Scatter(
-            x=timely_turnover.index,
-            y=timely_turnover.values,
+            x=turnover.index,
+            y=turnover.values,
             mode='lines',
             name='Inventory Turnover',
             line=dict(color='lightblue')
