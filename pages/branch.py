@@ -761,6 +761,10 @@ def dashboard():
     order = cart_table[cart_table['status'] != 'In Cart']
     product = get_ref('product')
 
+    # Date Range Filter
+    min_date = sale['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
+    max_date = sale['ordered_time_date'].max()  # Maximum date in your dataset
+    start_date, end_date = st.date_input('Select Date Range:', [min_date, max_date])
     sale_data_filtered = sale[
         (sale['ordered_time_date'] >= pd.to_datetime(start_date)) & 
         (sale['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
