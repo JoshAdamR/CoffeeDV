@@ -442,11 +442,12 @@ def branch_order(branch_id):
 def dashboard():
     # Assuming store.collection is iterable and get_ref is a callable function
     data = []  # Initialize an empty list to store the references
-
+        
     collections = store.collections()  # Returns an iterable of collection references
     for collection in collections:
         data.append(get_ref(collection.id))  # Append the reference to the data list
-
+            
+    st.write(data)
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
                                                      "Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
