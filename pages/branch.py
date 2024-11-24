@@ -771,9 +771,11 @@ def dashboard():
             usage_merge['month'] = usage_merge['date'].dt.to_period('M').dt.start_time
             profit_aggregated = merged_data.groupby('month')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('month')['cost'].sum().reset_index()
-        
-        profit_aggregated = revenue_aggregated - cost_aggregated
 
+        
+        revenue_aggregated['date'] = revenue_aggregated['ordered_time_date'] 
+
+        profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='date', how='inner')
         st.write(revenue_aggregated)
         st.write(cost_aggregated)
         st.write(profit_aggregated)
