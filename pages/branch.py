@@ -7,8 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
-from graph_function import
-
+import graph_function
 from firebase_config import store 
 
 make_sidebar()
