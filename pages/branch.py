@@ -466,22 +466,22 @@ def dashboard():
             st.subheader("Filter Data")
 
             # Branch Filter
-            branches = ['All'] + list(data['sale']['branch_id'].unique())  # Assuming 'branch_id' is in data['sale']
-            selected_branch = st.selectbox('Select Branch:', branches)
+            #branches = ['All'] + list(data['cart']['branch_id'].unique())  # Assuming 'branch_id' is in data['sale']
+            selected_branch = branch_id #st.selectbox('Select Branch:', branches)
 
             # Time Period Filter
             period = st.selectbox('Select Time Period:', ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'])
 
             # Date Range Filter
-            min_date = data['sale']['sale_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
-            max_date = data['sale']['sale_date'].max()  # Maximum date in your dataset
+            min_date = data['cart']['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
+            max_date = data['cart']['ordered_time_date'].max()  # Maximum date in your dataset
             start_date, end_date = st.date_input('Select Date Range:', [min_date, max_date])
 
 
     # Apply the selected filters to sale_data
-    sale_data_filtered = data['sale'][
-        (data['sale']['sale_date'] >= pd.to_datetime(start_date)) & 
-        (data['sale']['sale_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
+    sale_data_filtered = data['cart'][
+        (data['cart']['ordered_time_date'] >= pd.to_datetime(start_date)) & 
+        (data['cart']['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
     ]
 
     # Apply the selected branch filter
@@ -489,10 +489,10 @@ def dashboard():
         sale_data_filtered = sale_data_filtered[sale_data_filtered['branch_id'] == selected_branch]
 
     # Merge the filtered sale data with order data based on sale_id
-    order_data_filtered = data['order'].merge(sale_data_filtered[['sale_id']], on='sale_id', how='inner')
+    order_data_filtered = data['cart']#.merge(sale_data_filtered[['cart_id']], on='cart_id', how='inner')
     
     # Filter the feedback data based on sale_id from the filtered sale data
-    filtered_feedback_data = data['feedback'][data['feedback']['sale_id'].isin(sale_data_filtered['sale_id'])]
+    #filtered_feedback_data = data['feedback'][data['feedback']['cart_id'].isin(sale_data_filtered['cart_id'])]
 
     # Assuming you have the operatingcost data in data['operatingcost']
     operatingcost_data = data['operatingcost']
