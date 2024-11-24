@@ -1291,10 +1291,10 @@ def dashboard():
                                                      "Customer Analytics Dashboard",
                                                      "Inventory Analytics Dashboard",
                                                      "Promotion and Discount Analytics",
-                                                     "Financial Analytics",
-                                                     "Operational Analytics",
-                                                     "Order Monitoring Dashboard",
-                                                     "About Page"])
+                                                     "Financial Analytics",])w
+                                                     #"Operational Analytics",
+                                                     #"Order Monitoring Dashboard",
+                                                     #"About Page"])
         
         
     # Sidebar Filters: Branch, Time Period, and Date Range
@@ -1371,24 +1371,24 @@ def dashboard():
         # Plot Coupon Usage Over Time
         plot_coupon_usage_over_time(sale_data_filtered)
 
-    elif selection == "Financial Analytics":
-        st.title("Financial Analytics")
-        st.markdown("<hr>", unsafe_allow_html=True)
-        profit_margin_analysis(order_data_filtered, sale_data_filtered, product)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        cost_analysis(data['operatingcost'], operatingcost_data_filtered)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        revenue_streams_analysis(order_data_filtered, product)
+    #elif selection == "Financial Analytics":
+    #    st.title("Financial Analytics")
+    #    st.markdown("<hr>", unsafe_allow_html=True)
+    #    profit_margin_analysis(order_data_filtered, sale_data_filtered, product)
+     #   st.markdown("<hr>", unsafe_allow_html=True)
+      #  cost_analysis(data['operatingcost'], operatingcost_data_filtered)
+     #   st.markdown("<hr>", unsafe_allow_html=True)
+    #    revenue_streams_analysis(order_data_filtered, product)
 
-    elif selection == "Operational Analytics":
-        st.title("Operational Analytics")
-        st.markdown("<hr>", unsafe_allow_html=True)
-        customer_feedback_ratings(data, sale_data_filtered, period)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        order_processing_times(sale_data_filtered)
+    #elif selection == "Operational Analytics":
+     #   st.title("Operational Analytics")
+    #    st.markdown("<hr>", unsafe_allow_html=True)
+       # customer_feedback_ratings(data, sale_data_filtered, period)
+      #  st.markdown("<hr>", unsafe_allow_html=True)
+ #       order_processing_times(sale_data_filtered)
 
-    elif selection == "Order Monitoring Dashboard":
-        order_monitoring_dashboard(sale_data_filtered)
+#    elif selection == "Order Monitoring Dashboard":
+ #       order_monitoring_dashboard(sale_data_filtered)
     
 
     
