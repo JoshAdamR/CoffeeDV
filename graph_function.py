@@ -14,466 +14,466 @@ import time
 from streamlit_autorefresh import st_autorefresh
 from datetime import timedelta
 
-
-def display_dataset_summary(data):
-    # Create a mapping from user-friendly names to dataset keys
-    dataset_map = {
-        "Branch Data": "branch",
-        "Customer Data": "customer",
-        "User Account Data": "useracc",
-        "Product Data": "product",
-        "Addon Data": "addon",
-        "Sale Data": "sale",
-        "Order Data": "order",
-        "Inventory Data": "inventory",
-        "Operating Cost Data": "operatingcost",
-        "Feedback Data": "feedback",
-        "Coupon Data": "coupon"
-    }
+def gf():
+    def display_dataset_summary(data):
+        # Create a mapping from user-friendly names to dataset keys
+        dataset_map = {
+            "Branch Data": "branch",
+            "Customer Data": "customer",
+            "User Account Data": "useracc",
+            "Product Data": "product",
+            "Addon Data": "addon",
+            "Sale Data": "sale",
+            "Order Data": "order",
+            "Inventory Data": "inventory",
+            "Operating Cost Data": "operatingcost",
+            "Feedback Data": "feedback",
+            "Coupon Data": "coupon"
+        }
+        
+        # Create a selectbox with user-friendly names
+        dataset_choice = st.selectbox("Select a Dataset", list(dataset_map.keys()))
+        
+        # Get the corresponding key from the map and display the DataFrame
+        if dataset_choice:
+            dataset_key = dataset_map[dataset_choice]
+            st.subheader(f"{dataset_choice}")
+            st.dataframe(data[dataset_key].head())
     
-    # Create a selectbox with user-friendly names
-    dataset_choice = st.selectbox("Select a Dataset", list(dataset_map.keys()))
+    # ==============================================================================================
     
-    # Get the corresponding key from the map and display the DataFrame
-    if dataset_choice:
-        dataset_key = dataset_map[dataset_choice]
-        st.subheader(f"{dataset_choice}")
-        st.dataframe(data[dataset_key].head())
-
-# ==============================================================================================
-
-# Sales Analytics Dashboard
-
-def preprocess_sales_data(sale_data):
-    sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
-    return sale_data
-
-
-def plot_best_worst_sellers(order_data, product_data):
-    # Merge the order data with product data to get product details like coffee type
-    sales_data = order_data.merge(product_data, on='product_id', how='left')
-
-    # Ensure quantity is treated as a numeric type (in case of string or invalid entries)
-    sales_data['quantity'] = pd.to_numeric(sales_data['quantity'], errors='coerce')
-
-    # Group by product and sum the quantity sold for each product
-    sales_by_product = sales_data.groupby('product_name')['quantity'].sum().reset_index()
-
-    # Rename columns for clarity
-    sales_by_product.rename(columns={'product_name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
-
-    # Sort the products by total quantity sold to identify best and worst sellers
-    sales_by_product_sorted = sales_by_product.sort_values(by='Quantity Sold', ascending=False)
-
-    # Get top 3 best sellers based on quantity sold
-    best_sellers = sales_by_product_sorted.head(3)
-
-    # Get bottom 3 worst sellers based on quantity sold
-    worst_sellers = sales_by_product_sorted.tail(3)
-
-    # Create two columns for displaying Best and Worst Sellers side by side
-    col1, col2 = st.columns(2)
-
-    # Display Best Sellers in the first column
-    with col1:
-        st.subheader("Top 3 Best Sellers")
-        for _, row in best_sellers.iterrows():
-            st.success(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
-
-    # Display Worst Sellers in the second column
-    with col2:
-        st.subheader("Bottom 3 Worst Sellers")
-        for _, row in worst_sellers.iterrows():
-            st.error(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
-
-
-import pandas as pd
-import streamlit as st
-import plotly.express as px
-
-def plot_total_sales(sale_data, order_data, period):
-    st.header("A. Total Sales Overview")
-
-    # Convert `sale_date` to datetime
-    sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
-
-    # Summarize quantity sold per `sale_id` from `order_data`
-    order_quantity = order_data.groupby('sale_id')['quantity'].sum().reset_index()
-    order_quantity.rename(columns={'quantity': 'quantity_sold'}, inplace=True)
-
-    # Merge quantity data with sales data
-    sale_data = sale_data.merge(order_quantity, on='sale_id', how='left')
-
-    # Define period mapping for aggregation
-    period_mapping = {
-        'Daily': ('%Y-%m-%d', sale_data['sale_date'].dt.date),
-        'Weekly': ('%Y-%m-%d', sale_data['sale_date'].dt.to_period('W').dt.start_time),
-        'Monthly': ('%Y-%m', sale_data['sale_date'].dt.to_period('M').dt.start_time),
-        'Quarterly': ('%Y-Q%q', sale_data['sale_date'].dt.to_period('Q').dt.start_time),
-        'Yearly': ('%Y', sale_data['sale_date'].dt.to_period('Y').dt.start_time),
-    }
-
-    x_axis_format, sale_data['period'] = period_mapping.get(period, ('%Y-%m-%d', sale_data['sale_date'].dt.date))
-
-    # Aggregate sales data
-    total_sales = sale_data.groupby('period').agg(
-        total_revenue=('final_amount', 'sum'),
-        quantity_sold=('quantity_sold', 'sum')
-    ).reset_index()
-
-    # Find the max and min values for revenue and quantity sold directly from the aggregated data
-    max_revenue_day = total_sales.loc[total_sales['total_revenue'].idxmax()]
-    max_revenue_value = max_revenue_day['total_revenue']
-    max_revenue_date = max_revenue_day['period']
-
-    min_revenue_day = total_sales.loc[total_sales['total_revenue'].idxmin()]
-    min_revenue_value = min_revenue_day['total_revenue']
-    min_revenue_date = min_revenue_day['period']
-
-    max_quantity_day = total_sales.loc[total_sales['quantity_sold'].idxmax()]
-    max_quantity_value = max_quantity_day['quantity_sold']
-    max_quantity_date = max_quantity_day['period']
-
-    min_quantity_day = total_sales.loc[total_sales['quantity_sold'].idxmin()]
-    min_quantity_value = min_quantity_day['quantity_sold']
-    min_quantity_date = min_quantity_day['period']
-
-    summary_stats = {
-        "Total Revenue": sale_data['final_amount'].sum(),
-        "Average Revenue": sale_data['final_amount'].mean(),
-        "Max Revenue (Day)": max_revenue_value,
-        "Max Revenue Date": max_revenue_date,
-        "Min Revenue (Day)": min_revenue_value,
-        "Min Revenue Date": min_revenue_date,
-        "Total Quantity Sold": sale_data['quantity_sold'].sum(),
-        "Average Quantity Sold": sale_data['quantity_sold'].mean(),
-        "Max Quantity Sold (Day)": max_quantity_value,
-        "Max Quantity Date": max_quantity_date,
-        "Min Quantity Sold (Day)": min_quantity_value,
-        "Min Quantity Date": min_quantity_date
-    }
-
-    # Display summary statistics in metric cards
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Total Revenue", f"${summary_stats['Total Revenue']:.2f}")
-        st.metric("Average Revenue", f"${summary_stats['Average Revenue']:.2f}")
-        st.metric("Max Revenue (Day)", f"${summary_stats['Max Revenue (Day)']:.2f}", f"Date: {summary_stats['Max Revenue Date']:%Y-%m-%d}")
-        st.metric("Min Revenue (Day)", f"${summary_stats['Min Revenue (Day)']:.2f}", f"Date: {summary_stats['Min Revenue Date']:%Y-%m-%d}")
-    with col2:
-        st.metric("Total Quantity Sold", f"{summary_stats['Total Quantity Sold']:.0f}")
-        st.metric("Average Quantity Sold", f"{summary_stats['Average Quantity Sold']:.2f}")
-        st.metric("Max Quantity Sold (Day)", f"{summary_stats['Max Quantity Sold (Day)']:.0f}", f"Date: {summary_stats['Max Quantity Date']:%Y-%m-%d}")
-        st.metric("Min Quantity Sold (Day)", f"{summary_stats['Min Quantity Sold (Day)']:.0f}", f"Date: {summary_stats['Min Quantity Date']:%Y-%m-%d}")
-
-    # Plot Total Revenue
-    st.subheader("⦁ Total Revenue")
-    graph_type_revenue = st.selectbox("Select Graph Type for Revenue", ["Line Graph", "Bar Chart"], key="revenue_graph_select")
-
-    if graph_type_revenue == "Line Graph":
-        fig_revenue = px.line(total_sales, x='period', y='total_revenue', title='Total Revenue Over Time', markers=True)
-    else:
-        fig_revenue = px.bar(total_sales, x='period', y='total_revenue', title='Total Revenue Over Time', text='total_revenue', color='total_revenue', color_continuous_scale='Blues')
-        fig_revenue.update_traces(texttemplate='%{text:.2f}')
-
-    fig_revenue.update_layout(
-        xaxis_title='Time Period',
-        yaxis_title='Total Revenue',
-        xaxis=dict(tickangle=45),
-        autosize=True,
-        margin=dict(l=20, r=20, t=50, b=20)
-    )
-    st.plotly_chart(fig_revenue)
-
-    # Plot Quantity Sold
-    st.subheader("⦁ Quantity Sold")
-    graph_type_quantity = st.selectbox("Select Graph Type for Quantity", ["Line Graph", "Bar Chart"], key="quantity_graph_select")
-
-    if graph_type_quantity == "Line Graph":
-        fig_quantity = px.line(total_sales, x='period', y='quantity_sold', title='Quantity Sold Over Time', markers=True)
-    else:
-        fig_quantity = px.bar(total_sales, x='period', y='quantity_sold', title='Quantity Sold Over Time', text='quantity_sold', color='quantity_sold', color_continuous_scale='Blues')
-        fig_quantity.update_traces(texttemplate='%{text:.0f}')
-
-    fig_quantity.update_layout(
-        xaxis_title='Time Period',
-        yaxis_title='Quantity Sold',
-        xaxis=dict(tickangle=45),
-        autosize=True,
-        margin=dict(l=20, r=20, t=50, b=20)
-    )
-    st.plotly_chart(fig_quantity)
-
-
-
-def plot_sales_by_product(order_data, product_data):
-    st.header("B. Sales Breakdown by Product")
-
-    # Merge the order data with the product data to get product details
-    merged_data = order_data.merge(product_data, on='product_id', how='left')
-
-    # Ensure the quantity column is numeric
-    merged_data['quantity'] = pd.to_numeric(merged_data['quantity'], errors='coerce')
-
-    # Select the drill level (Category or Product)
-    drill_level = st.radio(
-        "Choose Drill Level:",
-        options=["By Product Category", "By Individual Product"],
-        index=0
-    )
-
-    if drill_level == "By Product Category":
-        # Group by product category and calculate total quantity sold
-        sales_data = merged_data.groupby('product_category')['quantity'].sum().reset_index()
-        sales_data.rename(columns={'product_category': 'Category', 'quantity': 'Quantity Sold'}, inplace=True)
-
-        # Find the highest and lowest sales categories (handling ties)
-        max_sales = sales_data['Quantity Sold'].max()
-        min_sales = sales_data['Quantity Sold'].min()
-
-        # Filter to get all categories with the highest and lowest sales
-        highest_sales_categories = sales_data[sales_data['Quantity Sold'] == max_sales]
-        lowest_sales_categories = sales_data[sales_data['Quantity Sold'] == min_sales]
-
-        # Create a bar chart for product category sales
-        fig = px.bar(
-            sales_data, 
-            x='Category', 
-            y='Quantity Sold', 
-            title="Sales Breakdown by Product Category",
-            color='Quantity Sold',
-            color_continuous_scale='Blues',
-            labels={'Quantity Sold': 'Quantity Sold', 'Category': 'Product Category'},
-        )
-
-        # Display cards for highest and lowest sales categories
-        st.subheader("Highest and Lowest Sales Categories")
+    # Sales Analytics Dashboard
+    
+    def preprocess_sales_data(sale_data):
+        sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
+        return sale_data
+    
+    
+    def plot_best_worst_sellers(order_data, product_data):
+        # Merge the order data with product data to get product details like coffee type
+        sales_data = order_data.merge(product_data, on='product_id', how='left')
+    
+        # Ensure quantity is treated as a numeric type (in case of string or invalid entries)
+        sales_data['quantity'] = pd.to_numeric(sales_data['quantity'], errors='coerce')
+    
+        # Group by product and sum the quantity sold for each product
+        sales_by_product = sales_data.groupby('product_name')['quantity'].sum().reset_index()
+    
+        # Rename columns for clarity
+        sales_by_product.rename(columns={'product_name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
+    
+        # Sort the products by total quantity sold to identify best and worst sellers
+        sales_by_product_sorted = sales_by_product.sort_values(by='Quantity Sold', ascending=False)
+    
+        # Get top 3 best sellers based on quantity sold
+        best_sellers = sales_by_product_sorted.head(3)
+    
+        # Get bottom 3 worst sellers based on quantity sold
+        worst_sellers = sales_by_product_sorted.tail(3)
+    
+        # Create two columns for displaying Best and Worst Sellers side by side
         col1, col2 = st.columns(2)
-
+    
+        # Display Best Sellers in the first column
         with col1:
-            # Display highest sales categories
-            st.markdown("<h4 style='font-size:18px;'>Highest Sales</h4>", unsafe_allow_html=True)
-            for _, row in highest_sales_categories.iterrows():
-                st.success(f"**{row['Category']}**  \nQuantity Sold: {row['Quantity Sold']}")
-
+            st.subheader("Top 3 Best Sellers")
+            for _, row in best_sellers.iterrows():
+                st.success(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
+    
+        # Display Worst Sellers in the second column
         with col2:
-            # Display lowest sales categories
-            st.markdown("<h4 style='font-size:18px;'>Lowest Sales</h4>", unsafe_allow_html=True)
-            for _, row in lowest_sales_categories.iterrows():
-                st.error(f"**{row['Category']}**  \nQuantity Sold: {row['Quantity Sold']}")
-
-    else:  # Drill down to individual products
-        category_filter = st.selectbox(
-            "Choose a Product Category (or 'All' for all products):",
-            options=['All'] + merged_data['product_category'].unique().tolist(),
+            st.subheader("Bottom 3 Worst Sellers")
+            for _, row in worst_sellers.iterrows():
+                st.error(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
+    
+    
+    import pandas as pd
+    import streamlit as st
+    import plotly.express as px
+    
+    def plot_total_sales(sale_data, order_data, period):
+        st.header("A. Total Sales Overview")
+    
+        # Convert `sale_date` to datetime
+        sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
+    
+        # Summarize quantity sold per `sale_id` from `order_data`
+        order_quantity = order_data.groupby('sale_id')['quantity'].sum().reset_index()
+        order_quantity.rename(columns={'quantity': 'quantity_sold'}, inplace=True)
+    
+        # Merge quantity data with sales data
+        sale_data = sale_data.merge(order_quantity, on='sale_id', how='left')
+    
+        # Define period mapping for aggregation
+        period_mapping = {
+            'Daily': ('%Y-%m-%d', sale_data['sale_date'].dt.date),
+            'Weekly': ('%Y-%m-%d', sale_data['sale_date'].dt.to_period('W').dt.start_time),
+            'Monthly': ('%Y-%m', sale_data['sale_date'].dt.to_period('M').dt.start_time),
+            'Quarterly': ('%Y-Q%q', sale_data['sale_date'].dt.to_period('Q').dt.start_time),
+            'Yearly': ('%Y', sale_data['sale_date'].dt.to_period('Y').dt.start_time),
+        }
+    
+        x_axis_format, sale_data['period'] = period_mapping.get(period, ('%Y-%m-%d', sale_data['sale_date'].dt.date))
+    
+        # Aggregate sales data
+        total_sales = sale_data.groupby('period').agg(
+            total_revenue=('final_amount', 'sum'),
+            quantity_sold=('quantity_sold', 'sum')
+        ).reset_index()
+    
+        # Find the max and min values for revenue and quantity sold directly from the aggregated data
+        max_revenue_day = total_sales.loc[total_sales['total_revenue'].idxmax()]
+        max_revenue_value = max_revenue_day['total_revenue']
+        max_revenue_date = max_revenue_day['period']
+    
+        min_revenue_day = total_sales.loc[total_sales['total_revenue'].idxmin()]
+        min_revenue_value = min_revenue_day['total_revenue']
+        min_revenue_date = min_revenue_day['period']
+    
+        max_quantity_day = total_sales.loc[total_sales['quantity_sold'].idxmax()]
+        max_quantity_value = max_quantity_day['quantity_sold']
+        max_quantity_date = max_quantity_day['period']
+    
+        min_quantity_day = total_sales.loc[total_sales['quantity_sold'].idxmin()]
+        min_quantity_value = min_quantity_day['quantity_sold']
+        min_quantity_date = min_quantity_day['period']
+    
+        summary_stats = {
+            "Total Revenue": sale_data['final_amount'].sum(),
+            "Average Revenue": sale_data['final_amount'].mean(),
+            "Max Revenue (Day)": max_revenue_value,
+            "Max Revenue Date": max_revenue_date,
+            "Min Revenue (Day)": min_revenue_value,
+            "Min Revenue Date": min_revenue_date,
+            "Total Quantity Sold": sale_data['quantity_sold'].sum(),
+            "Average Quantity Sold": sale_data['quantity_sold'].mean(),
+            "Max Quantity Sold (Day)": max_quantity_value,
+            "Max Quantity Date": max_quantity_date,
+            "Min Quantity Sold (Day)": min_quantity_value,
+            "Min Quantity Date": min_quantity_date
+        }
+    
+        # Display summary statistics in metric cards
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Total Revenue", f"${summary_stats['Total Revenue']:.2f}")
+            st.metric("Average Revenue", f"${summary_stats['Average Revenue']:.2f}")
+            st.metric("Max Revenue (Day)", f"${summary_stats['Max Revenue (Day)']:.2f}", f"Date: {summary_stats['Max Revenue Date']:%Y-%m-%d}")
+            st.metric("Min Revenue (Day)", f"${summary_stats['Min Revenue (Day)']:.2f}", f"Date: {summary_stats['Min Revenue Date']:%Y-%m-%d}")
+        with col2:
+            st.metric("Total Quantity Sold", f"{summary_stats['Total Quantity Sold']:.0f}")
+            st.metric("Average Quantity Sold", f"{summary_stats['Average Quantity Sold']:.2f}")
+            st.metric("Max Quantity Sold (Day)", f"{summary_stats['Max Quantity Sold (Day)']:.0f}", f"Date: {summary_stats['Max Quantity Date']:%Y-%m-%d}")
+            st.metric("Min Quantity Sold (Day)", f"{summary_stats['Min Quantity Sold (Day)']:.0f}", f"Date: {summary_stats['Min Quantity Date']:%Y-%m-%d}")
+    
+        # Plot Total Revenue
+        st.subheader("⦁ Total Revenue")
+        graph_type_revenue = st.selectbox("Select Graph Type for Revenue", ["Line Graph", "Bar Chart"], key="revenue_graph_select")
+    
+        if graph_type_revenue == "Line Graph":
+            fig_revenue = px.line(total_sales, x='period', y='total_revenue', title='Total Revenue Over Time', markers=True)
+        else:
+            fig_revenue = px.bar(total_sales, x='period', y='total_revenue', title='Total Revenue Over Time', text='total_revenue', color='total_revenue', color_continuous_scale='Blues')
+            fig_revenue.update_traces(texttemplate='%{text:.2f}')
+    
+        fig_revenue.update_layout(
+            xaxis_title='Time Period',
+            yaxis_title='Total Revenue',
+            xaxis=dict(tickangle=45),
+            autosize=True,
+            margin=dict(l=20, r=20, t=50, b=20)
+        )
+        st.plotly_chart(fig_revenue)
+    
+        # Plot Quantity Sold
+        st.subheader("⦁ Quantity Sold")
+        graph_type_quantity = st.selectbox("Select Graph Type for Quantity", ["Line Graph", "Bar Chart"], key="quantity_graph_select")
+    
+        if graph_type_quantity == "Line Graph":
+            fig_quantity = px.line(total_sales, x='period', y='quantity_sold', title='Quantity Sold Over Time', markers=True)
+        else:
+            fig_quantity = px.bar(total_sales, x='period', y='quantity_sold', title='Quantity Sold Over Time', text='quantity_sold', color='quantity_sold', color_continuous_scale='Blues')
+            fig_quantity.update_traces(texttemplate='%{text:.0f}')
+    
+        fig_quantity.update_layout(
+            xaxis_title='Time Period',
+            yaxis_title='Quantity Sold',
+            xaxis=dict(tickangle=45),
+            autosize=True,
+            margin=dict(l=20, r=20, t=50, b=20)
+        )
+        st.plotly_chart(fig_quantity)
+    
+    
+    
+    def plot_sales_by_product(order_data, product_data):
+        st.header("B. Sales Breakdown by Product")
+    
+        # Merge the order data with the product data to get product details
+        merged_data = order_data.merge(product_data, on='product_id', how='left')
+    
+        # Ensure the quantity column is numeric
+        merged_data['quantity'] = pd.to_numeric(merged_data['quantity'], errors='coerce')
+    
+        # Select the drill level (Category or Product)
+        drill_level = st.radio(
+            "Choose Drill Level:",
+            options=["By Product Category", "By Individual Product"],
             index=0
         )
-
-        # Filter the data based on the selected category
-        if category_filter != 'All':
-            filtered_data = merged_data[merged_data['product_category'] == category_filter]
-        else:
-            filtered_data = merged_data
-
-        # Group by product name and calculate total quantity sold
-        sales_data = filtered_data.groupby('product_name')['quantity'].sum().reset_index()
-        sales_data.rename(columns={'product_name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
-
-        # Find the highest and lowest sales products (handling ties)
-        max_sales = sales_data['Quantity Sold'].max()
-        min_sales = sales_data['Quantity Sold'].min()
-
-        # Filter to get all products with the highest and lowest sales
-        highest_sales_products = sales_data[sales_data['Quantity Sold'] == max_sales]
-        lowest_sales_products = sales_data[sales_data['Quantity Sold'] == min_sales]
-
-        # Create a bar chart for individual product sales
-        fig = px.bar(
-            sales_data, 
-            x='Product', 
-            y='Quantity Sold', 
-            title=f"Sales Breakdown by Individual Product ({category_filter})",
-            color='Quantity Sold',
-            color_continuous_scale='Blues',
-            labels={'Quantity Sold': 'Quantity Sold', 'Product': 'Product Name'},
+    
+        if drill_level == "By Product Category":
+            # Group by product category and calculate total quantity sold
+            sales_data = merged_data.groupby('product_category')['quantity'].sum().reset_index()
+            sales_data.rename(columns={'product_category': 'Category', 'quantity': 'Quantity Sold'}, inplace=True)
+    
+            # Find the highest and lowest sales categories (handling ties)
+            max_sales = sales_data['Quantity Sold'].max()
+            min_sales = sales_data['Quantity Sold'].min()
+    
+            # Filter to get all categories with the highest and lowest sales
+            highest_sales_categories = sales_data[sales_data['Quantity Sold'] == max_sales]
+            lowest_sales_categories = sales_data[sales_data['Quantity Sold'] == min_sales]
+    
+            # Create a bar chart for product category sales
+            fig = px.bar(
+                sales_data, 
+                x='Category', 
+                y='Quantity Sold', 
+                title="Sales Breakdown by Product Category",
+                color='Quantity Sold',
+                color_continuous_scale='Blues',
+                labels={'Quantity Sold': 'Quantity Sold', 'Category': 'Product Category'},
+            )
+    
+            # Display cards for highest and lowest sales categories
+            st.subheader("Highest and Lowest Sales Categories")
+            col1, col2 = st.columns(2)
+    
+            with col1:
+                # Display highest sales categories
+                st.markdown("<h4 style='font-size:18px;'>Highest Sales</h4>", unsafe_allow_html=True)
+                for _, row in highest_sales_categories.iterrows():
+                    st.success(f"**{row['Category']}**  \nQuantity Sold: {row['Quantity Sold']}")
+    
+            with col2:
+                # Display lowest sales categories
+                st.markdown("<h4 style='font-size:18px;'>Lowest Sales</h4>", unsafe_allow_html=True)
+                for _, row in lowest_sales_categories.iterrows():
+                    st.error(f"**{row['Category']}**  \nQuantity Sold: {row['Quantity Sold']}")
+    
+        else:  # Drill down to individual products
+            category_filter = st.selectbox(
+                "Choose a Product Category (or 'All' for all products):",
+                options=['All'] + merged_data['product_category'].unique().tolist(),
+                index=0
+            )
+    
+            # Filter the data based on the selected category
+            if category_filter != 'All':
+                filtered_data = merged_data[merged_data['product_category'] == category_filter]
+            else:
+                filtered_data = merged_data
+    
+            # Group by product name and calculate total quantity sold
+            sales_data = filtered_data.groupby('product_name')['quantity'].sum().reset_index()
+            sales_data.rename(columns={'product_name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
+    
+            # Find the highest and lowest sales products (handling ties)
+            max_sales = sales_data['Quantity Sold'].max()
+            min_sales = sales_data['Quantity Sold'].min()
+    
+            # Filter to get all products with the highest and lowest sales
+            highest_sales_products = sales_data[sales_data['Quantity Sold'] == max_sales]
+            lowest_sales_products = sales_data[sales_data['Quantity Sold'] == min_sales]
+    
+            # Create a bar chart for individual product sales
+            fig = px.bar(
+                sales_data, 
+                x='Product', 
+                y='Quantity Sold', 
+                title=f"Sales Breakdown by Individual Product ({category_filter})",
+                color='Quantity Sold',
+                color_continuous_scale='Blues',
+                labels={'Quantity Sold': 'Quantity Sold', 'Product': 'Product Name'},
+            )
+    
+            # Display cards for highest and lowest sales products
+            st.subheader("Highest and Lowest Sales Products")
+            col1, col2 = st.columns(2)
+    
+            with col1:
+                # Display highest sales products
+                st.markdown("<h4 style='font-size:18px;'>Highest Sales</h4>", unsafe_allow_html=True)
+                for _, row in highest_sales_products.iterrows():
+                    st.success(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
+    
+            with col2:
+                # Display lowest sales products
+                st.markdown("<h4 style='font-size:18px;'>Lowest Sales</h4>", unsafe_allow_html=True)
+                for _, row in lowest_sales_products.iterrows():
+                    st.error(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
+    
+        # Render the Plotly chart in Streamlit
+        st.plotly_chart(fig)
+    
+    
+    def plot_sales_by_time_of_day(sale_data):
+        st.header("C. Sales by Time of Day")
+    
+        # Ensure the 'sale_date' is in datetime format
+        sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
+        
+        # Create a new column for the hour of the day
+        sale_data['hour'] = sale_data['sale_date'].dt.hour
+    
+        # Group the sales data by hour and calculate the total sales
+        sales_by_hour = sale_data.groupby('hour')['final_amount'].sum().reset_index()
+    
+        # Find the best and worst times based on the total sales
+        max_sales = sales_by_hour['final_amount'].max()
+        min_sales = sales_by_hour['final_amount'].min()
+    
+        # Filter to get all hours with the best and worst sales
+        best_times = sales_by_hour[sales_by_hour['final_amount'] == max_sales]
+        worst_times = sales_by_hour[sales_by_hour['final_amount'] == min_sales]
+    
+        # Create an interactive line chart for total sales by hour of the day
+        fig = px.line(sales_by_hour, x='hour', y='final_amount', markers=True)
+        fig.update_layout(
+            title='Total Sales by Hour of Day (Overall)',
+            xaxis_title="Hour of Day",
+            yaxis_title="Total Sales"
         )
-
-        # Display cards for highest and lowest sales products
-        st.subheader("Highest and Lowest Sales Products")
+    
+        # Display cards for best and worst times
+        st.subheader("Best and Worst Times for Sales")
         col1, col2 = st.columns(2)
-
+    
         with col1:
-            # Display highest sales products
-            st.markdown("<h4 style='font-size:18px;'>Highest Sales</h4>", unsafe_allow_html=True)
-            for _, row in highest_sales_products.iterrows():
-                st.success(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
-
+            # Display best time cards (for multiple best times)
+            st.markdown("<h4 style='font-size:18px;'>Best Time(s)</h4>", unsafe_allow_html=True)
+            for _, row in best_times.iterrows():
+                st.success(f"**{row['hour']:.2f} Hours**  \nTotal Sales: ${row['final_amount']:.2f}", icon=None)
+    
         with col2:
-            # Display lowest sales products
-            st.markdown("<h4 style='font-size:18px;'>Lowest Sales</h4>", unsafe_allow_html=True)
-            for _, row in lowest_sales_products.iterrows():
-                st.error(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
-
-    # Render the Plotly chart in Streamlit
-    st.plotly_chart(fig)
-
-
-def plot_sales_by_time_of_day(sale_data):
-    st.header("C. Sales by Time of Day")
-
-    # Ensure the 'sale_date' is in datetime format
-    sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
+            # Display worst time cards (for multiple worst times)
+            st.markdown("<h4 style='font-size:18px;'>Worst Time(s)</h4>", unsafe_allow_html=True)
+            for _, row in worst_times.iterrows():
+                st.error(f"**{row['hour']} Hours**  \nTotal Sales: ${row['final_amount']:.2f}", icon=None)
     
-    # Create a new column for the hour of the day
-    sale_data['hour'] = sale_data['sale_date'].dt.hour
-
-    # Group the sales data by hour and calculate the total sales
-    sales_by_hour = sale_data.groupby('hour')['final_amount'].sum().reset_index()
-
-    # Find the best and worst times based on the total sales
-    max_sales = sales_by_hour['final_amount'].max()
-    min_sales = sales_by_hour['final_amount'].min()
-
-    # Filter to get all hours with the best and worst sales
-    best_times = sales_by_hour[sales_by_hour['final_amount'] == max_sales]
-    worst_times = sales_by_hour[sales_by_hour['final_amount'] == min_sales]
-
-    # Create an interactive line chart for total sales by hour of the day
-    fig = px.line(sales_by_hour, x='hour', y='final_amount', markers=True)
-    fig.update_layout(
-        title='Total Sales by Hour of Day (Overall)',
-        xaxis_title="Hour of Day",
-        yaxis_title="Total Sales"
-    )
-
-    # Display cards for best and worst times
-    st.subheader("Best and Worst Times for Sales")
-    col1, col2 = st.columns(2)
-
-    with col1:
-        # Display best time cards (for multiple best times)
-        st.markdown("<h4 style='font-size:18px;'>Best Time(s)</h4>", unsafe_allow_html=True)
-        for _, row in best_times.iterrows():
-            st.success(f"**{row['hour']:.2f} Hours**  \nTotal Sales: ${row['final_amount']:.2f}", icon=None)
-
-    with col2:
-        # Display worst time cards (for multiple worst times)
-        st.markdown("<h4 style='font-size:18px;'>Worst Time(s)</h4>", unsafe_allow_html=True)
-        for _, row in worst_times.iterrows():
-            st.error(f"**{row['hour']} Hours**  \nTotal Sales: ${row['final_amount']:.2f}", icon=None)
-
-    # Render the Plotly chart in Streamlit
-    st.plotly_chart(fig)
-
-
-def calculate_profit(sale_data, order_data, products, add_ons, time_period):
-    st.header("D. Profit Calculation")
-    
-    # Merge the sale data with the order data to get cost and sales
-    merged_data = sale_data.merge(order_data, on='sale_id', how='left')
-
-    # Merge the products table to get the COGS for the product
-    merged_data = merged_data.merge(products[['product_id', 'cogs']], on='product_id', how='left', suffixes=('', '_product'))
-    
-    # Ensure the 'cogs' and 'final_amount' columns are numeric
-    merged_data['cogs'] = pd.to_numeric(merged_data['cogs'], errors='coerce')
-    merged_data['final_amount'] = pd.to_numeric(merged_data['final_amount'], errors='coerce')
-
-    # Calculate base product inventory cost (quantity * cogs)
-    merged_data['product_inventory_cost'] = merged_data['quantity'] * merged_data['cogs']
-    
-    # Calculate profit (Revenue - Cost)
-    merged_data['profit'] = merged_data['final_amount'] - merged_data['product_inventory_cost']
-    
-    # Convert 'sale_date' to datetime if not already
-    merged_data['sale_date'] = pd.to_datetime(merged_data['sale_date'], errors='coerce')
-    
-    # Group by the selected time period
-    if time_period == "Daily":
-        # Aggregate profit by day
-        merged_data['sale_date'] = merged_data['sale_date'].dt.date
-        profit_aggregated = merged_data.groupby('sale_date')['profit'].sum().reset_index()
-
-    elif time_period == "Weekly":
-        # Aggregate profit by week
-        merged_data['week'] = merged_data['sale_date'].dt.to_period('W').dt.start_time
-        profit_aggregated = merged_data.groupby('week')['profit'].sum().reset_index()
-
-    elif time_period == "Monthly":
-        # Aggregate profit by month
-        merged_data['month'] = merged_data['sale_date'].dt.to_period('M').dt.start_time
-        profit_aggregated = merged_data.groupby('month')['profit'].sum().reset_index()
-    
-    # Plot the profit based on the selected time period
-    st.subheader(f"⦁ Profit ({time_period})")
-    graph_type_profit = st.selectbox(f"Select Graph Type for Profit ({time_period})", ["Line Graph", "Bar Chart"], key=f"profit_graph_{time_period}")
-    
-    if graph_type_profit == "Line Graph":
-        fig_profit = px.line(profit_aggregated, x=profit_aggregated.columns[0], y='profit', title=f'{time_period} Profit Over Time', markers=True)
-        fig_profit.update_layout(
-            xaxis_title=f'{time_period} Period',
-            yaxis_title='Profit'
-        )
-        st.plotly_chart(fig_profit)
-    else:
-        fig_profit = px.bar(profit_aggregated, x=profit_aggregated.columns[0], y='profit', title=f'{time_period} Profit Over Time', text='profit', color='profit', color_continuous_scale='Blues')
-        fig_profit.update_traces(texttemplate='%{text:.2f}')
-        fig_profit.update_layout(
-            xaxis_title=f'{time_period} Period',
-            yaxis_title='Profit'
-        )
-        st.plotly_chart(fig_profit)
-
-
-# ==============================================================================================
-
-# Customer Analytics Dashboard
-def plot_customer_demographics(customer_data):
-    st.subheader("A. Customer Demographics")
-
-    # Create age groups for categorization
-    age_group = pd.cut(customer_data['age'], bins=[0, 18, 30, 40, 50, float('inf')], 
-                       labels=['<18', '18-30', '30-40', '40-50', '50+'])
-    
-    # Count number of customers by age group
-    age_group_counts = age_group.value_counts().reset_index()
-    age_group_counts.columns = ['Age Group', 'Number of Customers']
-    
-    # Select graph type from the user
-    demographic_graph_type = st.selectbox("Select Graph Type", ["Bar Chart", "Pie Chart"])
-
-    # Plot the demographic categories
-    if demographic_graph_type == "Bar Chart":
-        fig = px.bar(age_group_counts, x='Age Group', y='Number of Customers',
-                     title='Customer Age Demographics',
-                     labels={'Number of Customers': 'Number of Customers'},
-                     hover_data=['Number of Customers'])
-        # Ensure the bar chart is sorted by age group
-        fig.update_xaxes(categoryorder='array', categoryarray=['<18', '18-30', '30-40', '40-50', '50+'])
+        # Render the Plotly chart in Streamlit
         st.plotly_chart(fig)
-    elif demographic_graph_type == "Pie Chart":
-        fig = px.pie(age_group_counts, values='Number of Customers', names='Age Group',
-                     title='Customer Age Demographics',
-                     hover_data=['Number of Customers'])
+    
+    
+    def calculate_profit(sale_data, order_data, products, add_ons, time_period):
+        st.header("D. Profit Calculation")
+        
+        # Merge the sale data with the order data to get cost and sales
+        merged_data = sale_data.merge(order_data, on='sale_id', how='left')
+    
+        # Merge the products table to get the COGS for the product
+        merged_data = merged_data.merge(products[['product_id', 'cogs']], on='product_id', how='left', suffixes=('', '_product'))
+        
+        # Ensure the 'cogs' and 'final_amount' columns are numeric
+        merged_data['cogs'] = pd.to_numeric(merged_data['cogs'], errors='coerce')
+        merged_data['final_amount'] = pd.to_numeric(merged_data['final_amount'], errors='coerce')
+    
+        # Calculate base product inventory cost (quantity * cogs)
+        merged_data['product_inventory_cost'] = merged_data['quantity'] * merged_data['cogs']
+        
+        # Calculate profit (Revenue - Cost)
+        merged_data['profit'] = merged_data['final_amount'] - merged_data['product_inventory_cost']
+        
+        # Convert 'sale_date' to datetime if not already
+        merged_data['sale_date'] = pd.to_datetime(merged_data['sale_date'], errors='coerce')
+        
+        # Group by the selected time period
+        if time_period == "Daily":
+            # Aggregate profit by day
+            merged_data['sale_date'] = merged_data['sale_date'].dt.date
+            profit_aggregated = merged_data.groupby('sale_date')['profit'].sum().reset_index()
+    
+        elif time_period == "Weekly":
+            # Aggregate profit by week
+            merged_data['week'] = merged_data['sale_date'].dt.to_period('W').dt.start_time
+            profit_aggregated = merged_data.groupby('week')['profit'].sum().reset_index()
+    
+        elif time_period == "Monthly":
+            # Aggregate profit by month
+            merged_data['month'] = merged_data['sale_date'].dt.to_period('M').dt.start_time
+            profit_aggregated = merged_data.groupby('month')['profit'].sum().reset_index()
+        
+        # Plot the profit based on the selected time period
+        st.subheader(f"⦁ Profit ({time_period})")
+        graph_type_profit = st.selectbox(f"Select Graph Type for Profit ({time_period})", ["Line Graph", "Bar Chart"], key=f"profit_graph_{time_period}")
+        
+        if graph_type_profit == "Line Graph":
+            fig_profit = px.line(profit_aggregated, x=profit_aggregated.columns[0], y='profit', title=f'{time_period} Profit Over Time', markers=True)
+            fig_profit.update_layout(
+                xaxis_title=f'{time_period} Period',
+                yaxis_title='Profit'
+            )
+            st.plotly_chart(fig_profit)
+        else:
+            fig_profit = px.bar(profit_aggregated, x=profit_aggregated.columns[0], y='profit', title=f'{time_period} Profit Over Time', text='profit', color='profit', color_continuous_scale='Blues')
+            fig_profit.update_traces(texttemplate='%{text:.2f}')
+            fig_profit.update_layout(
+                xaxis_title=f'{time_period} Period',
+                yaxis_title='Profit'
+            )
+            st.plotly_chart(fig_profit)
+    
+    
+    # ==============================================================================================
+    
+    # Customer Analytics Dashboard
+    def plot_customer_demographics(customer_data):
+        st.subheader("A. Customer Demographics")
+    
+        # Create age groups for categorization
+        age_group = pd.cut(customer_data['age'], bins=[0, 18, 30, 40, 50, float('inf')], 
+                           labels=['<18', '18-30', '30-40', '40-50', '50+'])
+        
+        # Count number of customers by age group
+        age_group_counts = age_group.value_counts().reset_index()
+        age_group_counts.columns = ['Age Group', 'Number of Customers']
+        
+        # Select graph type from the user
+        demographic_graph_type = st.selectbox("Select Graph Type", ["Bar Chart", "Pie Chart"])
+    
+        # Plot the demographic categories
+        if demographic_graph_type == "Bar Chart":
+            fig = px.bar(age_group_counts, x='Age Group', y='Number of Customers',
+                         title='Customer Age Demographics',
+                         labels={'Number of Customers': 'Number of Customers'},
+                         hover_data=['Number of Customers'])
+            # Ensure the bar chart is sorted by age group
+            fig.update_xaxes(categoryorder='array', categoryarray=['<18', '18-30', '30-40', '40-50', '50+'])
+            st.plotly_chart(fig)
+        elif demographic_graph_type == "Pie Chart":
+            fig = px.pie(age_group_counts, values='Number of Customers', names='Age Group',
+                         title='Customer Age Demographics',
+                         hover_data=['Number of Customers'])
+            st.plotly_chart(fig)
+    
+    # Plot Order Frequency and History
+    def plot_order_frequency_history(order_data, sale_data):
+        st.subheader("B. Order Frequency and History")
+    
+        # Combine sale and order data for analysis
+        merged_data = sale_data.merge(order_data, on='sale_id', how='inner')
+    
+        # Group by order date and count orders
+        order_frequency = merged_data.groupby('sale_date').size().reset_index(name='Number of Orders')
+    
+        # Line chart for order frequency over time
+        fig = px.line(order_frequency, x='sale_date', y='Number of Orders',
+                      title="Order Frequency Over Time",
+                      labels={'sale_date': 'Date', 'Number of Orders': 'Number of Orders'})
         st.plotly_chart(fig)
-
-# Plot Order Frequency and History
-def plot_order_frequency_history(order_data, sale_data):
-    st.subheader("B. Order Frequency and History")
-
-    # Combine sale and order data for analysis
-    merged_data = sale_data.merge(order_data, on='sale_id', how='inner')
-
-    # Group by order date and count orders
-    order_frequency = merged_data.groupby('sale_date').size().reset_index(name='Number of Orders')
-
-    # Line chart for order frequency over time
-    fig = px.line(order_frequency, x='sale_date', y='Number of Orders',
-                  title="Order Frequency Over Time",
-                  labels={'sale_date': 'Date', 'Number of Orders': 'Number of Orders'})
-    st.plotly_chart(fig)
-
-# ==============================================================================================
+    
+    # ==============================================================================================
 
 # Inventory Analytics Dashboard
 
