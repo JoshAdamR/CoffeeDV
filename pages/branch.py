@@ -693,7 +693,7 @@ def dashboard():
         st.header("C. Sales by Time of Day")
 
         # Ensure the 'sale_date' is in datetime format
-        sale_data['ordered_time_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
+        sale_data['ordered_time_date'] = pd.to_datetime(sale_data['ordered_time_date'], errors='coerce')
         
         # Create a new column for the hour of the day
         sale_data['hour'] = sale_data['ordered_time_date'].dt.hour
