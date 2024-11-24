@@ -689,6 +689,53 @@ def dashboard():
         # Render the Plotly chart in Streamlit
         st.plotly_chart(fig)
 
+    def plot_sales_by_time_of_day(sale_data):
+        st.header("C. Sales by Time of Day")
+
+        # Ensure the 'sale_date' is in datetime format
+        sale_data['ordered_time_date'] = pd.to_datetime(sale_data['sale_date'], errors='coerce')
+        
+        # Create a new column for the hour of the day
+        sale_data['hour'] = sale_data['ordered_time_date'].dt.hour
+
+        # Group the sales data by hour and calculate the total sales
+        sales_by_hour = sale_data.groupby('hour')['price_after_discount'].sum().reset_index()
+
+        # Find the best and worst times based on the total sales
+        max_sales = sales_by_hour['price_after_discount'].max()
+        min_sales = sales_by_hour['price_after_discount'].min()
+
+        # Filter to get all hours with the best and worst sales
+        best_times = sales_by_hour[sales_by_hour['price_after_discount'] == max_sales]
+        worst_times = sales_by_hour[sales_by_hour['price_after_discount'] == min_sales]
+
+        # Create an interactive line chart for total sales by hour of the day
+        fig = px.line(sales_by_hour, x='hour', y='price_after_discount', markers=True)
+        fig.update_layout(
+            title='Total Sales by Hour of Day (Overall)',
+            xaxis_title="Hour of Day",
+            yaxis_title="Total Sales"
+        )
+
+        # Display cards for best and worst times
+        st.subheader("Best and Worst Times for Sales")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # Display best time cards (for multiple best times)
+            st.markdown("<h4 style='font-size:18px;'>Best Time(s)</h4>", unsafe_allow_html=True)
+            for _, row in best_times.iterrows():
+                st.success(f"**{row['hour']:.2f} Hours**  \nTotal Sales: ${row['price_after_discount']:.2f}", icon=None)
+
+        with col2:
+            # Display worst time cards (for multiple worst times)
+            st.markdown("<h4 style='font-size:18px;'>Worst Time(s)</h4>", unsafe_allow_html=True)
+            for _, row in worst_times.iterrows():
+                st.error(f"**{row['hour']} Hours**  \nTotal Sales: ${row['price_after_discount']:.2f}", icon=None)
+
+        # Render the Plotly chart in Streamlit
+        st.plotly_chart(fig)
+
     
 
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
@@ -713,6 +760,12 @@ def dashboard():
     sale = cart_table[cart_table['status'] == 'Done']
     order = cart_table[cart_table['status'] != 'In Cart']
     product = get_ref('product')
+
+    sale_data_filtered = sale[
+        (sale['ordered_time_date'] >= pd.to_datetime(start_date)) & 
+        (sale['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
+    ]
+
                 
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
@@ -722,9 +775,9 @@ def dashboard():
         plot_total_sales(sale, order, period)
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_sales_by_product(order)
-        '''st.markdown("<hr>", unsafe_allow_html=True)
-        plot_sales_by_time_of_day(sale_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
+        plot_sales_by_time_of_day(sale_data_filtered)
+        '''st.markdown("<hr>", unsafe_allow_html=True)
         calculate_profit(sale_data_filtered, order_data_filtered, data['product'], data['addon'], period)
 
     elif selection == "Customer Analytics Dashboard":
