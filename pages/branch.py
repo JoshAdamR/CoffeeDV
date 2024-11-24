@@ -893,19 +893,19 @@ def dashboard():
 
         elif time_period == "Weekly":
             # Aggregate profit by week
-            timely_usage= usage['date'].dt.to_period('W').dt.start_time
+            timely_usage = usage['date'].dt.to_period('W').dt.start_time
             timely_inventory = inventory['quantity_on_hand'] 
 
         elif time_period == "Monthly":
-            timely_usage= usage['date'].dt.to_period('M').dt.start_time
+            timely_usage = usage['date'].dt.to_period('M').dt.start_time
             timely_inventory = inventory['quantity_on_hand'] 
 
         elif time_period == "Quarterly":
-            timely_usage= usage['date'].dt.to_period('Q').dt.start_time
+            timely_usage = usage['date'].dt.to_period('Q').dt.start_time
             timely_inventory = inventory['quantity_on_hand'] 
 
         elif time_period == "Yearly":
-            timely_usage= usage['date'].dt.to_period('Y').dt.start_time
+            timely_usage = usage['date'].dt.to_period('Y').dt.start_time
             timely_inventory = inventory['quantity_on_hand'] 
 
         timely_turnover = (timely_usage / timely_inventory).fillna(0)
@@ -989,7 +989,7 @@ def dashboard():
         st.title("Inventory Analytics Dashboard")
         display_low_stock_products(inventory_full, branch_id)
         st.markdown("<hr>", unsafe_allow_html=True)
-        calculate_inventory_turnover(inventory_full, restock_history, usage_history. branch_id)
+        calculate_inventory_turnover(inventory_full, restock_history, usage_history, branch_id)
         #plot_inventory_turnover(data['sale'], data['inventory'])
         #plot_stock_levels(data['sale'], data['order'], data['inventory'])
         #display_low_stock_alerts(data['inventory'])
