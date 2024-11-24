@@ -1,3 +1,4 @@
 email,username,password,customer_id,role
 admin@gmail.com,admin,admin,ADM000,admin
 brancha@gmail.com,brancha,brancha,BRANCH001,branch
+user1@gmail.com,user1,Abc123!!!,CUST001,customer

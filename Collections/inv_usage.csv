@@ -1,4 +1,4 @@
-inv_usage_id,,item_name,inventory_id,usage
+inv_usage_id,item_id,item_name,inventory_id,usage
 PROD001INV001,PROD001,Espresso,INV001,0.003
 PROD002INV001,PROD002,Latte,INV001,0.002
 PROD003INV001,PROD003,Capuccino,INV001,0.0025
