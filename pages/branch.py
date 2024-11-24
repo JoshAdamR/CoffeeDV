@@ -750,25 +750,27 @@ def dashboard():
         #cost = usage_merge['cost'].sum()
         #profit = revenue - cost
 
+        usage_merge['date'] = pd.to_datetime(usage_merge['date'])
+        
         # Group by the selected time period
         if time_period == "Daily":
             # Aggregate profit by day
             sale['ordered_time_date'] = sale['ordered_time_date'].dt.date
-            usage_merge['ordered_time_date'] = usage_merge['ordered_time_date'].dt.date
+            usage_merge['date'] = usage_merge['date'].dt.date
             revenue_aggregated = sale.groupby('ordered_time_date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()            
 
         elif time_period == "Weekly":
             # Aggregate profit by week
             merged_data['week'] = merged_data['ordered_time_date'].dt.to_period('W').dt.start_time
-            usage_merge['week'] = usage_merge['ordered_time_date'].dt.to_period('W').dt.start_time
+            usage_merge['week'] = usage_merge['date'].dt.to_period('W').dt.start_time
             profit_aggregated = merged_data.groupby('week')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('week')['cost'].sum().reset_index()
 
         elif time_period == "Monthly":
             # Aggregate profit by month
             merged_data['month'] = merged_data['ordered_time_date'].dt.to_period('M').dt.start_time
-            usage_merge['month'] = usage_merge['ordered_time_date'].dt.to_period('M').dt.start_time
+            usage_merge['month'] = usage_merge['date'].dt.to_period('M').dt.start_time
             profit_aggregated = merged_data.groupby('month')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('month')['cost'].sum().reset_index()
         
