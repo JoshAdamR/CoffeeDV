@@ -840,7 +840,7 @@ def dashboard():
                         hover_data=['Number of Customers'])
             st.plotly_chart(fig)
 
-    def plot_order_frequency_history(order_data, sale_data):
+    def plot_order_frequency_history(sale_data):
         st.subheader("B. Order Frequency and History")
 
         # Group by order date and count orders
@@ -910,7 +910,7 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_customer_demographics(filtered_customers)
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_order_frequency_history(order_data_filtered, sale_data_filtered)
+        plot_order_frequency_history(sale_data_filtered)
 
     '''elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
