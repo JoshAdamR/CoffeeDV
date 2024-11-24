@@ -596,7 +596,7 @@ def dashboard():
             st.subheader("Filter Data")
                 
     cart_table = get_ref('cart')#.where('status', '==', 'Done')
-    sale = cart_table[sale_table['status'] == 'Done']
+    sale = cart_table[cart_table['status'] == 'Done']
     order = cart_table[cart_table['status'] != 'In Cart']
                 
     if selection == "Sales Analytics Dashboard":
