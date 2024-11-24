@@ -880,8 +880,8 @@ def dashboard():
 
         usage = usage[usage['branch_id'] == selected_branch]
         # Debug: Check the inventory table
-        print("Updated Inventory Table:")
-        print(inventory.head())
+        st.write("Updated Inventory Table:")
+        st.write(inventory.head())
         st.write(usage)
         # Group by the selected time period
         if time_period == "Daily":
