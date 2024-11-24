@@ -578,6 +578,116 @@ def dashboard():
         )
         st.plotly_chart(fig_quantity)
 
+    def plot_sales_by_product(order_data):
+        st.header("B. Sales Breakdown by Product")
+
+        # Merge the order data with the product data to get product details
+        merged_data = order_data
+
+        # Ensure the quantity column is numeric
+        merged_data['quantity'] = pd.to_numeric(merged_data['quantity'], errors='coerce')
+
+        # Select the drill level (Category or Product)
+        drill_level = st.radio(
+            "Choose Drill Level:",
+            options=["By Product Category", "By Individual Product"],
+            index=0
+        )
+
+        if drill_level == "By Product Category":
+            # Group by product category and calculate total quantity sold
+            sales_data = merged_data.groupby('product_category')['quantity'].sum().reset_index()
+            sales_data.rename(columns={'product_category': 'Category', 'quantity': 'Quantity Sold'}, inplace=True)
+
+            # Find the highest and lowest sales categories (handling ties)
+            max_sales = sales_data['Quantity Sold'].max()
+            min_sales = sales_data['Quantity Sold'].min()
+
+            # Filter to get all categories with the highest and lowest sales
+            highest_sales_categories = sales_data[sales_data['Quantity Sold'] == max_sales]
+            lowest_sales_categories = sales_data[sales_data['Quantity Sold'] == min_sales]
+
+            # Create a bar chart for product category sales
+            fig = px.bar(
+                sales_data, 
+                x='Category', 
+                y='Quantity Sold', 
+                title="Sales Breakdown by Product Category",
+                color='Quantity Sold',
+                color_continuous_scale='Blues',
+                labels={'Quantity Sold': 'Quantity Sold', 'Category': 'Product Category'},
+            )
+
+            # Display cards for highest and lowest sales categories
+            st.subheader("Highest and Lowest Sales Categories")
+            col1, col2 = st.columns(2)
+
+            with col1:
+                # Display highest sales categories
+                st.markdown("<h4 style='font-size:18px;'>Highest Sales</h4>", unsafe_allow_html=True)
+                for _, row in highest_sales_categories.iterrows():
+                    st.success(f"**{row['Category']}**  \nQuantity Sold: {row['Quantity Sold']}")
+
+            with col2:
+                # Display lowest sales categories
+                st.markdown("<h4 style='font-size:18px;'>Lowest Sales</h4>", unsafe_allow_html=True)
+                for _, row in lowest_sales_categories.iterrows():
+                    st.error(f"**{row['Category']}**  \nQuantity Sold: {row['Quantity Sold']}")
+
+        else:  # Drill down to individual products
+            category_filter = st.selectbox(
+                "Choose a Product Category (or 'All' for all products):",
+                options=['All'] + merged_data['product_category'].unique().tolist(),
+                index=0
+            )
+
+            # Filter the data based on the selected category
+            if category_filter != 'All':
+                filtered_data = merged_data[merged_data['product_category'] == category_filter]
+            else:
+                filtered_data = merged_data
+
+            # Group by product name and calculate total quantity sold
+            sales_data = filtered_data.groupby('product_name')['quantity'].sum().reset_index()
+            sales_data.rename(columns={'product_name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
+
+            # Find the highest and lowest sales products (handling ties)
+            max_sales = sales_data['Quantity Sold'].max()
+            min_sales = sales_data['Quantity Sold'].min()
+
+            # Filter to get all products with the highest and lowest sales
+            highest_sales_products = sales_data[sales_data['Quantity Sold'] == max_sales]
+            lowest_sales_products = sales_data[sales_data['Quantity Sold'] == min_sales]
+
+            # Create a bar chart for individual product sales
+            fig = px.bar(
+                sales_data, 
+                x='Product', 
+                y='Quantity Sold', 
+                title=f"Sales Breakdown by Individual Product ({category_filter})",
+                color='Quantity Sold',
+                color_continuous_scale='Blues',
+                labels={'Quantity Sold': 'Quantity Sold', 'Product': 'Product Name'},
+            )
+
+            # Display cards for highest and lowest sales products
+            st.subheader("Highest and Lowest Sales Products")
+            col1, col2 = st.columns(2)
+
+            with col1:
+                # Display highest sales products
+                st.markdown("<h4 style='font-size:18px;'>Highest Sales</h4>", unsafe_allow_html=True)
+                for _, row in highest_sales_products.iterrows():
+                    st.success(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
+
+            with col2:
+                # Display lowest sales products
+                st.markdown("<h4 style='font-size:18px;'>Lowest Sales</h4>", unsafe_allow_html=True)
+                for _, row in lowest_sales_products.iterrows():
+                    st.error(f"**{row['Product']}**  \nQuantity Sold: {row['Quantity Sold']}")
+
+        # Render the Plotly chart in Streamlit
+        st.plotly_chart(fig)
 
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
                                                      "Sales Analytics Dashboard",
@@ -597,9 +707,10 @@ def dashboard():
             st.subheader("Filter Data")
             period = st.selectbox('Select Time Period:', ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'])
                 
-    cart_table = get_ref('cart')#.where('status', '==', 'Done')
+    cart_table = get_ref('cart')
     sale = cart_table[cart_table['status'] == 'Done']
     order = cart_table[cart_table['status'] != 'In Cart']
+    product = get_ref('product')
                 
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
@@ -607,9 +718,9 @@ def dashboard():
         plot_best_worst_sellers(sale)
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_total_sales(sale, order, period)
-        '''st.markdown("<hr>", unsafe_allow_html=True)
-        plot_sales_by_product(order_data_filtered, data['product'])
         st.markdown("<hr>", unsafe_allow_html=True)
+        plot_sales_by_product(order, data['product'])
+        '''st.markdown("<hr>", unsafe_allow_html=True)
         plot_sales_by_time_of_day(sale_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
         calculate_profit(sale_data_filtered, order_data_filtered, data['product'], data['addon'], period)
