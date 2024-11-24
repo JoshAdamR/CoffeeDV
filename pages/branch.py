@@ -876,9 +876,8 @@ def dashboard():
         else:
             st.write("No low stock items found.")
     
-    def calculate_inventory_turnover(inventory, restock, usage, selected_branch, time_period):
+    def calculate_inventory_turnover(inventory, usage, selected_branch, time_period):
 
-        restock = restock[restock['branch_id'] == selected_branch]
         usage = usage[usage['branch_id'] == selected_branch]
         
         # Debug: Check the inventory table
@@ -889,26 +888,22 @@ def dashboard():
         if time_period == "Daily":
             # Aggregate profit by day
             timely_usage = usage['date'].dt.date
-            timely_inventory = inventory['quantity_on_hand']           
 
         elif time_period == "Weekly":
             # Aggregate profit by week
             timely_usage = usage['date'].dt.to_period('W').dt.start_time
-            timely_inventory = inventory['quantity_on_hand'] 
 
         elif time_period == "Monthly":
             timely_usage = usage['date'].dt.to_period('M').dt.start_time
-            timely_inventory = inventory['quantity_on_hand'] 
 
         elif time_period == "Quarterly":
             timely_usage = usage['date'].dt.to_period('Q').dt.start_time
-            timely_inventory = inventory['quantity_on_hand'] 
 
         elif time_period == "Yearly":
             timely_usage = usage['date'].dt.to_period('Y').dt.start_time
-            timely_inventory = inventory['quantity_on_hand'] 
 
-        timely_turnover = (timely_usage / timely_inventory).fillna(0)
+        turnover = pd.merge(timely_usage, inventory, on='inventory_id', how='inner')
+        timely_turnover = turnover['quantity']/turnover['quantity_on_hand']
         st.write(timely_usage)
         st.write(timely_inventory)
         st.write(timely_turnover)
