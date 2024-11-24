@@ -16,6 +16,10 @@ make_sidebar()
 #st.write(cookies.getAll())
 branch_id = cookies.get("customer_id")
 
+def get_ref(table):
+        ref = store.collection(table)
+        return pd.DataFrame([doc.to_dict() for doc in ref.stream()])
+
 def notification_low(branch_inventory):
     low_stock_items = branch_inventory[branch_inventory['quantity_on_hand'] < branch_inventory['minimum_stock_level']]
     if not low_stock_items.empty:
@@ -34,10 +38,6 @@ def notification_low(branch_inventory):
 
 def inventory(branch_id):
     st.title("Inventory Management")
-
-    def get_ref(table):
-        ref = store.collection(table)
-        return pd.DataFrame([doc.to_dict() for doc in ref.stream()])
 
     def update_stock(item_name, quantity, action, branch_id):
         """Update stock based on sales or restock for the selected branch."""
