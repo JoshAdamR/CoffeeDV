@@ -897,7 +897,7 @@ def dashboard():
 
         inventory['turnover'] = inventory['quantity']/inventory['quantity_on_hand']
 
-        st.write(inventory['turnover'])
+        st.write(usage)
 
         # Create an interactive Plotly graph
         fig = go.Figure()
