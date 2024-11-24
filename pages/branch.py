@@ -774,6 +774,8 @@ def dashboard():
         
         profit_aggregated = revenue_aggregated - cost_aggregated
 
+        st.write(revenue_aggregated)
+
         # Plot the profit based on the selected time period
         st.subheader(f"⦁ Profit ({time_period})")
         graph_type_profit = st.selectbox(f"Select Graph Type for Profit ({time_period})", ["Line Graph", "Bar Chart"], key=f"profit_graph_{time_period}")
