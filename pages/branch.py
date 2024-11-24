@@ -840,6 +840,18 @@ def dashboard():
                         hover_data=['Number of Customers'])
             st.plotly_chart(fig)
 
+    def plot_order_frequency_history(order_data, sale_data):
+        st.subheader("B. Order Frequency and History")
+
+        # Group by order date and count orders
+        order_frequency = sale_data.groupby('ordered_time_date').size().reset_index(name='Number of Orders')
+
+        # Line chart for order frequency over time
+        fig = px.line(order_frequency, x='ordered_time_date', y='Number of Orders',
+                    title="Order Frequency Over Time",
+                    labels={'sale_date': 'Date', 'Number of Orders': 'Number of Orders'})
+        st.plotly_chart(fig)
+
     
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
@@ -897,10 +909,10 @@ def dashboard():
         # Pass the filtered data to the plotting functions
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_customer_demographics(filtered_customers)
-        '''st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)
         plot_order_frequency_history(order_data_filtered, sale_data_filtered)
 
-    elif selection == "Inventory Analytics Dashboard":
+    '''elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
         display_low_stock_products(data['inventory'], selected_branch)
         st.markdown("<hr>", unsafe_allow_html=True)
