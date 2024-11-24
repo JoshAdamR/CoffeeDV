@@ -637,19 +637,19 @@ def dashboard():
         else:  # Drill down to individual products
             category_filter = st.selectbox(
                 "Choose a Product Category (or 'All' for all products):",
-                options=['All'] + merged_data['product_category'].unique().tolist(),
+                options=['All'] + merged_data['category'].unique().tolist(),
                 index=0
             )
 
             # Filter the data based on the selected category
             if category_filter != 'All':
-                filtered_data = merged_data[merged_data['product_category'] == category_filter]
+                filtered_data = merged_data[merged_data['category'] == category_filter]
             else:
                 filtered_data = merged_data
 
             # Group by product name and calculate total quantity sold
-            sales_data = filtered_data.groupby('product_name')['quantity'].sum().reset_index()
-            sales_data.rename(columns={'product_name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
+            sales_data = filtered_data.groupby('name')['quantity'].sum().reset_index()
+            sales_data.rename(columns={'name': 'Product', 'quantity': 'Quantity Sold'}, inplace=True)
 
             # Find the highest and lowest sales products (handling ties)
             max_sales = sales_data['Quantity Sold'].max()
@@ -688,6 +688,8 @@ def dashboard():
 
         # Render the Plotly chart in Streamlit
         st.plotly_chart(fig)
+
+    
 
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
                                                      "Sales Analytics Dashboard",
