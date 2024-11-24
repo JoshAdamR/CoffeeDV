@@ -449,7 +449,6 @@ def dashboard():
         # Assuming you want to store each collection's reference in the dictionary with the collection's id as the key
         data[collection.id] = get_ref(collection.id)  # Use collection.id as the key # Append the reference to the data list
             
-    st.write(data)
     selection = st.sidebar.selectbox("Select View", ["Dataset Summary",
                                                      "Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
@@ -458,7 +457,7 @@ def dashboard():
                                                      "Financial Analytics",
                                                      "Operational Analytics",
                                                      "Order Monitoring Dashboard"])
-    st.write(data['cart']['ordered_time_date'])
+        
     # Convert sale_date to datetime if it's not already
     data['cart']['ordered_time_date'] = pd.to_datetime(data['cart']['ordered_time_date'])
         
