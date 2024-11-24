@@ -892,7 +892,6 @@ def dashboard():
             # Aggregate usage by week
             usage['date'] = usage['date'].dt.to_period('W').dt.start_time
 
-        st.write(usage)
         #revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
 
         inventory = pd.merge(usage, inventory, on='inventory_id', how='inner')
