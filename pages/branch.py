@@ -970,6 +970,323 @@ def dashboard():
         # Display the chart in Streamlit
         st.plotly_chart(fig2)
 
+    # Financial Analytics
+
+    # Function to perform Profit Margin Analysis
+    def profit_margin_analysis(order_data, sale_data_filtered, product_data):
+        st.header("A. Profit Margin Analysis")
+        
+        # Merge data and calculate profit margin
+        merged_data = pd.merge(order_data, sale_data_filtered, on='sale_id')
+        merged_data = pd.merge(merged_data, product_data, on='product_id')
+        
+        # Ensure numerical columns are in correct format
+        merged_data['total_amount'] = pd.to_numeric(merged_data['total_amount'], errors='coerce')
+        merged_data['cogs'] = pd.to_numeric(merged_data['cogs'], errors='coerce')
+        
+        # Calculate Profit Margin as (total_amount - cogs) / total_amount * 100
+        merged_data['Profit Margin'] = (merged_data['total_amount'] - merged_data['cogs']) / merged_data['total_amount'] * 100
+        
+        # Aggregate profit margin by product name
+        profit_margin_data = merged_data.groupby('product_name')['Profit Margin'].mean().reset_index()
+        
+        # Create three columns layout for the cards
+        col1, col2, col3 = st.columns(3)
+        
+        # Card 1: Average Profit Margin
+        avg_profit_margin = merged_data['Profit Margin'].mean()
+        col1.metric("Average Profit Margin", f"{avg_profit_margin:.2f}%")
+        
+        # Card 2: Product with Highest Profit Margin
+        highest_margin_product = profit_margin_data.loc[profit_margin_data['Profit Margin'].idxmax()]
+        col2.metric(f"Highest Profit Margin Product: {highest_margin_product['product_name']}", 
+                    f"{highest_margin_product['Profit Margin']:.2f}%")
+        
+        # Card 3: Product with Lowest Profit Margin
+        lowest_margin_product = profit_margin_data.loc[profit_margin_data['Profit Margin'].idxmin()]
+        col3.metric(f"Lowest Profit Margin Product: {lowest_margin_product['product_name']}", 
+                    f"{lowest_margin_product['Profit Margin']:.2f}%")
+        
+        # Create bar chart for profit margin analysis
+        fig_profit_margin = px.bar(profit_margin_data, x='product_name', y='Profit Margin',
+                                title='Profit Margin Analysis',
+                                labels={'Profit Margin': 'Profit Margin (%)'},
+                                text='Profit Margin')
+        st.plotly_chart(fig_profit_margin)
+
+
+    def cost_analysis(operatingcost_data, operatingcost_data_filtered):
+        st.header("B. Cost Analysis")
+        
+        # Calculate total cost and reshape data for visualization
+        operatingcost_data_filtered['Total Cost'] = operatingcost_data_filtered[['rent', 'utilities', 'salaries', 'other_expenses']].sum(axis=1)
+        cost_data = operatingcost_data_filtered[['branch_id', 'rent', 'utilities', 'salaries', 'other_expenses']]
+        cost_data = cost_data.melt(id_vars='branch_id', var_name='Cost Category', value_name='Amount')
+        
+        # Create bar chart for cost analysis
+        fig_cost_analysis = px.bar(cost_data, x='branch_id', y='Amount', color='Cost Category',
+                                title='Cost Analysis',
+                                labels={'Amount': 'Cost Amount'},
+                                text='Amount')
+        st.plotly_chart(fig_cost_analysis)
+
+    # Function to analyze Revenue Streams
+    def revenue_streams_analysis(order_data_filtered, product_data):
+        st.header("C. Revenue Streams")
+        
+        # Merge order data with product data on 'product_id'
+        merged_data = pd.merge(order_data_filtered, product_data, on='product_id')
+        
+        # Ensure 'total_price' is numeric, coercing errors to NaN
+        merged_data['total_price'] = pd.to_numeric(merged_data['total_price'], errors='coerce')
+        
+        # Radio button selection to choose revenue view by product category or individual product
+        revenue_view = st.radio(
+            "Choose Revenue View",
+            ("By Product Category", "By Individual Product")
+        )
+        
+        # Conditional display based on radio button selection
+        if revenue_view == "By Product Category":
+            # Calculate total revenue per product category
+            revenue_streams = merged_data.groupby('product_category')['total_price'].sum().reset_index()
+
+            # Calculate total revenue
+            total_revenue = revenue_streams['total_price'].sum()
+
+            # Find the product category that contributes the most and least
+            most_contrib_category = revenue_streams.loc[revenue_streams['total_price'].idxmax()]
+            least_contrib_category = revenue_streams.loc[revenue_streams['total_price'].idxmin()]
+            
+            # Create three columns layout for the cards
+            col1, col2, col3 = st.columns(3)
+
+            # Display the Total Revenue Card in the first column
+            col1.metric("Total Revenue", f"${total_revenue:.2f}")
+
+            # Display the Product Category that contributes the most in the second column
+            col2.metric(f"Top Product Category: {most_contrib_category['product_category']}", 
+                        f"${most_contrib_category['total_price']:.2f}")
+            
+            # Display the Product Category that contributes the least in the third column
+            col3.metric(f"Least Product Category: {least_contrib_category['product_category']}", 
+                        f"${least_contrib_category['total_price']:.2f}")
+            
+            # Create pie chart for revenue streams distribution by product category
+            fig_revenue_streams = px.pie(revenue_streams, values='total_price', names='product_category',
+                                        title='Revenue Streams Distribution',
+                                        labels={'total_price': 'Total Revenue'},
+                                        hole=0.3)
+            st.plotly_chart(fig_revenue_streams)
+
+        elif revenue_view == "By Individual Product":
+            # Dropdown for selecting product category or 'All'
+            selected_category = st.selectbox(
+                "Select a Product Category", 
+                ["All"] + merged_data['product_category'].unique().tolist()
+            )
+            
+            # Filter data based on the selected category or 'All'
+            if selected_category == "All":
+                category_data = merged_data
+            else:
+                category_data = merged_data[merged_data['product_category'] == selected_category]
+            
+            # Calculate total revenue
+            total_revenue = category_data['total_price'].sum()
+
+            # Find the product that contributes the most and least
+            most_contrib_product = category_data.groupby('product_name')['total_price'].sum().idxmax()
+            least_contrib_product = category_data.groupby('product_name')['total_price'].sum().idxmin()
+
+            # Calculate the total revenue per product
+            product_revenue = category_data.groupby('product_name')['total_price'].sum().reset_index()
+
+            # Sort products by revenue in descending order
+            product_revenue_sorted = product_revenue.sort_values(by='total_price', ascending=False)
+
+            # Create three columns layout for the cards
+            col1, col2, col3 = st.columns(3)
+
+            # Display the Total Revenue Card in the first column
+            col1.metric("Total Revenue", f"${total_revenue:.2f}")
+
+            # Display the Product that contributes the most in the second column
+            col2.metric(f"Top Product: {most_contrib_product}", 
+                        f"${product_revenue[product_revenue['product_name'] == most_contrib_product]['total_price'].values[0]:.2f}")
+            
+            # Display the Product that contributes the least in the third column
+            col3.metric(f"Least Product: {least_contrib_product}", 
+                        f"${product_revenue[product_revenue['product_name'] == least_contrib_product]['total_price'].values[0]:.2f}")
+            
+            # Create pie chart for individual products in the selected category or 'All'
+            fig_product_revenue = px.pie(product_revenue_sorted, values='total_price', names='product_name',
+                                        title=f'Revenue Distribution for {selected_category} Products' if selected_category != "All" else 'Revenue Distribution for All Products',
+                                        labels={'total_price': 'Total Revenue'},
+                                        hole=0.3)
+            st.plotly_chart(fig_product_revenue)
+
+    # ==============================================================================================
+
+    # Operational Analytics
+
+    # Function to parse date with multiple formats
+    def parse_date(date_str):
+        # If the input is already a datetime object (Timestamp)
+        if isinstance(date_str, pd.Timestamp):
+            return date_str
+
+        try:
+            # Try parsing in AM/PM format
+            return datetime.strptime(date_str, "%m/%d/%y %I:%M %p")  # AM/PM format
+        except ValueError:
+            # Try parsing in 24-hour format if AM/PM format fails
+            return datetime.strptime(date_str, "%m/%d/%y %H:%M")  # 24-hour format
+
+    def customer_feedback_ratings(data, sale_data_filtered, period):
+        st.header("A. Customer Feedback Ratings")
+
+        # Ensure 'sale_date' is in datetime format
+        sale_data_filtered['sale_date'] = pd.to_datetime(sale_data_filtered['sale_date'])
+
+        # Filter feedback data based on sale_id from the filtered sale data
+        filtered_feedback_data = data['feedback'][data['feedback']['sale_id'].isin(sale_data_filtered['sale_id'])]
+
+        # Merge feedback data with filtered sales data to include 'sale_date'
+        filtered_feedback_data = filtered_feedback_data.merge(
+            sale_data_filtered[['sale_id', 'sale_date']],
+            on='sale_id',
+            how='inner'
+        )
+
+        # Convert 'sale_date' to datetime
+        filtered_feedback_data['sale_date'] = pd.to_datetime(filtered_feedback_data['sale_date'])
+
+        # Apply time period aggregation
+        if period == 'Weekly':
+            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.to_period('W')
+        elif period == 'Monthly':
+            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.to_period('M')
+        elif period == 'Quarterly':
+            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.to_period('Q')
+        elif period == 'Yearly':
+            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.to_period('Y')
+        else:  # Daily
+            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.date
+
+        # Rating dimensions
+        rating_dimensions = ['rate_coffee', 'rate_service', 'rate_wait_time', 'rate_environment', 'rate_sanitary']
+
+        # Calculate and display average rating across all dimensions
+        overall_avg_rating = filtered_feedback_data[rating_dimensions].mean().mean()
+        st.metric("Average Rating Across All Dimensions", round(overall_avg_rating, 2))
+
+        # Create a layout with 3 columns for individual average ratings
+        cols = st.columns(3)
+
+        # Calculate and display average rating for each individual dimension in 3 columns
+        for i, rating in enumerate(rating_dimensions):
+            avg_rating = filtered_feedback_data[rating].mean()
+            cols[i % 3].metric(f"Avg {rating.replace('_', ' ').title()}", round(avg_rating, 2))
+
+        # Now aggregate the ratings by the selected period and create charts
+        for rating in rating_dimensions:
+            # Group by the selected period and calculate the mean of each rating dimension
+            feedback_by_period = filtered_feedback_data.groupby('period')[rating].mean().reset_index()
+
+            # Create the chart
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=feedback_by_period['period'].astype(str),  # Convert period to string for x-axis
+                y=feedback_by_period[rating],
+                mode='lines+markers',
+                name=rating
+            ))
+
+            fig.update_layout(
+                title=f'Average {rating.replace("_", " ").title()} Over Time',
+                xaxis_title='Period',
+                yaxis_title='Average Rating',
+                hovermode="closest"
+            )
+
+            # Display the chart inside an expander
+            with st.expander(f"Average {rating.replace('_', ' ').title()} Rating"):
+                st.plotly_chart(fig)
+
+    
+                
+    # Function to calculate and display order processing times
+    def order_processing_times(sale_data):
+        st.header("B. Order Processing Times")
+
+        # Ensure columns exist before calculation
+        if "sale_date" in sale_data.columns and "order_completion_date" in sale_data.columns:
+            # Calculate processing times in minutes
+            processing_times = [
+                (parse_date(completion) - parse_date(start)).total_seconds() / 60
+                for start, completion in zip(sale_data["sale_date"], sale_data["order_completion_date"])
+            ]
+
+            # Create the interactive box plot
+            fig_processing_time = go.Figure(
+                go.Box(y=processing_times, name="Order Processing Time", boxmean="sd")
+            )
+            fig_processing_time.update_layout(
+                title="Order Processing Times",
+                yaxis_title="Processing Time (minutes)",
+                hovermode="closest"
+            )
+
+            # Display in Streamlit
+            st.plotly_chart(fig_processing_time)
+        else:
+            st.warning("Required columns ('sale_date', 'order_completion_date') are missing.")
+
+
+
+    # ==============================================================================================
+
+    def order_monitoring_dashboard(sale_data):
+        # Ensure `time` and `datetime` are imported
+        st.title("PyBean Coffee Shop")
+        st.subheader("Order Status Dashboard")
+
+        # Live Time Section
+        live_time_container = st.empty()  # Create an empty container for live updates
+
+        # Convert sale_date to datetime and sort the data by the most recent sale
+        sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], format='%m/%d/%y %H:%M')  # Convert to datetime
+        sale_data = sale_data.sort_values(by='sale_date', ascending=False)  # Sort by newest first
+
+        # Create two columns for "Preparing Orders" and "Ready for Collection"
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader("Preparing Orders")
+            preparing_orders = sale_data[sale_data['status'] == 'Preparing']['sale_id']
+            if not preparing_orders.empty:
+                for order in preparing_orders:
+                    st.write(order)
+            else:
+                st.write("No Preparing Orders")
+
+        with col2:
+            st.subheader("Ready for Collection")
+            ready_orders = sale_data[sale_data['status'] == 'Completed']['sale_id']
+            if not ready_orders.empty:
+                for order in ready_orders:
+                    st.write(order)
+            else:
+                st.write("No Ready Orders")
+
+        # Continuously update live time
+        while True:
+            live_time_container.markdown(
+                f"Live Date and Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            )
+            time.sleep(1)  # Wait for 1 second before updating again
+
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
                                                      "Inventory Analytics Dashboard",
@@ -1058,11 +1375,11 @@ def dashboard():
     elif selection == "Financial Analytics":
         st.title("Financial Analytics")
         st.markdown("<hr>", unsafe_allow_html=True)
-        profit_margin_analysis(order_data_filtered, sale_data_filtered, data['product'])
+        profit_margin_analysis(order_data_filtered, sale_data_filtered, product)
         st.markdown("<hr>", unsafe_allow_html=True)
         cost_analysis(data['operatingcost'], operatingcost_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
-        revenue_streams_analysis(order_data_filtered, data['product'])
+        revenue_streams_analysis(order_data_filtered, product)
 
     elif selection == "Operational Analytics":
         st.title("Operational Analytics")
