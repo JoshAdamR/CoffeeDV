@@ -889,7 +889,7 @@ def dashboard():
 
         st.write(inventory_branch)
         
-        # Create an interactive Plotly graph
+        '''# Create an interactive Plotly graph
         fig = go.Figure()
 
         # Add the turnover rate line (Light Blue)
@@ -911,7 +911,7 @@ def dashboard():
         )
 
         # Show the graph
-        fig.show()
+        fig.show()'''
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
