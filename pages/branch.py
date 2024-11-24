@@ -894,7 +894,7 @@ def dashboard():
             usage['date'] = usage['date'].dt.to_period('W').dt.start_time
 
         inventory = pd.merge(usage, inventory, on='inventory_id', how='inner')
-        inventory['turnover'] = inventory['quantity_used']/inventory['quantity_on_hand']
+        inventory['turnover'] = inventory['quantity']/inventory['quantity_on_hand']
 
         # Create an interactive Plotly graph
         fig = go.Figure()
