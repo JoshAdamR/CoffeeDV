@@ -474,7 +474,7 @@ def dashboard():
         order_quantity.rename(columns={'quantity': 'quantity_sold'}, inplace=True)
     
         # Merge quantity data with sales data
-        sale_data = sale_data.merge(order_quantity, on='sale_id', how='left')
+        sale_data = sale_data.merge(order_quantity, on='cart_id', how='left')
     
         # Define period mapping for aggregation
         period_mapping = {
