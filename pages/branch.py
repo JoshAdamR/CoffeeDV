@@ -596,8 +596,8 @@ def dashboard():
 
         if drill_level == "By Product Category":
             # Group by product category and calculate total quantity sold
-            sales_data = merged_data.groupby('product_category')['quantity'].sum().reset_index()
-            sales_data.rename(columns={'product_category': 'Category', 'quantity': 'Quantity Sold'}, inplace=True)
+            sales_data = merged_data.groupby('category')['quantity'].sum().reset_index()
+            sales_data.rename(columns={'category': 'Category', 'quantity': 'Quantity Sold'}, inplace=True)
 
             # Find the highest and lowest sales categories (handling ties)
             max_sales = sales_data['Quantity Sold'].max()
