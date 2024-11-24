@@ -876,7 +876,7 @@ def dashboard():
         else:
             st.write("No low stock items found.")
     
-    def calculate_inventory_turnover(inventory, restock, usage, selected_branch):
+    def calculate_inventory_turnover(inventory, restock, usage, selected_branch, time_period):
 
         restock = restock[restock['branch_id'] == selected_branch]
         usage = usage[usage['branch_id'] == selected_branch]
@@ -989,7 +989,7 @@ def dashboard():
         st.title("Inventory Analytics Dashboard")
         display_low_stock_products(inventory_full, branch_id)
         st.markdown("<hr>", unsafe_allow_html=True)
-        calculate_inventory_turnover(inventory_full, restock_history, usage_history, branch_id)
+        calculate_inventory_turnover(inventory_full, restock_history, usage_history, branch_id, period)
         #plot_inventory_turnover(data['sale'], data['inventory'])
         #plot_stock_levels(data['sale'], data['order'], data['inventory'])
         #display_low_stock_alerts(data['inventory'])
