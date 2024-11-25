@@ -10,6 +10,7 @@ from datetime import datetime
 from firebase_config import store
 import plotly.express as px
 import plotly.graph_objects as go
+import time
 
 make_sidebar()
 
