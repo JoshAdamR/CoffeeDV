@@ -436,8 +436,8 @@ def branch_order(branch_id):
             if st.button("Complete Order"):
                 complete_order_by_id(selected_order_id, orders)
                 st.success(f"Order ID {selected_order_id} has been marked as Done!")
-                store.collection('cart').where('order_id', '==', selected_order_id).add({
-                    'complete_date' : datetime.now()
+                store.collection('cart').where('order_id', '==', selected_order_id).limit(1).get()[0].reference.update({
+                    'complete_date': datetime.now()
                 })
                 update_inventory(orders)
                 st.rerun()  # Refresh the page after completing the order
