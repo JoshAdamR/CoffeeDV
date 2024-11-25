@@ -231,6 +231,7 @@ def display_branch_and_menu(branches, products, sizes):
                                 st.success(f"✔️ Successfully added {item['product_name']} to the cart with Cart ID: {cart_id}!")
                                 st.info(f"Total Price: RM{total_price:.2f}")
                                 st.session_state["selected_product_id"] = None
+    return selected_branch_id
 
     # Additional UX improvements
     st.write("---")
@@ -816,7 +817,7 @@ def deduct_loyalty_points(email, points_to_deduct):
 
 def get_next_feedback_id():
     try:
-        cart_ref = db.collection("cart")
+        cart_ref = db.collection("cart").where('email', '==', email).where('branch_id', '==', branch_id)
         
         # Query to find the last cart by order_id in descending order
         last_cart = cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
@@ -828,7 +829,7 @@ def get_next_feedback_id():
             break  # We only need the first result
         
         if last_order:
-            last_order_id = last_order.get("order_id", "").where('email', '==', email).where('branch_id', '==', branch_id)
+            last_order_id = last_order.get("order_id", "")
             if last_order_id.startswith("ORD"):
                 # Extract the numeric part after "ORD" and format it as FEED###
                 last_number = int(last_order_id[3:])  # Extract numeric part of order ID
@@ -901,7 +902,7 @@ def display_sidebar(branches, products, sizes):
     page = st.sidebar.selectbox("Navigate to", ("Menu", "Cart", "Order Status", "Loyalty Program", "Feedback"))
     if page == "Menu":
         st.subheader("Select Your Drinks")
-        display_branch_and_menu(branches, products, sizes)
+        selected_branch_id = display_branch_and_menu(branches, products, sizes)
     elif page == "Cart":
         display_cart(cookies.get("email"))
     elif page == "Order Status":
