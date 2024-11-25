@@ -845,7 +845,7 @@ def get_next_feedback_id():
                     last_number = int(last_order_id[3:])  # Extract numeric part of order ID
                     return f"ORD{last_number:03d}"  # Format and return feedback ID
                 except ValueError:
-                    return None  # If order_id is not correctly formatted, return None
+                    # If order_id is not correctly formatted, return None
 
     except Exception as e:
         #print(f"An error occurred while retrieving the feedback ID: {e}")
