@@ -348,39 +348,39 @@ def display_cart(email):
         coupon_details = get_coupon_details(coupon_code)
 
         if coupon_details:
-            if coupon_details["promotion_type"] == "Discount":
-                rm_discount = coupon_details.get("rm_discount", 0)
-                discount_percentage = coupon_details.get("discount_percentage", 0)
-                if rm_discount > 0:
-                    # st.write(f"Discount: - RM {rm_discount}")
-                    st.markdown(
-                        f"""
-                        <div style="text-align: right; font-size: 24px; font-weight: bold;">
-                            <br><br> Discount: RM {rm_discount:.2f} off
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                    coupon_discount = rm_discount
-                elif discount_percentage > 0:
-                    discount_amount = (discount_percentage / 100) * total_price
-                    # st.markdown(f"Discount: {discount_percentage}% off")
-                    st.markdown(
-                        f"""
-                        <div style="text-align: right; font-size: 24px; font-weight: bold;">
-                            <br><br> Discount: {discount_percentage}% off
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                    coupon_discount = discount_amount
+            rm_discount = coupon_details.get("rm_discount", 0)
+            discount_percentage = coupon_details.get("discount_percentage", 0)
+            if coupon_details["promotion_type"] == "Flat Rate":
+                # st.write(f"Discount: - RM {rm_discount}")
+                st.markdown(
+                    f"""
+                    <div style="text-align: right; font-size: 24px; font-weight: bold;">
+                        <br><br> Discount: RM {rm_discount:.2f} off
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                coupon_discount = rm_discount
+            elif coupon_details["promotion_type"] == "Percentage":
+                discount_amount = (discount_percentage / 100) * total_price
+                # st.markdown(f"Discount: {discount_percentage}% off")
+                st.markdown(
+                    f"""
+                    <div style="text-align: right; font-size: 24px; font-weight: bold;">
+                        <br><br> Discount: {discount_percentage}% off
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                coupon_discount = discount_amount
             else:
                 st.write("No discount available for this coupon.")
         else:
             st.write("Invalid coupon code.")
 
-        final_price = total_price - coupon_discount - loyalty_points_discount
         total_discount = coupon_discount + loyalty_points_discount
+        final_price = total_price - total_discount
+        
 
         # st.markdown("")
         # st.markdown("")
