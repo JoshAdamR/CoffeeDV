@@ -882,6 +882,7 @@ def dashboard():
     
     def calculate_inventory_turnover(inventory, usage, selected_branch, time_period):
 
+        st.subheader("Inventory Turnover")
         # Filter data for the selected branch and time period
         inventory_branch = inventory[inventory['branch_id'] == selected_branch]
         usage_branch = usage[usage['branch_id'] == selected_branch]
