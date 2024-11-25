@@ -893,8 +893,8 @@ def dashboard():
         inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']
         inventory_branch['used_inventory'] = inventory_branch['quantity'] * inventory_branch['unit_price']
         inventory_branch['turnover'] =  inventory_branch['used_inventory']/inventory_branch['total_inventory']
-        
-        inventory_branch['date'] = inventory_branch['date'].dt.date
+
+        inventory_branch['date'] = pd.to_datetime(inventory_branch['date'])
         # Apply time period aggregation
         if period == 'Weekly':
             inventory_branch['period'] = inventory_branch['date'].dt.to_period('W')
@@ -1176,7 +1176,7 @@ def dashboard():
         st.header("A. Customer Feedback Ratings")
         try:
             filtered_feedback_data = feedback[feedback['branch_id'] == branch_id]
-
+            filtered_feedback_data['date'] = pd.to_datetime(filtered_feedback_data['date'])
             # Apply time period aggregation
             if period == 'Weekly':
                 filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('W')
