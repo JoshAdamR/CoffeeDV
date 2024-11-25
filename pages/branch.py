@@ -1041,10 +1041,11 @@ def dashboard():
         st.header("C. Revenue Streams")
         
         # Merge order data with product data on 'product_id'
+        order_data_filtered['product_id'] = order_data_filtered['name']
         merged_data = pd.merge(order_data_filtered, product_data, on='product_id')
         
         # Ensure 'total_price' is numeric, coercing errors to NaN
-        merged_data['total_price'] = pd.to_numeric(merged_data['total_price'], errors='coerce')
+        merged_data['price_after_discount'] = pd.to_numeric(merged_data['price_after_discount'], errors='coerce')
         
         # Radio button selection to choose revenue view by product category or individual product
         revenue_view = st.radio(
@@ -1055,14 +1056,14 @@ def dashboard():
         # Conditional display based on radio button selection
         if revenue_view == "By Product Category":
             # Calculate total revenue per product category
-            revenue_streams = merged_data.groupby('product_category')['total_price'].sum().reset_index()
+            revenue_streams = merged_data.groupby('category')['price_after_discount'].sum().reset_index()
 
             # Calculate total revenue
-            total_revenue = revenue_streams['total_price'].sum()
+            total_revenue = revenue_streams['price_after_discount'].sum()
 
             # Find the product category that contributes the most and least
-            most_contrib_category = revenue_streams.loc[revenue_streams['total_price'].idxmax()]
-            least_contrib_category = revenue_streams.loc[revenue_streams['total_price'].idxmin()]
+            most_contrib_category = revenue_streams.loc[revenue_streams['price_after_discount'].idxmax()]
+            least_contrib_category = revenue_streams.loc[revenue_streams['price_after_discount'].idxmin()]
             
             # Create three columns layout for the cards
             col1, col2, col3 = st.columns(3)
@@ -1071,15 +1072,15 @@ def dashboard():
             col1.metric("Total Revenue", f"${total_revenue:.2f}")
 
             # Display the Product Category that contributes the most in the second column
-            col2.metric(f"Top Product Category: {most_contrib_category['product_category']}", 
+            col2.metric(f"Top Product Category: {most_contrib_category['category']}", 
                         f"${most_contrib_category['total_price']:.2f}")
             
             # Display the Product Category that contributes the least in the third column
-            col3.metric(f"Least Product Category: {least_contrib_category['product_category']}", 
+            col3.metric(f"Least Product Category: {least_contrib_category['category']}", 
                         f"${least_contrib_category['total_price']:.2f}")
             
             # Create pie chart for revenue streams distribution by product category
-            fig_revenue_streams = px.pie(revenue_streams, values='total_price', names='product_category',
+            fig_revenue_streams = px.pie(revenue_streams, values='total_price', names='category',
                                         title='Revenue Streams Distribution',
                                         labels={'total_price': 'Total Revenue'},
                                         hole=0.3)
@@ -1089,27 +1090,27 @@ def dashboard():
             # Dropdown for selecting product category or 'All'
             selected_category = st.selectbox(
                 "Select a Product Category", 
-                ["All"] + merged_data['product_category'].unique().tolist()
+                ["All"] + merged_data['category'].unique().tolist()
             )
             
             # Filter data based on the selected category or 'All'
             if selected_category == "All":
                 category_data = merged_data
             else:
-                category_data = merged_data[merged_data['product_category'] == selected_category]
+                category_data = merged_data[merged_data['category'] == selected_category]
             
             # Calculate total revenue
-            total_revenue = category_data['total_price'].sum()
+            total_revenue = category_data['price_after_discount'].sum()
 
             # Find the product that contributes the most and least
-            most_contrib_product = category_data.groupby('product_name')['total_price'].sum().idxmax()
-            least_contrib_product = category_data.groupby('product_name')['total_price'].sum().idxmin()
+            most_contrib_product = category_data.groupby('product_name')['price_after_discount'].sum().idxmax()
+            least_contrib_product = category_data.groupby('product_name')['price_after_discount'].sum().idxmin()
 
             # Calculate the total revenue per product
-            product_revenue = category_data.groupby('product_name')['total_price'].sum().reset_index()
+            product_revenue = category_data.groupby('product_name')['price_after_discount'].sum().reset_index()
 
             # Sort products by revenue in descending order
-            product_revenue_sorted = product_revenue.sort_values(by='total_price', ascending=False)
+            product_revenue_sorted = product_revenue.sort_values(by='price_after_discount', ascending=False)
 
             # Create three columns layout for the cards
             col1, col2, col3 = st.columns(3)
@@ -1119,16 +1120,16 @@ def dashboard():
 
             # Display the Product that contributes the most in the second column
             col2.metric(f"Top Product: {most_contrib_product}", 
-                        f"${product_revenue[product_revenue['product_name'] == most_contrib_product]['total_price'].values[0]:.2f}")
+                        f"${product_revenue[product_revenue['product_name'] == most_contrib_product]['price_after_discount'].values[0]:.2f}")
             
             # Display the Product that contributes the least in the third column
             col3.metric(f"Least Product: {least_contrib_product}", 
-                        f"${product_revenue[product_revenue['product_name'] == least_contrib_product]['total_price'].values[0]:.2f}")
+                        f"${product_revenue[product_revenue['product_name'] == least_contrib_product]['price_after_discount'].values[0]:.2f}")
             
             # Create pie chart for individual products in the selected category or 'All'
             fig_product_revenue = px.pie(product_revenue_sorted, values='total_price', names='product_name',
                                         title=f'Revenue Distribution for {selected_category} Products' if selected_category != "All" else 'Revenue Distribution for All Products',
-                                        labels={'total_price': 'Total Revenue'},
+                                        labels={'price_after_discount': 'Total Revenue'},
                                         hole=0.3)
             st.plotly_chart(fig_product_revenue)
 
