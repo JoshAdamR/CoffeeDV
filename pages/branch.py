@@ -1231,7 +1231,7 @@ def dashboard():
                 with st.expander(f"Average {rating.replace('_', ' ').title()} Rating"):
                     st.plotly_chart(fig)
         except:
-            st.subheader('No feedback yet')
+            st.warning('No feedback yet')
 
     
                 
@@ -1379,7 +1379,7 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             calculate_profit(sale, inventory, usage_history, period)
         except:
-            st.subheader('No sales data')
+            st.warning('No sales data')
 
     elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
@@ -1392,7 +1392,7 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             plot_order_frequency_history(sale_data_filtered)
         except:
-            st.subheader('No sales data')
+            st.warning('No sales data')
 
     elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
@@ -1413,7 +1413,7 @@ def dashboard():
             # Plot Coupon Usage Over Time
             plot_coupon_usage_over_time(sale_data_filtered)
         except:
-            st.subheader('No sales data')
+            st.warning('No sales data')
 
     elif selection == "Financial Analytics":
         st.title("Financial Analytics")
@@ -1425,7 +1425,7 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             revenue_streams_analysis(sale, product)
         except:
-            st.subheader('No sales data')
+            st.warning('No sales data')
 
     elif selection == "Operational Analytics":
         st.title("Operational Analytics")
@@ -1435,13 +1435,13 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             order_processing_times(sale_data_filtered)
         except:
-            st.subheader('No sales data')
+            st.warning('No sales data')
 
     elif selection == "Order Monitoring Dashboard":
         try:
             order_monitoring_dashboard(sale)
         except:
-            st.subheader('No sales data')
+            st.warning('No sales data')
 
     
 try:
@@ -1456,22 +1456,22 @@ if page == "Inventory Management":
     try:
         inventory(branch_id)
     except:
-        st.warning('Please Log in')
+        logout()
 elif page == "Coupon Management":
     try:
         coupon()
     except:
-        st.warning('Please Log in')
+        logout()
 elif page == "Order Management":
     try:
         branch_order(branch_id)
     except:
-        st.warning('Please Log in')
+        logout()
 elif page == "Dashboards":
     try:
         dashboard()
     except:
-        st.warning('Please Log in')
+        logout()
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
