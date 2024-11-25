@@ -1384,16 +1384,16 @@ def dashboard():
 
     elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
-        # Filter customers using the filtered sales data
-        filtered_customers = customer[customer['email'].isin(sale_data_filtered['email'])]
-        # Pass the filtered data to the plotting functions
-        st.markdown("<hr>", unsafe_allow_html=True)
-        plot_customer_demographics(filtered_customers)
-        st.markdown("<hr>", unsafe_allow_html=True)
         try:
+            # Filter customers using the filtered sales data
+            filtered_customers = customer[customer['email'].isin(sale_data_filtered['email'])]
+            # Pass the filtered data to the plotting functions
+            st.markdown("<hr>", unsafe_allow_html=True)
+            plot_customer_demographics(filtered_customers)
+            st.markdown("<hr>", unsafe_allow_html=True)
             plot_order_frequency_history(sale_data_filtered)
         except:
-            st.write('No sales data')
+            st.subheader('No sales data')
 
     elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
@@ -1407,30 +1407,43 @@ def dashboard():
         # Use the already filtered `sale_data_filtered`
         # Add a radio button to toggle between Sales or Orders for Promotion Performance Chart
         metric = st.radio("Select Metric for Promotion Performance", ["Sales", "Orders"])
-        # Plot Promotion Performance based on selected metric
-        plot_promotion_performance(sale_data_filtered, metric)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        # Plot Coupon Usage Over Time
-        plot_coupon_usage_over_time(sale_data_filtered)
+        try:
+            # Plot Promotion Performance based on selected metric
+            plot_promotion_performance(sale_data_filtered, metric)
+            st.markdown("<hr>", unsafe_allow_html=True)
+            # Plot Coupon Usage Over Time
+            plot_coupon_usage_over_time(sale_data_filtered)
+        except:
+            st.subheader('No sales data')
 
     elif selection == "Financial Analytics":
         st.title("Financial Analytics")
-        st.markdown("<hr>", unsafe_allow_html=True)
-        profit_margin_analysis(sale, inventory, inv_usage, period)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        cost_analysis(operatingcost, operatingcost_data_filtered)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        revenue_streams_analysis(sale, product)
+        try:
+            st.markdown("<hr>", unsafe_allow_html=True)
+            profit_margin_analysis(sale, inventory, inv_usage, period)
+            st.markdown("<hr>", unsafe_allow_html=True)
+            cost_analysis(operatingcost, operatingcost_data_filtered)
+            st.markdown("<hr>", unsafe_allow_html=True)
+            revenue_streams_analysis(sale, product)
+        except:
+            st.subheader('No sales data')
 
     elif selection == "Operational Analytics":
         st.title("Operational Analytics")
-        st.markdown("<hr>", unsafe_allow_html=True)
-        customer_feedback_ratings(feedback, period, branch_id)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        order_processing_times(sale_data_filtered)
+        try:
+            st.markdown("<hr>", unsafe_allow_html=True)
+            customer_feedback_ratings(feedback, period, branch_id)
+            st.markdown("<hr>", unsafe_allow_html=True)
+            order_processing_times(sale_data_filtered)
+        except:
+            st.subheader('No sales data')
 
     elif selection == "Order Monitoring Dashboard":
-        order_monitoring_dashboard(sale)
+        try:
+            order_monitoring_dashboard(sale)
+        except:
+            st.subheader('No sales data')
+
     
 try:
     branch = get_ref('branch')
