@@ -1205,8 +1205,8 @@ def dashboard():
                 # Display the chart inside an expander
                 with st.expander(f"Average {rating.replace('_', ' ').title()} Rating"):
                     st.plotly_chart(fig)
-            except:
-                pass
+        except:
+            pass
 
     
                 
