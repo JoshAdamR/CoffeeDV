@@ -886,7 +886,7 @@ def dashboard():
         # Filter data for the selected branch and time period
         inventory_branch = inventory[inventory['branch_id'] == selected_branch]
         usage_branch = usage[usage['branch_id'] == selected_branch]
-
+        usage_branch['date'] = pd.to_datetime(usage_branch['date'])
         inventory_branch = pd.merge(usage_branch, inventory_branch.drop(columns='branch_id'), on='inventory_id', how='outer').fillna(0)
 
         # Calculate turnover rate (e.g., usage / average inventory)
@@ -894,7 +894,6 @@ def dashboard():
         inventory_branch['used_inventory'] = inventory_branch['quantity'] * inventory_branch['unit_price']
         inventory_branch['turnover'] =  inventory_branch['used_inventory']/inventory_branch['total_inventory']
 
-        inventory_branch['date'] = pd.to_datetime(inventory_branch['date'])
         # Apply time period aggregation
         if period == 'Weekly':
             inventory_branch['period'] = inventory_branch['date'].dt.to_period('W')
