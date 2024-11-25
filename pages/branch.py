@@ -1282,11 +1282,14 @@ def dashboard():
                 st.write("No Ready Orders")
 
         # Continuously update live time
-        while True:
-            live_time_container.markdown(
-                f"Live Date and Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            )
-            time.sleep(1)  # Wait for 1 second before updating again
+        #while True:
+        live_time_container.markdown(
+            f"Live Date and Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+            #time.sleep(1)  # Wait for 1 second before updating again
+
+        if st.button('Refresh'):
+            st.rerun()
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
