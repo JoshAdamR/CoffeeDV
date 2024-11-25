@@ -26,6 +26,7 @@ if cookies.get('email'):
     pass
 else:
     logout()
+    
 stripe_secret = st.secrets.stripe 
 
 # Set up Stripe
