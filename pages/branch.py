@@ -910,28 +910,24 @@ def dashboard():
 
         st.write(inventory_branch)
         
-        fig = go.Figure()
+        # Create the plot
+        plt.figure(figsize=(10, 6))
+        sns.lineplot(data=inventory_branch, x='period', y='turnover', color='lightblue')
 
-        # Add the turnover rate line (Light Blue)
-        fig.add_trace(go.Scatter(
-            x=inventory_branch['period'],
-            y=inventory_branch['turnover'],
-            mode='lines',
-            name='Inventory Turnover',
-            line=dict(color='lightblue')
-        ))
+        # Add titles and labels
+        plt.title(f'Inventory Turnover - {selected_branch} ({time_period})', fontsize=16)
+        plt.xlabel('Date', fontsize=12)
+        plt.ylabel('Turnover Rate', fontsize=12)
 
-        # Customize the layout
-        fig.update_layout(
-            title=f'Inventory Turnover - {selected_branch} ({time_period})',
-            xaxis_title='Date',
-            yaxis_title='Turnover Rate',
-            template='plotly_white',
-            legend=dict(orientation='h', x=0.5, xanchor='center')
-        )
+        # Customize the x-axis to display dates better
+        plt.xticks(rotation=45)
 
-        # Show the graph
-        fig.show()
+        # Add a grid for better visualization
+        plt.grid(True)
+
+        # Show the plot
+        plt.tight_layout()
+        plt.show()
 
 
     def plot_promotion_performance(sale_data, metric):
