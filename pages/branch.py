@@ -1369,15 +1369,18 @@ def dashboard():
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_best_worst_sellers(sale)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        plot_total_sales(sale, order, period)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        plot_sales_by_product(order)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        plot_sales_by_time_of_day(sale_data_filtered)
-        st.markdown("<hr>", unsafe_allow_html=True)
-        calculate_profit(sale, inventory, usage_history, period)
+        try:
+            plot_best_worst_sellers(sale)
+            st.markdown("<hr>", unsafe_allow_html=True)
+            plot_total_sales(sale, order, period)
+            st.markdown("<hr>", unsafe_allow_html=True)
+            plot_sales_by_product(order)
+            st.markdown("<hr>", unsafe_allow_html=True)
+            plot_sales_by_time_of_day(sale_data_filtered)
+            st.markdown("<hr>", unsafe_allow_html=True)
+            calculate_profit(sale, inventory, usage_history, period)
+        except:
+            st.subheader('No sales data')
 
     elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
@@ -1387,7 +1390,10 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         plot_customer_demographics(filtered_customers)
         st.markdown("<hr>", unsafe_allow_html=True)
-        plot_order_frequency_history(sale_data_filtered)
+        try:
+            plot_order_frequency_history(sale_data_filtered)
+        except:
+            st.write('No sales data')
 
     elif selection == "Inventory Analytics Dashboard":
         st.title("Inventory Analytics Dashboard")
