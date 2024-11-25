@@ -1368,8 +1368,8 @@ def dashboard():
                 
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
-        st.markdown("<hr>", unsafe_allow_html=True)
         try:
+            st.markdown("<hr>", unsafe_allow_html=True)
             plot_best_worst_sellers(sale)
             st.markdown("<hr>", unsafe_allow_html=True)
             plot_total_sales(sale, order, period)
