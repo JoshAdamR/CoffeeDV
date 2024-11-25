@@ -1,6 +1,10 @@
 email,username,password,customer_id,role
 admin@gmail.com,admin,admin,ADM000,admin
 brancha@gmail.com,brancha,brancha,BRANCH001,branch
+branchb@gmail.com,branchb,branchb,BRANCH002,branch
+branchc@gmail.com,branchc,branchc,BRANCH003,branch
+branchd@gmail.com,branchd,branchd,BRANCH004,branch
+branche@gmail.com,branche,branche,BRANCH005,branch
 user1@gmail.com,user1,Abc123!!!,CUST001,customer
 user2@gmail.com,user2,Abc123!!!,CUST002,customer
 user3@gmail.com,user3,Abc123!!!,CUST003,customer

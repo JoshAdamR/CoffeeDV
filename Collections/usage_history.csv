@@ -1,2 +1,2 @@
-usage_id,inventory_id,quantity,branch_id
-none,,,
+usage_id,inventory_id,quantity,branch_id,date
+none,none,none,none,none
