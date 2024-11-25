@@ -1320,7 +1320,7 @@ def dashboard():
             inv_quantity_branch = get_ref('inv_quantity_branch')
             inventory_full = pd.merge(inventory, inv_quantity_branch, on='inventory_id', how='inner')
             restock_history = get_ref('restock_history')  # Access the restock table
-            usage_history = get_ref('usage_history')
+            inv_usage = get_ref('inv_usage')
             # Date Range Filter
             sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
             min_date = sale['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
