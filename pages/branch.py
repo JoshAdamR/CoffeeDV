@@ -973,25 +973,28 @@ def dashboard():
     # Financial Analytics
 
     # Function to perform Profit Margin Analysis
-    def profit_margin_analysis(sale, inventory, usage_history, time_period):
+    def profit_margin_analysis(cart_df, inventory_df, inv_usage_df, time_period):
         st.header("A. Profit Margin Analysis")
+        inv_usage_df = pd.merge(inv_usage_df, inventory_df, on='inventory_id', how='left')
+        inv_usage_df['ingredient_cost'] = inv_usage_df['usage'] * inv_usage_df['unit_price']
 
-        sale['revenue'] = sale['quantity']*sale['price_after_discount']
-        #revenue = sale['revenue'].sum()
-        usage_merge = pd.merge(usage_history, inventory, on='inventory_id', how='inner')
-        usage_merge['cost'] = usage_merge['unit_price'] * usage_merge['quantity']
-        #cost = usage_merge['cost'].sum()
-        st.write(sale)
-        st.write(usage_merge)
-        revenue_aggregated = sale.groupby('name')['revenue'].sum().reset_index()
-        cost_aggregated = usage_merge.groupby('item_id')['cost'].sum().reset_index()   
+        # Map inv_usage to cart
+        def calculate_cart_cost(row):
+            base_cost = inv_usage_df[inv_usage_df['item_name'] == row['product_name']]['ingredient_cost'].sum()
+            milk_cost = inv_usage_df[inv_usage_df['item_name'] == row['milk_type']]['ingredient_cost'].sum()
+            sugar_cost = inv_usage_df[inv_usage_df['item_name'] == row['sugar_level']]['ingredient_cost'].sum()
+            temp_cost = inv_usage_df[inv_usage_df['item_name'] == row['temperature']]['ingredient_cost'].sum()
+            addons_cost = 0
+            for addon in row['addons']:
+                addons_cost += inv_usage_df[inv_usage_df['item_name'] == addon]['ingredient_cost'].sum()
+            total_cost = (base_cost + milk_cost + sugar_cost + temp_cost + addons_cost) * row['quantity']
+            return total_cost
+
+        cart_df['cart_cost'] = cart_df.apply(calculate_cart_cost, axis=1)
+
+        cart_df['Profit Margin'] = (cart_df['price_after_discount'] - cart_df['cart_cost'])/cart_df['price_after_discount']
         
-
-        profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='date', how='inner')
-        profit_aggregated['Profit Margin'] = (profit_aggregated['revenue'] - profit_aggregated['cost'])/profit_aggregated['revenue']
-        st.write(profit_aggregated)
-        # Aggregate profit margin by product name
-        profit_margin_data = profit_aggregated.groupby('name')['Profit Margin'].mean().reset_index()
+        profit_margin_data = cart_df.groupby('name')['Profit Margin'].mean().reset_index()
         
         # Create three columns layout for the cards
         col1, col2, col3 = st.columns(3)
@@ -1376,7 +1379,7 @@ def dashboard():
     elif selection == "Financial Analytics":
         st.title("Financial Analytics")
         st.markdown("<hr>", unsafe_allow_html=True)
-        profit_margin_analysis(sale, inventory, usage_history, period)
+        profit_margin_analysis(sale, inventory, inv_usage, period)
         st.markdown("<hr>", unsafe_allow_html=True)
         cost_analysis(data['operatingcost'], operatingcost_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
