@@ -1010,11 +1010,11 @@ def dashboard():
         
         # Card 3: Product with Lowest Profit Margin
         lowest_margin_product = profit_margin_data.loc[profit_margin_data['Profit Margin'].idxmin()]
-        col3.metric(f"Lowest Profit Margin Product: {lowest_margin_product['product_name']}", 
+        col3.metric(f"Lowest Profit Margin Product: {lowest_margin_product['name']}", 
                     f"{lowest_margin_product['Profit Margin']:.2f}%")
         
         # Create bar chart for profit margin analysis
-        fig_profit_margin = px.bar(profit_margin_data, x='product_name', y='Profit Margin',
+        fig_profit_margin = px.bar(profit_margin_data, x='name', y='Profit Margin',
                                 title='Profit Margin Analysis',
                                 labels={'Profit Margin': 'Profit Margin (%)'},
                                 text='Profit Margin')
