@@ -832,7 +832,7 @@ def get_next_feedback_id():
             if last_order_id.startswith("ORD"):
                 # Extract the numeric part after "ORD" and format it as FEED###
                 last_number = int(last_order_id[3:])  # Extract numeric part of order ID
-                return f"FEED{last_number:03d}"  # Create feedback ID with the same number
+                return f"CART{last_number:03d}"  # Create feedback ID with the same number
         else:
             # No previous orders exist
             return None  # Indicate no feedback ID can be generated
@@ -867,7 +867,7 @@ def display_feedback(email):
     if submit_feedback:
         # Prepare feedback data
         feedback_data = {
-            "feedback_id": feedback_id,
+            "cart_id": feedback_id,
             "rate_coffee": coffee_rating,
             "rate_service": service_rating,
             "rate_wait_time": time_rating,
