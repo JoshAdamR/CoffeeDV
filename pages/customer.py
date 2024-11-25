@@ -826,7 +826,7 @@ def get_next_feedback_id():
     fil_cart_ref = cart_ref.where("email", "==", email).where("branch_id", "==", branch_id)
     
     # Query to find the last cart by order_id in descending order
-    last_cart = cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
+    last_cart = fil_cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
 
     st.write(pd.DataFrame([doc.to_dict() for doc in cart_ref.stream()]))
     st.write(pd.DataFrame([doc.to_dict() for doc in fil_cart_ref.stream()]))
