@@ -1397,7 +1397,7 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         customer_feedback_ratings(feedback, period, branch_id)
         st.markdown("<hr>", unsafe_allow_html=True)
-        order_processing_times(sale_data_filtered)
+        order_processing_times(sale)
 
     elif selection == "Order Monitoring Dashboard":
         order_monitoring_dashboard(sale_data_filtered)
