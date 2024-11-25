@@ -908,10 +908,10 @@ def dashboard():
         else:  # Daily
             inventory_branch['period'] = inventory_branch['date'].dt.date
         
-        figure = go.Figure()
+        fig = go.Figure()
 
         # Add the turnover rate line (Light Blue)
-        figure.add_trace(go.Scatter(
+        fig.add_trace(go.Scatter(
             x=inventory_branch['period'],
             y=inventory_branch['turnover'],
             mode='lines',
@@ -920,7 +920,7 @@ def dashboard():
         ))
 
         # Customize the layout
-        figure.update_layout(
+        fig.update_layout(
             title=f'Inventory Turnover - {selected_branch} ({time_period})',
             xaxis_title='Date',
             yaxis_title='Turnover Rate',
@@ -929,7 +929,7 @@ def dashboard():
         )
 
         # Show the graph
-        figure.show()
+        st.plotly_chart(fig)
 
 
     def plot_promotion_performance(sale_data, metric):
