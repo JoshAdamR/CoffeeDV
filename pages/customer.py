@@ -900,7 +900,8 @@ def display_sidebar(branches, products, sizes):
         f"<h3 style='text-align: center;'> <br><br>Welcome <br><br> {cookies.get('fullname')} <br><br><br></h3>", 
         unsafe_allow_html=True
     )
-
+    selected_branch_id = ''
+    
     page = st.sidebar.selectbox("Navigate to", ("Menu", "Cart", "Order Status", "Loyalty Program", "Feedback"))
     if page == "Menu":
         st.subheader("Select Your Drinks")
