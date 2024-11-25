@@ -1005,7 +1005,7 @@ def dashboard():
         
         # Card 2: Product with Highest Profit Margin
         highest_margin_product = profit_margin_data.loc[profit_margin_data['Profit Margin'].idxmax()]
-        col2.metric(f"Highest Profit Margin Product: {highest_margin_product['product_name']}", 
+        col2.metric(f"Highest Profit Margin Product: {highest_margin_product['name']}", 
                     f"{highest_margin_product['Profit Margin']:.2f}%")
         
         # Card 3: Product with Lowest Profit Margin
