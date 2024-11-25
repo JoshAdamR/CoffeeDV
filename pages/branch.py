@@ -172,8 +172,8 @@ def coupon():
             'promotion_type': promotion_type,
             'discount_percentage': discount if promotion_type == 'Percentage' else 0,
             'rm_discount': discount if promotion_type == 'Flat Rate' else 0,
-            'start_date': start_date.strftime("%Y-%m-%d %H:%M:%S"),
-            'expiry_date': expiry_date.strftime("%Y-%m-%d %H:%M:%S")
+            'start_date': start_date.strftime("%Y-%m-%d"),
+            'expiry_date': expiry_date.strftime("%Y-%m-%d")
         }
         
         # Add the offer data to the 'coupon' collection in Firestore
