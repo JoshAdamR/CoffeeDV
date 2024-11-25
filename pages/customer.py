@@ -822,24 +822,19 @@ def get_next_feedback_id():
         branch_id = cookies.get('branch_id')
 
         cart_ref = db.collection("cart")
-        
+
         # Query to find the last cart by order_id in descending order, filtered by email and branch_id
-        last_cart = cart_ref.where("email", "==", email).where("branch_id", "==", branch_id) \
-                            .order_by("order_id", direction=firestore.Query.DESCENDING) \
-                            .limit(1).stream()
+        last_cart = cart_ref.where("email", "==", email).where("branch_id", "==", branch_id).order_by("order_id", direction=firestore.Query.DESCENDING).limit(1)
+
+        # Retrieve the query results
+        last_order = last_cart.stream()
 
         # Check if any order exists
-        last_order = None
-        for doc in last_cart:
-            last_order = doc.to_dict()
-            break  # We only need the first result
-        
-        if last_order:
-            last_order_id = last_order.get("order_id", "")
-            if last_order_id.startswith("ORD"):
-                # Extract the numeric part after "ORD" and format it as FEED###
-                last_number = int(last_order_id[3:])  # Extract numeric part of order ID
-                return f"ORD{last_number:03d}"  # Create feedback ID with the same number
+        last_order_doc = next(last_order, None)
+
+        if last_order_doc:
+            # Return the last order_id if found
+            return last_order_doc.id  # assuming 'id' represents the order_id
         else:
             # No previous orders exist
             return None  # Indicate no feedback ID can be generated
