@@ -1406,6 +1406,7 @@ def dashboard():
     
 page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management", "Dashboards"])
 
+st.write(cookies.getAll())
 if page == "Inventory Management":
     inventory(branch_id)
 elif page == "Coupon Management":
