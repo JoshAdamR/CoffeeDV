@@ -218,7 +218,9 @@ def coupon():
         offer_df_display.index = pd.RangeIndex(start=1, stop=len(offer_df_display) + 1, step=1)
         st.dataframe(offer_df_display, use_container_width = True)  # Display the offers stored in session state
     except:
-        st.subheader('No coupon yet')
+        columns_to_display = ['Type', 'Code', 'Start Date', 'Discount', 'Expiry Date']
+        offer_df = offer_df['Type', 'Code', 'Start Date', 'Discount', 'Expiry Date']
+        st.dataframe(offer_df)
 
     # Admin options to add special offers
     with st.form(key='offer_form'):
