@@ -1398,7 +1398,7 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         cost_analysis(operatingcost, operatingcost_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
-        revenue_streams_analysis(order_data_filtered, product)
+        revenue_streams_analysis(sale_data_filtered, product)
 
     #elif selection == "Operational Analytics":
      #   st.title("Operational Analytics")
