@@ -1406,8 +1406,11 @@ def dashboard():
     
 page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management", "Dashboards"])
 
-branch = get_ref('branch')
-st.write(branch[branch['branch_id'] == cookies.get('customer_id')]['branch_name'].values[0])
+try:
+    branch = get_ref('branch')
+    st.write(branch[branch['branch_id'] == cookies.get('customer_id')]['branch_name'].values[0])
+except:
+    pass
 
 if page == "Inventory Management":
     inventory(branch_id)
