@@ -828,7 +828,7 @@ def get_next_feedback_id():
             break  # We only need the first result
         
         if last_order:
-            last_order_id = last_order.get("order_id", "")
+            last_order_id = last_order.get("order_id", "").where('email', '==', email).where('branch_id', '==', branch_id)
             if last_order_id.startswith("ORD"):
                 # Extract the numeric part after "ORD" and format it as FEED###
                 last_number = int(last_order_id[3:])  # Extract numeric part of order ID
