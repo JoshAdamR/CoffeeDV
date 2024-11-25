@@ -1215,7 +1215,7 @@ def dashboard():
     def order_processing_times(sale_data):
         st.header("B. Order Processing Times")
         sale_date = 'ordered_time_date'
-        order_completion_date = 'order_completion_date'
+        order_completion_date = 'ordered_time_date'
 
         # Ensure columns exist before calculation
         if sale_date in sale_data.columns and order_completion_date in sale_data.columns:
