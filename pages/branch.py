@@ -1327,10 +1327,11 @@ def dashboard():
         with st.container():
             st.subheader("Filter Data")
             period = st.selectbox('Select Time Period:', ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'])
-                
-            cart_table = get_ref('cart')
-            sale = cart_table[cart_table['status'] == 'Done']
-            order = cart_table[cart_table['status'] != 'In Cart']
+
+            if not get_ref('cart').empty: 
+                cart_table = get_ref('cart')
+                sale = cart_table[cart_table['status'] == 'Done']
+                order = cart_table[cart_table['status'] != 'In Cart']
             product = get_ref('product')
             addon = get_ref('addon')
             customer = get_ref('customer')
