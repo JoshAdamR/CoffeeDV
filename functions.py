@@ -159,7 +159,7 @@ def getCookies(email_input):
         cookies.set("age", cust_data.get("age"))
         cookies.set("role", user_data.get("role"))
         cookies.set("password", user_data.get("password"))
-        cookies.set("fullname", user_data.get("fullname"))
+        cookies.set("fullname", cust_data.get("fullname"))
         cookies.set("customer_id", user_data.get("customer_id"))
 
         RemoveEmptyElementContainer()
