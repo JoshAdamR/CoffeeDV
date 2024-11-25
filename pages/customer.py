@@ -840,12 +840,9 @@ def get_next_feedback_id():
             last_order_id = last_order_data.get("order_id", "")
 
             if last_order_id.startswith("ORD"):
-                try:
-                    # Extract the numeric part after "ORD" and format it as FEED###
-                    last_number = int(last_order_id[3:])  # Extract numeric part of order ID
-                    return f"ORD{last_number:03d}"  # Format and return feedback ID
-                except ValueError:
-                    # If order_id is not correctly formatted, return None
+                # Extract the numeric part after "ORD" and format it as FEED###
+                last_number = int(last_order_id[3:])  # Extract numeric part of order ID
+                return f"ORD{last_number:03d}"  # Format and return feedback ID
 
     except Exception as e:
         #print(f"An error occurred while retrieving the feedback ID: {e}")
