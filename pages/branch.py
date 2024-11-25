@@ -181,7 +181,7 @@ def coupon():
         }
         
         # Add the offer data to the 'coupon' collection in Firestore
-        store.collection('coupon').add(offer_data)
+        store.collection('coupon').document(offer_code).set(offer_data)
         
         st.success(f"Offer with Coupon Code '{offer_code}' added successfully!")  # Success message
         return True  # Return True indicating the offer was added
