@@ -1154,32 +1154,32 @@ def dashboard():
         st.header("A. Customer Feedback Ratings")
 
         # Ensure 'sale_date' is in datetime format
-        sale_data_filtered['sale_date'] = pd.to_datetime(sale_data_filtered['sale_date'])
+        sale_data_filtered['ordered_time_date'] = pd.to_datetime(sale_data_filtered['ordered_time_date'])
 
         # Filter feedback data based on sale_id from the filtered sale data
-        filtered_feedback_data = data['feedback'][data['feedback']['sale_id'].isin(sale_data_filtered['sale_id'])]
+        filtered_feedback_data = data['feedback'][data['feedback']['cart_id'].isin(sale_data_filtered['cart_id'])]
 
         # Merge feedback data with filtered sales data to include 'sale_date'
         filtered_feedback_data = filtered_feedback_data.merge(
-            sale_data_filtered[['sale_id', 'sale_date']],
-            on='sale_id',
+            sale_data_filtered[['cart_id', 'ordered_time_date']],
+            on='cart_id',
             how='inner'
         )
 
         # Convert 'sale_date' to datetime
-        filtered_feedback_data['sale_date'] = pd.to_datetime(filtered_feedback_data['sale_date'])
+        filtered_feedback_data['ordered_time_date'] = pd.to_datetime(filtered_feedback_data['ordered_time_date'])
 
         # Apply time period aggregation
         if period == 'Weekly':
-            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.to_period('W')
+            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.to_period('W')
         elif period == 'Monthly':
-            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.to_period('M')
+            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.to_period('M')
         elif period == 'Quarterly':
-            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.to_period('Q')
+            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.to_period('Q')
         elif period == 'Yearly':
-            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.to_period('Y')
+            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.to_period('Y')
         else:  # Daily
-            filtered_feedback_data['period'] = filtered_feedback_data['sale_date'].dt.date
+            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.date
 
         # Rating dimensions
         rating_dimensions = ['rate_coffee', 'rate_service', 'rate_wait_time', 'rate_environment', 'rate_sanitary']
@@ -1401,15 +1401,15 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         revenue_streams_analysis(sale, product)
 
-    #elif selection == "Operational Analytics":
-     #   st.title("Operational Analytics")
-    #    st.markdown("<hr>", unsafe_allow_html=True)
-       # customer_feedback_ratings(data, sale_data_filtered, period)
-      #  st.markdown("<hr>", unsafe_allow_html=True)
- #       order_processing_times(sale_data_filtered)
+    elif selection == "Operational Analytics":
+        st.title("Operational Analytics")
+        st.markdown("<hr>", unsafe_allow_html=True)
+        customer_feedback_ratings(data, sale_data_filtered, period)
+        st.markdown("<hr>", unsafe_allow_html=True)
+        order_processing_times(sale_data_filtered)
 
-#    elif selection == "Order Monitoring Dashboard":
- #       order_monitoring_dashboard(sale_data_filtered)
+    elif selection == "Order Monitoring Dashboard":
+        order_monitoring_dashboard(sale_data_filtered)
     
 
     
