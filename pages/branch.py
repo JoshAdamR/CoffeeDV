@@ -1046,7 +1046,7 @@ def dashboard():
         
         # Ensure 'total_price' is numeric, coercing errors to NaN
         merged_data['price_after_discount'] = pd.to_numeric(merged_data['price_after_discount'], errors='coerce')
-        
+        st.write(revenumerged_datae_streams)
         # Radio button selection to choose revenue view by product category or individual product
         revenue_view = st.radio(
             "Choose Revenue View",
@@ -1057,7 +1057,7 @@ def dashboard():
         if revenue_view == "By Product Category":
             # Calculate total revenue per product category
             revenue_streams = merged_data.groupby('category')['price_after_discount'].sum().reset_index()
-
+            st.write(revenue_streams)
             # Calculate total revenue
             total_revenue = revenue_streams['price_after_discount'].sum()
             st.write(revenue_streams)
