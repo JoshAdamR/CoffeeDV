@@ -1150,14 +1150,14 @@ def dashboard():
             # Try parsing in 24-hour format if AM/PM format fails
             return datetime.strptime(date_str, "%m/%d/%y %H:%M")  # 24-hour format
 
-    def customer_feedback_ratings(sale_data_filtered, period):
+    def customer_feedback_ratings(feedback, sale_data_filtered, period):
         st.header("A. Customer Feedback Ratings")
 
         # Ensure 'sale_date' is in datetime format
         sale_data_filtered['ordered_time_date'] = pd.to_datetime(sale_data_filtered['ordered_time_date'])
 
         # Filter feedback data based on sale_id from the filtered sale data
-        filtered_feedback_data = data['feedback'][data['feedback']['cart_id'].isin(sale_data_filtered['cart_id'])]
+        filtered_feedback_data = feedback[feedback['cart_id'].isin(sale_data_filtered['cart_id'])]
 
         # Merge feedback data with filtered sales data to include 'sale_date'
         filtered_feedback_data = filtered_feedback_data.merge(
@@ -1322,6 +1322,7 @@ def dashboard():
             inventory_full = pd.merge(inventory, inv_quantity_branch, on='inventory_id', how='inner')
             restock_history = get_ref('restock_history')  # Access the restock table
             inv_usage = get_ref('inv_usage')
+            feedback = get_ref('feedback')
             # Create a filtered version of operatingcost_data based on branch and time period filters
             operatingcost_data_filtered = get_ref('operatingcost')
 
@@ -1404,7 +1405,7 @@ def dashboard():
     elif selection == "Operational Analytics":
         st.title("Operational Analytics")
         st.markdown("<hr>", unsafe_allow_html=True)
-        customer_feedback_ratings(sale_data_filtered, period)
+        customer_feedback_ratings(feedback, sale_data_filtered, period)
         st.markdown("<hr>", unsafe_allow_html=True)
         order_processing_times(sale_data_filtered)
 
