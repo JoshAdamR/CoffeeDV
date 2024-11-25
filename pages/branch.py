@@ -1289,7 +1289,6 @@ def dashboard():
         
         
         time.sleep(1)  # Wait for 1 second before updating again
-        st.rerun()
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
