@@ -151,7 +151,7 @@ def display_branch_and_menu(branches, products, sizes):
     # Get the corresponding branch ID for the selected branch name
     selected_branch_id = next(branch_id for branch_id, branch_name in branches.items() if branch_name == selected_branch_name)
 
-    cookies.set("branch_id", selected_branch_id)
+    cookies.set("branch_name", selected_branch_name)
 
     # Category Selection with Icons
     category_filter = st.selectbox("🍽️ Select Category", ["All Drinks", "Coffee", "Tea"], index=0)
@@ -818,7 +818,7 @@ def deduct_loyalty_points(email, points_to_deduct):
 
 def get_next_feedback_id():
     try:
-        cart_ref = db.collection("cart").where('email', '==', email).where('branch_id', '==', cookies.get('branch_id'))
+        cart_ref = db.collection("cart").where('email', '==', email).where('branch', '==', cookies.get('branch_name'))
         
         # Query to find the last cart by order_id in descending order
         last_cart = cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
@@ -876,7 +876,8 @@ def display_feedback(email):
             "rate_environment": environment_rating,
             "rate_sanitary": sanitary_rating,
             "email": email,
-            "date" : datetime.now()
+            "date" : datetime.now(),
+            "branch" : cookies.get('branch_name')
         }
 
         try:
