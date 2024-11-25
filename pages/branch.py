@@ -1000,7 +1000,7 @@ def dashboard():
         col1, col2, col3 = st.columns(3)
         
         # Card 1: Average Profit Margin
-        avg_profit_margin = merged_data['Profit Margin'].mean()
+        avg_profit_margin = cart_df['Profit Margin'].mean()
         col1.metric("Average Profit Margin", f"{avg_profit_margin:.2f}%")
         
         # Card 2: Product with Highest Profit Margin
