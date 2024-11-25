@@ -1172,13 +1172,11 @@ def dashboard():
         # Now aggregate the ratings by the selected period and create charts
         for rating in rating_dimensions:
             # Group by the selected period and calculate the mean of each rating dimension
-            feedback_by_period = filtered_feedback_data.groupby('period')[rating].mean().reset_index()
-
             # Create the chart
             fig = go.Figure()
             fig.add_trace(go.Scatter(
-                x=feedback_by_period['period'].astype(str),  # Convert period to string for x-axis
-                y=feedback_by_period[rating],
+                x=filtered_feedback_data.astype(str),  # Convert period to string for x-axis
+                y=filtered_feedback_data[rating],
                 mode='lines+markers',
                 name=rating
             ))
