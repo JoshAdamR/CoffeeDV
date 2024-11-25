@@ -437,7 +437,7 @@ def branch_order(branch_id):
                 complete_order_by_id(selected_order_id, orders)
                 st.success(f"Order ID {selected_order_id} has been marked as Done!")
                 store.collection('cart').where('order_id', '==', selected_order_id).limit(1).get()[0].reference.update({
-                    'complete_date': datetime.now()
+                    'complete_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 })
                 update_inventory(orders)
                 st.rerun()  # Refresh the page after completing the order
@@ -1256,15 +1256,15 @@ def dashboard():
         live_time_container = st.empty()  # Create an empty container for live updates
 
         # Convert sale_date to datetime and sort the data by the most recent sale
-        sale_data['sale_date'] = pd.to_datetime(sale_data['sale_date'], format='%m/%d/%y %H:%M')  # Convert to datetime
-        sale_data = sale_data.sort_values(by='sale_date', ascending=False)  # Sort by newest first
+        sale_data['ordered_time_date'] = pd.to_datetime(sale_data['ordered_time_date'], format='%m/%d/%y %H:%M')  # Convert to datetime
+        sale_data = sale_data.sort_values(by='ordered_time_date', ascending=False)  # Sort by newest first
 
         # Create two columns for "Preparing Orders" and "Ready for Collection"
         col1, col2 = st.columns(2)
 
         with col1:
             st.subheader("Preparing Orders")
-            preparing_orders = sale_data[sale_data['status'] == 'Preparing']['sale_id']
+            preparing_orders = sale_data[sale_data['status'] == 'Preparing']['cart_id']
             if not preparing_orders.empty:
                 for order in preparing_orders:
                     st.write(order)
@@ -1273,7 +1273,7 @@ def dashboard():
 
         with col2:
             st.subheader("Ready for Collection")
-            ready_orders = sale_data[sale_data['status'] == 'Completed']['sale_id']
+            ready_orders = sale_data[sale_data['status'] == 'Done']['cart_id']
             if not ready_orders.empty:
                 for order in ready_orders:
                     st.write(order)
@@ -1403,7 +1403,7 @@ def dashboard():
         order_processing_times(sale_data_filtered)
 
     elif selection == "Order Monitoring Dashboard":
-        order_monitoring_dashboard(sale_data_filtered)
+        order_monitoring_dashboard(sale)
     
 try:
     branch = get_ref('branch')
