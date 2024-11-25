@@ -834,7 +834,7 @@ def get_next_feedback_id():
 
         if last_order_doc:
             # Return the last order_id if found
-            return last_order_doc['order_id']  # assuming 'id' represents the order_id
+            return last_order_doc.to_dict().get('order_id', None)  # safely get 'order_id' field
         else:
             # No previous orders exist
             return None  # Indicate no feedback ID can be generated
