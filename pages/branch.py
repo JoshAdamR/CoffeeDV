@@ -111,7 +111,6 @@ def inventory(branch_id):
     # Display branch details
     st.subheader(f"Branch Details: {branch_name}")
     st.write(f"Location: {selected_branch['location'].values[0]}")
-    st.write(f"Operating Cost: ${selected_branch['operating_cost'].values[0]}")
 
     # Display inventory for the selected branch
     st.subheader(f"Inventory for {branch_name}")
