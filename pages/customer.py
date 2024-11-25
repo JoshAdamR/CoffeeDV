@@ -816,7 +816,7 @@ def deduct_loyalty_points(email, points_to_deduct):
 
 def get_next_feedback_id():
     try:
-        cart_ref = db.collection("cart")
+        cart_ref = db.collection("cart").where('email', '==', email).where('branch_id', '==', branch_id)
         
         # Query to find the last cart by order_id in descending order
         last_cart = cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
@@ -832,7 +832,7 @@ def get_next_feedback_id():
             if last_order_id.startswith("ORD"):
                 # Extract the numeric part after "ORD" and format it as FEED###
                 last_number = int(last_order_id[3:])  # Extract numeric part of order ID
-                return f"CART{last_number:03d}"  # Create feedback ID with the same number
+                return f"ORD{last_number:03d}"  # Create feedback ID with the same number
         else:
             # No previous orders exist
             return None  # Indicate no feedback ID can be generated
@@ -867,7 +867,7 @@ def display_feedback(email):
     if submit_feedback:
         # Prepare feedback data
         feedback_data = {
-            "cart_id": feedback_id,
+            "order_id": feedback_id,
             "rate_coffee": coffee_rating,
             "rate_service": service_rating,
             "rate_wait_time": time_rating,

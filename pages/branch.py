@@ -1153,6 +1153,8 @@ def dashboard():
     def customer_feedback_ratings(feedback, period):
         st.header("A. Customer Feedback Ratings")
         try:
+            filtered_feedback_data = feedback[feedback['cart_id'].isin(sale_data_filtered['cart_id'])]
+            
             # Apply time period aggregation
             if period == 'Weekly':
                 filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('W')
@@ -1168,7 +1170,6 @@ def dashboard():
             # Rating dimensions
             rating_dimensions = ['rate_coffee', 'rate_service', 'rate_wait_time', 'rate_environment', 'rate_sanitary']
 
-            filtered_feedback_data = feedback
             # Calculate and display average rating across all dimensions
             overall_avg_rating = filtered_feedback_data[rating_dimensions].mean().mean()
             st.metric("Average Rating Across All Dimensions", round(overall_avg_rating, 2))
