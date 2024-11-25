@@ -987,9 +987,9 @@ def dashboard():
             # Aggregate profit by day
             sale['date'] = sale['ordered_time_date'].dt.date
             usage_merge['date'] = usage_merge['date'].dt.date
-            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            sale = sale.groupby('date')['revenue'].sum().reset_index()
             cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()   
-            st.write(revenue_aggregated)         
+            st.write(sale)         
 
         elif time_period == "Weekly":
             # Aggregate profit by week
