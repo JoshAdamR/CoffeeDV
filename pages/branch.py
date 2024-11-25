@@ -910,12 +910,11 @@ def dashboard():
 
         st.write(inventory_branch)
         
-        # Create an interactive Plotly graph
         fig = go.Figure()
 
         # Add the turnover rate line (Light Blue)
         fig.add_trace(go.Scatter(
-            x=inventory_branch['period'],  # Assuming 'date' column exists
+            x=inventory_branch['period'],
             y=inventory_branch['turnover'],
             mode='lines',
             name='Inventory Turnover',
