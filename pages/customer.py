@@ -843,8 +843,8 @@ def get_next_feedback_id():
             return None  # Indicate no feedback ID can be generated
 
     except Exception as e:
-        #print(f"An error occurred while retrieving the feedback ID: {e}")
-        #return None  # Indicate no feedback ID in case of errors
+        print(f"An error occurred while retrieving the feedback ID: {e}")
+        return None  # Indicate no feedback ID in case of errors
 
 def display_feedback(email):
     st.title("📋 Share Your Feedback")
