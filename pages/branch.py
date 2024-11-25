@@ -1451,7 +1451,7 @@ def dashboard():
     
 try:
     branch = get_ref('branch')
-    st.sidebar.title(branch[branch['branch_id'] == cookies.get('customer_id')]['branch_name'].values[0])
+    st.sidebar.title(branch[branch['branch_id' ] == cookies.get('customer_id')]['branch_name'].values[0])
 except:
     pass
     
