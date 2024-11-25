@@ -16,6 +16,7 @@ from PIL import Image
 import requests
 from io import BytesIO
 from time import sleep
+from datetime import datetime
 
 
 make_sidebar()
@@ -873,6 +874,7 @@ def display_feedback(email):
             "rate_environment": environment_rating,
             "rate_sanitary": sanitary_rating,
             "email": email,
+            "date" : datetime.now()
         }
 
         try:
