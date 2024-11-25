@@ -1150,8 +1150,20 @@ def dashboard():
             # Try parsing in 24-hour format if AM/PM format fails
             return datetime.strptime(date_str, "%m/%d/%y %H:%M")  # 24-hour format
 
-    def customer_feedback_ratings(feedback):
+    def customer_feedback_ratings(feedback, period):
         st.header("A. Customer Feedback Ratings")
+
+        # Apply time period aggregation
+        if period == 'Weekly':
+            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('W')
+        elif period == 'Monthly':
+            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('M')
+        elif period == 'Quarterly':
+            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('Q')
+        elif period == 'Yearly':
+            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('Y')
+        else:  # Daily
+            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.date
 
         # Rating dimensions
         rating_dimensions = ['rate_coffee', 'rate_service', 'rate_wait_time', 'rate_environment', 'rate_sanitary']
@@ -1172,11 +1184,13 @@ def dashboard():
         # Now aggregate the ratings by the selected period and create charts
         for rating in rating_dimensions:
             # Group by the selected period and calculate the mean of each rating dimension
+            feedback_by_period = filtered_feedback_data.groupby('period')[rating].mean().reset_index()
+
             # Create the chart
             fig = go.Figure()
             fig.add_trace(go.Scatter(
-                x=filtered_feedback_data.astype(str),  # Convert period to string for x-axis
-                y=filtered_feedback_data[rating],
+                x=feedback_by_period['period'].astype(str),  # Convert period to string for x-axis
+                y=feedback_by_period[rating],
                 mode='lines+markers',
                 name=rating
             ))
@@ -1376,7 +1390,7 @@ def dashboard():
     elif selection == "Operational Analytics":
         st.title("Operational Analytics")
         st.markdown("<hr>", unsafe_allow_html=True)
-        customer_feedback_ratings(feedback)
+        customer_feedback_ratings(feedback, period)
         st.markdown("<hr>", unsafe_allow_html=True)
         order_processing_times(sale_data_filtered)
 
