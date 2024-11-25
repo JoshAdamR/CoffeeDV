@@ -1214,13 +1214,15 @@ def dashboard():
     # Function to calculate and display order processing times
     def order_processing_times(sale_data):
         st.header("B. Order Processing Times")
+        sale_date = 'ordered_time_date'
+        order_completion_date = 'order_completion_date'
 
         # Ensure columns exist before calculation
-        if "cart_id" in sale_data.columns and "ordered_time_date" in sale_data.columns:
+        if sale_date in sale_data.columns and order_completion_date in sale_data.columns:
             # Calculate processing times in minutes
             processing_times = [
                 (parse_date(completion) - parse_date(start)).total_seconds() / 60
-                for start, completion in zip(sale_data["cart_id"], sale_data["ordered_time_date"])
+                for start, completion in zip(sale_data[sale_date], sale_data[order_completion_date])
             ]
 
             # Create the interactive box plot
