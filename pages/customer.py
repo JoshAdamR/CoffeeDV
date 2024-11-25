@@ -146,8 +146,10 @@ def get_next_cart_id():
 def display_branch_and_menu(branches, products, sizes):
     # Sidebar Branch Selection
     branch_names = list(branches.values())
+    
     selected_branch_name = st.selectbox("📍 Select Branch", branch_names)
-
+    
+    global selected_branch_id
     # Get the corresponding branch ID for the selected branch name
     selected_branch_id = next(branch_id for branch_id, branch_name in branches.items() if branch_name == selected_branch_name)
 
@@ -815,7 +817,7 @@ def deduct_loyalty_points(email, points_to_deduct):
         return None
 
 
-def get_next_feedback_id(branch_id):
+def get_next_feedback_id():
     try:
         cart_ref = db.collection("cart").where('email', '==', email).where('branch_id', '==', branch_id)
         
@@ -842,12 +844,12 @@ def get_next_feedback_id(branch_id):
         print(f"An error occurred while retrieving the feedback ID: {e}")
         return None  # Indicate no feedback ID in case of errors
 
-def display_feedback(email, branch_id):
+def display_feedback(email):
     st.title("📋 Share Your Feedback")
     st.write("We value your feedback to improve our service. Please take a moment to rate your experience! 🙏")
     
     # Check if a previous order exists
-    feedback_id = get_next_feedback_id(branch_id)
+    feedback_id = get_next_feedback_id()
     if feedback_id is None:
         st.warning("⚠️ You have not placed any orders yet. Feedback can only be provided after placing an order.")
         return  # Exit the function if no orders exist
@@ -902,7 +904,7 @@ def display_sidebar(branches, products, sizes):
     page = st.sidebar.selectbox("Navigate to", ("Menu", "Cart", "Order Status", "Loyalty Program", "Feedback"))
     if page == "Menu":
         st.subheader("Select Your Drinks")
-        selected_branch_id = display_branch_and_menu(branches, products, sizes)
+        display_branch_and_menu(branches, products, sizes)
     elif page == "Cart":
         display_cart(cookies.get("email"))
     elif page == "Order Status":
@@ -910,7 +912,7 @@ def display_sidebar(branches, products, sizes):
     elif page == "Loyalty Program":
         display_loyalty_program(cookies.get("email"))
     elif page == "Feedback":
-        display_feedback(cookies.get("email"), selected_branch_id)
+        display_feedback(cookies.get("email"))
 
 branches, products, sizes, milks, addons = fetch_data_from_firestore()
 sizes, add_ons, temperatures, sugar_levels, milk_types = get_product_details()
