@@ -1060,7 +1060,7 @@ def dashboard():
 
             # Calculate total revenue
             total_revenue = revenue_streams['price_after_discount'].sum()
-
+            st.write(revenue_streams)
             # Find the product category that contributes the most and least
             most_contrib_category = revenue_streams.loc[revenue_streams['price_after_discount'].idxmax()]
             least_contrib_category = revenue_streams.loc[revenue_streams['price_after_discount'].idxmin()]
