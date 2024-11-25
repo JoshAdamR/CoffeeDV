@@ -1046,7 +1046,7 @@ def dashboard():
         
         # Ensure 'total_price' is numeric, coercing errors to NaN
         merged_data['price_after_discount'] = pd.to_numeric(merged_data['price_after_discount'], errors='coerce')
-        st.write(revenumerged_datae_streams)
+        st.write(merged_data)
         # Radio button selection to choose revenue view by product category or individual product
         revenue_view = st.radio(
             "Choose Revenue View",
