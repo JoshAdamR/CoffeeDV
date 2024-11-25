@@ -1468,4 +1468,4 @@ elif page == "Dashboards":
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
-    logout()
+    logout( )
