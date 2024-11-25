@@ -436,6 +436,9 @@ def branch_order(branch_id):
             if st.button("Complete Order"):
                 complete_order_by_id(selected_order_id, orders)
                 st.success(f"Order ID {selected_order_id} has been marked as Done!")
+                store.collection('cart').where('order_id', '==', selected_order_id).add({
+                    'complete_date' : datetime.now()
+                })
                 update_inventory(orders)
                 st.rerun()  # Refresh the page after completing the order
     else:
@@ -1215,7 +1218,7 @@ def dashboard():
     def order_processing_times(sale_data):
         st.header("B. Order Processing Times")
         sale_date = 'ordered_time_date'
-        order_completion_date = 'ordered_time_date'
+        order_completion_date = 'complete_date'
 
         # Ensure columns exist before calculation
         if sale_date in sale_data.columns and order_completion_date in sale_data.columns:
