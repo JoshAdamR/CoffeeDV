@@ -1393,7 +1393,7 @@ def dashboard():
     elif selection == "Operational Analytics":
         st.title("Operational Analytics")
         st.markdown("<hr>", unsafe_allow_html=True)
-        customer_feedback_ratings(feedback, period, selected_branch)
+        customer_feedback_ratings(feedback, period, branch_id)
         st.markdown("<hr>", unsafe_allow_html=True)
         order_processing_times(sale_data_filtered)
 
