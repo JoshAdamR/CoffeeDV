@@ -908,6 +908,8 @@ def dashboard():
         else:  # Daily
             inventory_branch['period'] = inventory_branch['date'].dt.date
         
+        inventory_branch = inventory_branch.sort_values(by='period', ascending=True)
+        
         fig = go.Figure()
 
         # Add the turnover rate line (Light Blue)
