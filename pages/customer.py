@@ -825,12 +825,12 @@ def get_next_feedback_id():
 
         # Convert the query results into a DataFrame
         cart = pd.DataFrame([doc.to_dict() for doc in cart_ref.stream()])
-
+        st.write(cart)
         # Check if the DataFrame is not empty
         if not cart.empty:
             # Retrieve the last row of the DataFrame
             last_order = cart.iloc[-1]  # last row in the DataFrame
-
+            st.write(last_order.get('order_id', None))
             # Return the order_id of the last row if it exists
             return last_order.get('order_id', None)  # safely get 'order_id' field
         else:
