@@ -973,7 +973,7 @@ def dashboard():
     # Financial Analytics
 
     # Function to perform Profit Margin Analysis
-    def profit_margin_analysis(cart, product_data):
+    def profit_margin_analysis(sale, inventory, usage_history, time_period):
         st.header("A. Profit Margin Analysis")
 
         sale['revenue'] = sale['quantity']*sale['price_after_discount']
