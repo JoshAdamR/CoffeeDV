@@ -67,7 +67,7 @@ def inventory(branch_id):
                     'inventory_id': inventory_id,
                     'quantity': quantity,
                     'branch_id': branch_id,
-                    'date' : datetime.now()
+                    'date' : datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 })
             elif action == "restock":
                 new_quantity = current_quantity + quantity
@@ -76,7 +76,7 @@ def inventory(branch_id):
                     'inventory_id': inventory_id,
                     'quantity': quantity,
                     'branch_id': branch_id,
-                    'date' : datetime.now()
+                    'date' : datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 })
             else:
                 st.error("Invalid action. Use 'remove' or 'restock'.")
@@ -327,7 +327,7 @@ def branch_order(branch_id):
                     'inventory_id': inventory_id,
                     'quantity': used,
                     'branch_id': branch_id,
-                    'date' : datetime.now()
+                    'date' : datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 })
 
     cart_ref = store.collection('cart')
