@@ -151,7 +151,7 @@ def display_branch_and_menu(branches, products, sizes):
     # Get the corresponding branch ID for the selected branch name
     selected_branch_id = next(branch_id for branch_id, branch_name in branches.items() if branch_name == selected_branch_name)
 
-    cookies.set("branch_name", selected_branch_id)
+    cookies.set("branch_id", selected_branch_id)
 
     # Category Selection with Icons
     category_filter = st.selectbox("🍽️ Select Category", ["All Drinks", "Coffee", "Tea"], index=0)
