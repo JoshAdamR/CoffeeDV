@@ -1150,40 +1150,13 @@ def dashboard():
             # Try parsing in 24-hour format if AM/PM format fails
             return datetime.strptime(date_str, "%m/%d/%y %H:%M")  # 24-hour format
 
-    def customer_feedback_ratings(feedback, sale_data_filtered, period):
+    def customer_feedback_ratings(feedback):
         st.header("A. Customer Feedback Ratings")
-
-        # Ensure 'sale_date' is in datetime format
-        sale_data_filtered['ordered_time_date'] = pd.to_datetime(sale_data_filtered['ordered_time_date'])
-
-        # Filter feedback data based on sale_id from the filtered sale data
-        filtered_feedback_data = feedback[feedback['cart_id'].isin(sale_data_filtered['cart_id'])]
-
-        # Merge feedback data with filtered sales data to include 'sale_date'
-        filtered_feedback_data = filtered_feedback_data.merge(
-            sale_data_filtered[['cart_id', 'ordered_time_date']],
-            on='cart_id',
-            how='inner'
-        )
-
-        # Convert 'sale_date' to datetime
-        filtered_feedback_data['ordered_time_date'] = pd.to_datetime(filtered_feedback_data['ordered_time_date'])
-
-        # Apply time period aggregation
-        if period == 'Weekly':
-            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.to_period('W')
-        elif period == 'Monthly':
-            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.to_period('M')
-        elif period == 'Quarterly':
-            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.to_period('Q')
-        elif period == 'Yearly':
-            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.to_period('Y')
-        else:  # Daily
-            filtered_feedback_data['period'] = filtered_feedback_data['ordered_time_date'].dt.date
 
         # Rating dimensions
         rating_dimensions = ['rate_coffee', 'rate_service', 'rate_wait_time', 'rate_environment', 'rate_sanitary']
 
+        filtered_feedback_data = feedback
         # Calculate and display average rating across all dimensions
         overall_avg_rating = filtered_feedback_data[rating_dimensions].mean().mean()
         st.metric("Average Rating Across All Dimensions", round(overall_avg_rating, 2))
