@@ -973,22 +973,57 @@ def dashboard():
     # Financial Analytics
 
     # Function to perform Profit Margin Analysis
-    def profit_margin_analysis(order_data, sale_data_filtered, product_data):
+    def profit_margin_analysis(cart, product_data):
         st.header("A. Profit Margin Analysis")
+
+        sale['revenue'] = sale['quantity']*sale['price_after_discount']
+        #revenue = sale['revenue'].sum()
+        usage_merge = pd.merge(usage_history, inventory, on='inventory_id', how='inner')
+        usage_merge['cost'] = usage_merge['unit_price'] * usage_merge['quantity']
+        #cost = usage_merge['cost'].sum()
         
-        # Merge data and calculate profit margin
-        merged_data = pd.merge(order_data, sale_data_filtered, on='sale_id')
-        merged_data = pd.merge(merged_data, product_data, on='product_id')
-        
-        # Ensure numerical columns are in correct format
-        merged_data['total_amount'] = pd.to_numeric(merged_data['total_amount'], errors='coerce')
-        merged_data['cogs'] = pd.to_numeric(merged_data['cogs'], errors='coerce')
-        
-        # Calculate Profit Margin as (total_amount - cogs) / total_amount * 100
-        merged_data['Profit Margin'] = (merged_data['total_amount'] - merged_data['cogs']) / merged_data['total_amount'] * 100
+        # Group by the selected time period
+        if time_period == "Daily":
+            # Aggregate profit by day
+            sale['date'] = sale['ordered_time_date'].dt.date
+            usage_merge['date'] = usage_merge['date'].dt.date
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()            
+
+        elif time_period == "Weekly":
+            # Aggregate profit by week
+            sale['date'] = sale['ordered_time_date'].dt.to_period('W').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('W').dt.start_time
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
+
+        elif time_period == "Monthly":
+            # Aggregate profit by month
+            sale['date'] = sale['ordered_time_date'].dt.to_period('M').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('M').dt.start_time
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
+            
+        elif time_period == "Quarterly":
+            # Aggregate profit by month
+            sale['date'] = sale['ordered_time_date'].dt.to_period('Q').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('Q').dt.start_time
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
+
+        elif time_period == "Yearly":
+            # Aggregate profit by month
+            sale['date'] = sale['ordered_time_date'].dt.to_period('Y').dt.start_time
+            usage_merge['date'] = usage_merge['date'].dt.to_period('Y').dt.start_time
+            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
+
+
+        profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='date', how='inner')
+        profit_aggregated['Profit Margin'] = (profit_aggregated['revenue'] - profit_aggregated['cost'])/profit_aggregated['revenue']
         
         # Aggregate profit margin by product name
-        profit_margin_data = merged_data.groupby('product_name')['Profit Margin'].mean().reset_index()
+        profit_margin_data = profit_aggregated.groupby('name')['Profit Margin'].mean().reset_index()
         
         # Create three columns layout for the cards
         col1, col2, col3 = st.columns(3)
