@@ -1232,7 +1232,7 @@ def dashboard():
                 with st.expander(f"Average {rating.replace('_', ' ').title()} Rating"):
                     st.plotly_chart(fig)
         except:
-            st.write('No feedback yet')
+            st.subheader('No feedback yet')
 
     
                 
