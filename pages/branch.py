@@ -907,27 +907,29 @@ def dashboard():
             inventory_branch['period'] = inventory_branch['date'].dt.to_period('Y')
         else:  # Daily
             inventory_branch['period'] = inventory_branch['date'].dt.date
-
-        st.write(inventory_branch)
         
-        # Create the plot
-        plt.figure(figsize=(10, 6))
-        sns.lineplot(data=inventory_branch, x='period', y='turnover', color='lightblue')
+        fig = go.Figure()
 
-        # Add titles and labels
-        plt.title(f'Inventory Turnover - {selected_branch} ({time_period})', fontsize=16)
-        plt.xlabel('Date', fontsize=12)
-        plt.ylabel('Turnover Rate', fontsize=12)
+        # Add the turnover rate line (Light Blue)
+        fig.add_trace(go.Scatter(
+            x=inventory_branch['period'],
+            y=inventory_branch['turnover'],
+            mode='lines',
+            name='Inventory Turnover',
+            line=dict(color='lightblue')
+        ))
 
-        # Customize the x-axis to display dates better
-        plt.xticks(rotation=45)
+        # Customize the layout
+        fig.update_layout(
+            title=f'Inventory Turnover - {selected_branch} ({time_period})',
+            xaxis_title='Date',
+            yaxis_title='Turnover Rate',
+            template='plotly_white',
+            legend=dict(orientation='h', x=0.5, xanchor='center')
+        )
 
-        # Add a grid for better visualization
-        plt.grid(True)
-
-        # Show the plot
-        plt.tight_layout()
-        plt.show()
+        # Show the graph
+        fig.show()
 
 
     def plot_promotion_performance(sale_data, metric):
@@ -1387,10 +1389,6 @@ def dashboard():
         display_low_stock_products(inventory_full, branch_id)
         st.markdown("<hr>", unsafe_allow_html=True)
         calculate_inventory_turnover(inventory_full, usage_history, branch_id, period)
-        #plot_inventory_turnover(data['sale'], data['inventory'])
-        #plot_stock_levels(data['sale'], data['order'], data['inventory'])
-        #display_low_stock_alerts(data['inventory'])
-        #plot_inventory_cost_analysis(data['product'])
 
 
     elif selection == "Promotion and Discount Analytics":
