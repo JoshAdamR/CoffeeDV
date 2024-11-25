@@ -819,12 +819,11 @@ def deduct_loyalty_points(email, points_to_deduct):
 def get_next_feedback_id():
     try:
         email = cookies.get('email')
-        branch_id = cookies.get('branch_id')
 
         cart_ref = db.collection("cart")
 
         # Query to find the last cart by order_id in descending order, filtered by email and branch_id
-        last_cart = cart_ref.where("email", "==", email).where("branch_id", "==", branch_id).order_by("order_id", direction=firestore.Query.DESCENDING).limit(1)
+        last_cart = cart_ref.where("email", "==", email).order_by("order_id", direction=firestore.Query.DESCENDING).limit(1)
 
         # Retrieve the query results
         last_order = last_cart.stream()
