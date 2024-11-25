@@ -1348,6 +1348,7 @@ def dashboard():
                 ]
                 except:
                     st.warning('Please select end date as well')
+                    
             product = get_ref('product')
             addon = get_ref('addon')
             customer = get_ref('customer')
