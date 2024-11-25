@@ -980,7 +980,7 @@ def dashboard():
 
         # Map inv_usage to cart
         def calculate_cart_cost(row):
-            base_cost = inv_usage_df[inv_usage_df['item_name'] == row['product_name']]['ingredient_cost'].sum()
+            base_cost = inv_usage_df[inv_usage_df['item_name'] == row['name']]['ingredient_cost'].sum()
             milk_cost = inv_usage_df[inv_usage_df['item_name'] == row['milk_type']]['ingredient_cost'].sum()
             sugar_cost = inv_usage_df[inv_usage_df['item_name'] == row['sugar_level']]['ingredient_cost'].sum()
             temp_cost = inv_usage_df[inv_usage_df['item_name'] == row['temperature']]['ingredient_cost'].sum()
