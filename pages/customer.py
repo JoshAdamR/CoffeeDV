@@ -819,21 +819,20 @@ def deduct_loyalty_points(email, points_to_deduct):
 def get_next_feedback_id():
     try:
         email = cookies.get('email')
+        branch_id = cookies.get('branch_id')
 
-        cart_ref = db.collection("cart")
+        cart_ref = db.collection("cart").where("email", "==", email).where("branch_id", "==", branch_id)
 
-        # Query to find the last cart by order_id in descending order, filtered by email and branch_id
-        last_cart = cart_ref.where("email", "==", email).order_by("order_id", direction=firestore.Query.DESCENDING).limit(1)
+        # Convert the query results into a DataFrame
+        cart = pd.DataFrame([doc.to_dict() for doc in cart_ref.stream()])
 
-        # Retrieve the query results
-        last_order = last_cart.stream()
+        # Check if the DataFrame is not empty
+        if not cart.empty:
+            # Retrieve the last row of the DataFrame
+            last_order = cart.iloc[-1]  # last row in the DataFrame
 
-        # Check if any order exists
-        last_order_doc = next(last_order, None)
-
-        if last_order_doc:
-            # Return the last order_id if found
-            return last_order_doc.to_dict().get('order_id', None)  # safely get 'order_id' field
+            # Return the order_id of the last row if it exists
+            return last_order.get('order_id', None)  # safely get 'order_id' field
         else:
             # No previous orders exist
             return None  # Indicate no feedback ID can be generated
