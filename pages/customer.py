@@ -818,31 +818,29 @@ def deduct_loyalty_points(email, points_to_deduct):
 
 def get_next_feedback_id():
     try:
-        # Get email and branch_id from cookies
         email = cookies.get('email')
         branch_id = cookies.get('branch_id')
 
-        # Ensure both email and branch_id are present
-        if not email or not branch_id:
-            return None  # If either value is missing, return None
-
-        # Reference to the cart collection
         cart_ref = db.collection("cart")
- 
+        
         # Query to find the last cart by order_id in descending order
-        last_cart_query = cart_ref.where("email", "==", email).where("branch_id", "==", branch_id).order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
+        last_cart = cart_ref.where("email", "==", email).where("branch_id", "==", branch_id).order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
 
-        # Fetch the first document from the query result
-        last_order = next(last_cart_query, None)  # Get the first document or None if not found
-
+        # Check if any order exists
+        last_order = None
+        for doc in last_cart:
+            last_order = doc.to_dict()
+            break  # We only need the first result
+        
         if last_order:
-            last_order_data = last_order.to_dict()
-            last_order_id = last_order_data.get("order_id", "")
-
+            last_order_id = last_order.get("order_id", "")
             if last_order_id.startswith("ORD"):
                 # Extract the numeric part after "ORD" and format it as FEED###
                 last_number = int(last_order_id[3:])  # Extract numeric part of order ID
-                return f"ORD{last_number:03d}"  # Format and return feedback ID
+                return f"ORD{last_number:03d}"  # Create feedback ID with the same number
+        else:
+            # No previous orders exist
+            return None  # Indicate no feedback ID can be generated
 
     except Exception as e:
         #print(f"An error occurred while retrieving the feedback ID: {e}")
