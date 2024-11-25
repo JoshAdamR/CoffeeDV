@@ -817,31 +817,31 @@ def deduct_loyalty_points(email, points_to_deduct):
 
 
 def get_next_feedback_id():
-    try:
-        cart_ref = db.collection("cart")
-        
-        # Query to find the last cart by order_id in descending order
-        last_cart = cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
+    #try:
+    cart_ref = db.collection("cart")
+    
+    # Query to find the last cart by order_id in descending order
+    last_cart = cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
 
-        # Check if any order exists
-        last_order = None
-        for doc in last_cart[last_cart['branch_id'] == cookies.get('branch_id')][last_cart['email'] == cookies.get('email')]:
-            last_order = doc.to_dict()
-            break  # We only need the first result
-        
-        if last_order:
-            last_order_id = last_order.get("order_id", "")
-            if last_order_id.startswith("ORD"):
-                # Extract the numeric part after "ORD" and format it as FEED###
-                last_number = int(last_order_id[3:])  # Extract numeric part of order ID
-                return f"ORD{last_number:03d}"  # Create feedback ID with the same number
-        else:
-            # No previous orders exist
-            return None  # Indicate no feedback ID can be generated
+    # Check if any order exists
+    last_order = None
+    for doc in last_cart[last_cart['branch_id'] == cookies.get('branch_id')][last_cart['email'] == cookies.get('email')]:
+        last_order = doc.to_dict()
+        break  # We only need the first result
+    
+    if last_order:
+        last_order_id = last_order.get("order_id", "")
+        if last_order_id.startswith("ORD"):
+            # Extract the numeric part after "ORD" and format it as FEED###
+            last_number = int(last_order_id[3:])  # Extract numeric part of order ID
+            return f"ORD{last_number:03d}"  # Create feedback ID with the same number
+    else:
+        # No previous orders exist
+        return None  # Indicate no feedback ID can be generated
 
-    except Exception as e:
-        print(f"An error occurred while retrieving the feedback ID: {e}")
-        return None  # Indicate no feedback ID in case of errors
+    #except Exception as e:
+        #print(f"An error occurred while retrieving the feedback ID: {e}")
+        #return None  # Indicate no feedback ID in case of errors
 
 def display_feedback(email):
     st.title("📋 Share Your Feedback")
