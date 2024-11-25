@@ -1152,59 +1152,61 @@ def dashboard():
 
     def customer_feedback_ratings(feedback, period):
         st.header("A. Customer Feedback Ratings")
+        try:
+            # Apply time period aggregation
+            if period == 'Weekly':
+                filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('W')
+            elif period == 'Monthly':
+                filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('M')
+            elif period == 'Quarterly':
+                filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('Q')
+            elif period == 'Yearly':
+                filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('Y')
+            else:  # Daily
+                filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.date
 
-        # Apply time period aggregation
-        if period == 'Weekly':
-            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('W')
-        elif period == 'Monthly':
-            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('M')
-        elif period == 'Quarterly':
-            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('Q')
-        elif period == 'Yearly':
-            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('Y')
-        else:  # Daily
-            filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.date
+            # Rating dimensions
+            rating_dimensions = ['rate_coffee', 'rate_service', 'rate_wait_time', 'rate_environment', 'rate_sanitary']
 
-        # Rating dimensions
-        rating_dimensions = ['rate_coffee', 'rate_service', 'rate_wait_time', 'rate_environment', 'rate_sanitary']
+            filtered_feedback_data = feedback
+            # Calculate and display average rating across all dimensions
+            overall_avg_rating = filtered_feedback_data[rating_dimensions].mean().mean()
+            st.metric("Average Rating Across All Dimensions", round(overall_avg_rating, 2))
 
-        filtered_feedback_data = feedback
-        # Calculate and display average rating across all dimensions
-        overall_avg_rating = filtered_feedback_data[rating_dimensions].mean().mean()
-        st.metric("Average Rating Across All Dimensions", round(overall_avg_rating, 2))
+            # Create a layout with 3 columns for individual average ratings
+            cols = st.columns(3)
 
-        # Create a layout with 3 columns for individual average ratings
-        cols = st.columns(3)
+            # Calculate and display average rating for each individual dimension in 3 columns
+            for i, rating in enumerate(rating_dimensions):
+                avg_rating = filtered_feedback_data[rating].mean()
+                cols[i % 3].metric(f"Avg {rating.replace('_', ' ').title()}", round(avg_rating, 2))
 
-        # Calculate and display average rating for each individual dimension in 3 columns
-        for i, rating in enumerate(rating_dimensions):
-            avg_rating = filtered_feedback_data[rating].mean()
-            cols[i % 3].metric(f"Avg {rating.replace('_', ' ').title()}", round(avg_rating, 2))
+            # Now aggregate the ratings by the selected period and create charts
+            for rating in rating_dimensions:
+                # Group by the selected period and calculate the mean of each rating dimension
+                feedback_by_period = filtered_feedback_data.groupby('period')[rating].mean().reset_index()
 
-        # Now aggregate the ratings by the selected period and create charts
-        for rating in rating_dimensions:
-            # Group by the selected period and calculate the mean of each rating dimension
-            feedback_by_period = filtered_feedback_data.groupby('period')[rating].mean().reset_index()
+                # Create the chart
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(
+                    x=feedback_by_period['period'].astype(str),  # Convert period to string for x-axis
+                    y=feedback_by_period[rating],
+                    mode='lines+markers',
+                    name=rating
+                ))
 
-            # Create the chart
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=feedback_by_period['period'].astype(str),  # Convert period to string for x-axis
-                y=feedback_by_period[rating],
-                mode='lines+markers',
-                name=rating
-            ))
+                fig.update_layout(
+                    title=f'Average {rating.replace("_", " ").title()} Over Time',
+                    xaxis_title='Period',
+                    yaxis_title='Average Rating',
+                    hovermode="closest"
+                )
 
-            fig.update_layout(
-                title=f'Average {rating.replace("_", " ").title()} Over Time',
-                xaxis_title='Period',
-                yaxis_title='Average Rating',
-                hovermode="closest"
-            )
-
-            # Display the chart inside an expander
-            with st.expander(f"Average {rating.replace('_', ' ').title()} Rating"):
-                st.plotly_chart(fig)
+                # Display the chart inside an expander
+                with st.expander(f"Average {rating.replace('_', ' ').title()} Rating"):
+                    st.plotly_chart(fig)
+            except:
+                pass
 
     
                 
