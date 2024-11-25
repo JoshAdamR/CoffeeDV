@@ -1043,7 +1043,7 @@ def dashboard():
         # Merge order data with product data on 'product_id'
         order_data_filtered['product_name'] = order_data_filtered['name']
         merged_data = pd.merge(order_data_filtered, product_data, on='product_name')
-        st.write(order_data_filtered)
+
         # Ensure 'total_price' is numeric, coercing errors to NaN
         merged_data['price_after_discount'] = pd.to_numeric(merged_data['price_after_discount'], errors='coerce')
         
@@ -1073,7 +1073,7 @@ def dashboard():
 
             # Display the Product Category that contributes the most in the second column
             col2.metric(f"Top Product Category: {most_contrib_category['category']}", 
-                        f"${most_contrib_category['total_price']:.2f}")
+                        f"${most_contrib_category['price_after_discount']:.2f}")
             
             # Display the Product Category that contributes the least in the third column
             col3.metric(f"Least Product Category: {least_contrib_category['category']}", 
