@@ -15,6 +15,11 @@ import time
 make_sidebar()
 
 #st.write(cookies.getAll())
+if cookies.get('email'):
+    pass
+else:
+    logout()
+
 branch_id = cookies.get("customer_id")
 
 def get_ref(table):
@@ -1453,25 +1458,13 @@ except:
 page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management", "Dashboards"])
 
 if page == "Inventory Management":
-    try:
-        inventory(branch_id)
-    except:
-        logout()
+    inventory(branch_id)
 elif page == "Coupon Management":
-    try:
-        coupon()
-    except:
-        logout()
+    coupon()
 elif page == "Order Management":
-    try:
-        branch_order(branch_id)
-    except:
-        logout()
+    branch_order(branch_id)
 elif page == "Dashboards":
-    try:
-        dashboard()
-    except:
-        logout()
+    dashboard()
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
