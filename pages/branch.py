@@ -894,7 +894,7 @@ def dashboard():
         inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']
         inventory_branch['used_inventory'] = inventory_branch['quantity'] * inventory_branch['unit_price']
         inventory_branch['turnover'] =  inventory_branch['used_inventory']/inventory_branch['total_inventory']
-        inventory_branch['turnover', 'used_inventory', 'total_inventory'] = inventory_branch['turnover', 'used_inventory', 'total_inventory'].fillna(0)
+        inventory_branch['turnover'] = inventory_branch['turnover'].fillna(0)
 
         # Apply time period aggregation
         if period == 'Weekly':
