@@ -1077,12 +1077,12 @@ def dashboard():
             
             # Display the Product Category that contributes the least in the third column
             col3.metric(f"Least Product Category: {least_contrib_category['category']}", 
-                        f"${least_contrib_category['total_price']:.2f}")
+                        f"${least_contrib_category['price_after_discount']:.2f}")
             
             # Create pie chart for revenue streams distribution by product category
-            fig_revenue_streams = px.pie(revenue_streams, values='total_price', names='category',
+            fig_revenue_streams = px.pie(revenue_streams, values='price_after_discount', names='category',
                                         title='Revenue Streams Distribution',
-                                        labels={'total_price': 'Total Revenue'},
+                                        labels={'price_after_discount': 'Total Revenue'},
                                         hole=0.3)
             st.plotly_chart(fig_revenue_streams)
 
