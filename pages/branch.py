@@ -894,6 +894,18 @@ def dashboard():
         inventory_branch['used_inventory'] = inventory_branch['quantity'] * inventory_branch['unit_price']
         inventory_branch['turnover'] =  inventory_branch['used_inventory']/inventory_branch['total_inventory']
 
+        # Apply time period aggregation
+        if period == 'Weekly':
+            inventory_branch['period'] = inventory_branch['date'].dt.to_period('W')
+        elif period == 'Monthly':
+            inventory_branch['period'] = inventory_branch['date'].dt.to_period('M')
+        elif period == 'Quarterly':
+            inventory_branch['period'] = inventory_branch['date'].dt.to_period('Q')
+        elif period == 'Yearly':
+            inventory_branch['period'] = inventory_branch['date'].dt.to_period('Y')
+        else:  # Daily
+            inventory_branch['period'] = inventory_branch['date'].dt.date
+
         st.write(inventory_branch)
         
         # Create an interactive Plotly graph
@@ -901,7 +913,7 @@ def dashboard():
 
         # Add the turnover rate line (Light Blue)
         fig.add_trace(go.Scatter(
-            x=inventory_branch['date'],  # Assuming 'date' column exists
+            x=inventory_branch['period'],  # Assuming 'date' column exists
             y=inventory_branch['turnover'],
             mode='lines',
             name='Inventory Turnover',
