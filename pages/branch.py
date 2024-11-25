@@ -1150,7 +1150,7 @@ def dashboard():
             # Try parsing in 24-hour format if AM/PM format fails
             return datetime.strptime(date_str, "%m/%d/%y %H:%M")  # 24-hour format
 
-    def customer_feedback_ratings(data, sale_data_filtered, period):
+    def customer_feedback_ratings(sale_data_filtered, period):
         st.header("A. Customer Feedback Ratings")
 
         # Ensure 'sale_date' is in datetime format
@@ -1404,7 +1404,7 @@ def dashboard():
     elif selection == "Operational Analytics":
         st.title("Operational Analytics")
         st.markdown("<hr>", unsafe_allow_html=True)
-        customer_feedback_ratings(data, sale_data_filtered, period)
+        customer_feedback_ratings(sale_data_filtered, period)
         st.markdown("<hr>", unsafe_allow_html=True)
         order_processing_times(sale_data_filtered)
 
