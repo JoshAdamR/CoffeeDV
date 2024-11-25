@@ -909,7 +909,7 @@ def dashboard():
             inventory_branch['period'] = inventory_branch['date'].dt.date
         
         inventory_branch = inventory_branch.sort_values(by='period', ascending=True)
-        
+
         fig = go.Figure()
 
         # Add the turnover rate line (Light Blue)
@@ -1339,9 +1339,8 @@ def dashboard():
             inv_usage = get_ref('inv_usage')
             feedback = get_ref('feedback')
             # Create a filtered version of operatingcost_data based on branch and time period filters
-            operatingcost_data_filtered = get_ref('operatingcost')
-
-            operatingcost_data_filtered = operatingcost_data_filtered[operatingcost_data_filtered['branch_id'] == branch_id]
+            operatingcost = get_ref('operatingcost')
+            operatingcost_data_filtered = operatingcost#[operatingcost['branch_id'] == branch_id]
             # Apply the time period filter (Monthly or Yearly)
             if period == 'Monthly':
                 # Group by year and month (we'll extract these from the start_date and end_date)
@@ -1361,7 +1360,6 @@ def dashboard():
                 (sale['ordered_time_date'] >= pd.to_datetime(start_date)) & 
                 (sale['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
             ]
-            operatingcost = get_ref('operatingcost')
                 
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
