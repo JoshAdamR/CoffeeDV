@@ -199,25 +199,25 @@ def coupon():
 
     # Fetch current offers to display and store in session state
     if 'offers' not in st.session_state:
-        try:
             st.session_state.offers = get_offers()  # Load offers only once when the app is first loaded
-        except:
-            st.write('No coupon yet')
 
     # Display current special offers - dynamically updated
     st.subheader("Current Special Offers")
     offer_df = pd.DataFrame()
-    offer_df['Type'] = st.session_state.offers['promotion_type']
-    offer_df['Code'] = st.session_state.offers['coupon_code']
-    offer_df['Start Date'] = st.session_state.offers['start_date']
-    offer_df['Discount'] = st.session_state.offers.apply(
-        lambda row: f"{row['discount_percentage']} %" if row['promotion_type'] == 'Percentage' else f"RM {row['rm_discount']}",
-        axis=1
-    )
-    offer_df['Expiry Date'] = st.session_state.offers['expiry_date']
-    columns_to_display = ['Type', 'Code', 'Start Date', 'Discount', 'Expiry Date']
-    offer_df_display = offer_df[columns_to_display]
-    offer_df_display.index = pd.RangeIndex(start=1, stop=len(offer_df_display) + 1, step=1)
+    try:
+        offer_df['Type'] = st.session_state.offers['promotion_type']
+        offer_df['Code'] = st.session_state.offers['coupon_code']
+        offer_df['Start Date'] = st.session_state.offers['start_date']
+        offer_df['Discount'] = st.session_state.offers.apply(
+            lambda row: f"{row['discount_percentage']} %" if row['promotion_type'] == 'Percentage' else f"RM {row['rm_discount']}",
+            axis=1
+        )
+        offer_df['Expiry Date'] = st.session_state.offers['expiry_date']
+        columns_to_display = ['Type', 'Code', 'Start Date', 'Discount', 'Expiry Date']
+        offer_df_display = offer_df[columns_to_display]
+        offer_df_display.index = pd.RangeIndex(start=1, stop=len(offer_df_display) + 1, step=1)
+    except:
+        st.write('No coupon yet')
     st.dataframe(offer_df_display, use_container_width = True)  # Display the offers stored in session state
 
     # Admin options to add special offers
