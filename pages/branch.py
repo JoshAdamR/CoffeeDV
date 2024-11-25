@@ -1402,15 +1402,13 @@ def dashboard():
     elif selection == "Order Monitoring Dashboard":
         order_monitoring_dashboard(sale_data_filtered)
     
-
-    
-page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management", "Dashboards"])
-
 try:
     branch = get_ref('branch')
     st.sidebar.title(branch[branch['branch_id'] == cookies.get('customer_id')]['branch_name'].values[0])
 except:
     pass
+    
+page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management", "Dashboards"])
 
 if page == "Inventory Management":
     inventory(branch_id)
