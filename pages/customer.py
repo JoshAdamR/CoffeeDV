@@ -22,6 +22,8 @@ from datetime import datetime
 make_sidebar()
 
 st.write(cookies.getAll())
+if cookies.get('email').empty:
+    logout()
 stripe_secret = st.secrets.stripe 
 
 # Set up Stripe
