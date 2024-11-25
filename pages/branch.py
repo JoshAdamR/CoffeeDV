@@ -1324,9 +1324,7 @@ def dashboard():
             # Create a filtered version of operatingcost_data based on branch and time period filters
             operatingcost_data_filtered = get_ref('operatingcost')
 
-            # Apply the selected branch filter
-            if selected_branch != 'All':
-                operatingcost_data_filtered = operatingcost_data_filtered[operatingcost_data_filtered['branch_id'] == selected_branch]
+            operatingcost_data_filtered = operatingcost_data_filtered[operatingcost_data_filtered['branch_id'] == branch_id]
             # Apply the time period filter (Monthly or Yearly)
             if period == 'Monthly':
                 # Group by year and month (we'll extract these from the start_date and end_date)
