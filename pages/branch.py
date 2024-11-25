@@ -1291,9 +1291,9 @@ def dashboard():
                                                      "Customer Analytics Dashboard",
                                                      "Inventory Analytics Dashboard",
                                                      "Promotion and Discount Analytics",
-                                                     "Financial Analytics",])
+                                                     "Financial Analytics",
                                                      "Operational Analytics",
-                                                     "Order Monitoring Dashboard")
+                                                     "Order Monitoring Dashboard"])
         
         
     # Sidebar Filters: Branch, Time Period, and Date Range
