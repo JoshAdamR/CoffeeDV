@@ -21,7 +21,7 @@ from datetime import datetime
 
 make_sidebar()
 
-st.write(cookies.getAll())
+#st.write(cookies.getAll())
 if cookies.get('email'):
     pass
 else:
