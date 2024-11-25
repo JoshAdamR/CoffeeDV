@@ -1408,7 +1408,7 @@ page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Manag
 
 try:
     branch = get_ref('branch')
-    st.write(branch[branch['branch_id'] == cookies.get('customer_id')]['branch_name'].values[0])
+    st.sidebar.title(branch[branch['branch_id'] == cookies.get('customer_id')]['branch_name'].values[0])
 except:
     pass
 
