@@ -1453,13 +1453,25 @@ except:
 page = st.sidebar.selectbox("Navigate to", ["Order Management", "Inventory Management", "Coupon Management", "Dashboards"])
 
 if page == "Inventory Management":
-    inventory(branch_id)
+    try:
+        inventory(branch_id)
+    except:
+        st.warning('Please Log in')
 elif page == "Coupon Management":
-    coupon()
+    try:
+        coupon()
+    except:
+        st.warning('Please Log in')
 elif page == "Order Management":
-    branch_order(branch_id)
+    try:
+        branch_order(branch_id)
+    except:
+        st.warning('Please Log in')
 elif page == "Dashboards":
-    dashboard()
+    try:
+        dashboard()
+    except:
+        st.warning('Please Log in')
 
 st.sidebar.markdown("<br><br><br><br><br><br><br><br><br><br>", unsafe_allow_html=True)
 if st.sidebar.button("Log out"):
