@@ -1342,12 +1342,12 @@ def dashboard():
                 max_date = sale['ordered_time_date'].max()  # Maximum date in your dataset
                 try:
                     start_date, end_date = st.date_input('Select Date Range:', [min_date, max_date])
-                except:
-                    st.warning('Please select end date as well')
                 sale_data_filtered = sale[
                     (sale['ordered_time_date'] >= pd.to_datetime(start_date)) & 
                     (sale['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
                 ]
+                except:
+                    st.warning('Please select end date as well')
             product = get_ref('product')
             addon = get_ref('addon')
             customer = get_ref('customer')
