@@ -1321,6 +1321,22 @@ def dashboard():
             inventory_full = pd.merge(inventory, inv_quantity_branch, on='inventory_id', how='inner')
             restock_history = get_ref('restock_history')  # Access the restock table
             inv_usage = get_ref('inv_usage')
+            # Create a filtered version of operatingcost_data based on branch and time period filters
+            operatingcost_data_filtered = get_ref('operatingcost')
+
+            # Apply the selected branch filter
+            if selected_branch != 'All':
+                operatingcost_data_filtered = operatingcost_data_filtered[operatingcost_data_filtered['branch_id'] == selected_branch]
+            # Apply the time period filter (Monthly or Yearly)
+            if period == 'Monthly':
+                # Group by year and month (we'll extract these from the start_date and end_date)
+                operatingcost_data_filtered['year'] = pd.to_datetime(start_date).year
+                operatingcost_data_filtered['month'] = pd.to_datetime(start_date).month
+                operatingcost_data_filtered = operatingcost_data_filtered.groupby(['branch_id', 'year', 'month']).sum().reset_index()
+            elif period == 'Yearly':
+                # Group by year
+                operatingcost_data_filtered['year'] = pd.to_datetime(start_date).year
+                operatingcost_data_filtered = operatingcost_data_filtered.groupby(['branch_id', 'year']).sum().reset_index()
             # Date Range Filter
             sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
             min_date = sale['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
@@ -1330,6 +1346,7 @@ def dashboard():
                 (sale['ordered_time_date'] >= pd.to_datetime(start_date)) & 
                 (sale['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
             ]
+            operatingcost = get_ref('operatingcost')
                 
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
@@ -1381,7 +1398,7 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         profit_margin_analysis(sale, inventory, inv_usage, period)
         st.markdown("<hr>", unsafe_allow_html=True)
-        cost_analysis(data['operatingcost'], operatingcost_data_filtered)
+        cost_analysis(operatingcost, operatingcost_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
         revenue_streams_analysis(order_data_filtered, product)
 
