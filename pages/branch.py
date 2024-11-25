@@ -1039,14 +1039,14 @@ def dashboard():
     # Function to analyze Revenue Streams
     def revenue_streams_analysis(order_data_filtered, product_data):
         st.header("C. Revenue Streams")
-        st.write(order_data_filtered)
+        
         # Merge order data with product data on 'product_id'
         order_data_filtered['product_id'] = order_data_filtered['name']
         merged_data = pd.merge(order_data_filtered, product_data, on='product_id')
         
         # Ensure 'total_price' is numeric, coercing errors to NaN
         merged_data['price_after_discount'] = pd.to_numeric(merged_data['price_after_discount'], errors='coerce')
-        st.write(merged_data)
+        
         # Radio button selection to choose revenue view by product category or individual product
         revenue_view = st.radio(
             "Choose Revenue View",
@@ -1057,10 +1057,10 @@ def dashboard():
         if revenue_view == "By Product Category":
             # Calculate total revenue per product category
             revenue_streams = merged_data.groupby('category')['price_after_discount'].sum().reset_index()
-            st.write(revenue_streams)
+
             # Calculate total revenue
             total_revenue = revenue_streams['price_after_discount'].sum()
-            st.write(revenue_streams)
+            
             # Find the product category that contributes the most and least
             most_contrib_category = revenue_streams.loc[revenue_streams['price_after_discount'].idxmax()]
             least_contrib_category = revenue_streams.loc[revenue_streams['price_after_discount'].idxmin()]
@@ -1399,7 +1399,7 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         cost_analysis(operatingcost, operatingcost_data_filtered)
         st.markdown("<hr>", unsafe_allow_html=True)
-        revenue_streams_analysis(sale_data_filtered, product)
+        revenue_streams_analysis(sale, product)
 
     #elif selection == "Operational Analytics":
      #   st.title("Operational Analytics")
