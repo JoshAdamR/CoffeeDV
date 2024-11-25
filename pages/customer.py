@@ -820,13 +820,12 @@ def get_next_feedback_id():
     try:
         cart_ref = db.collection("cart")
         
-        cart_ref_filtered = cart_ref.where('branch_id' '==', 'BRANCH001')
         # Query to find the last cart by order_id in descending order
-        last_cart = cart_ref_filtered.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
+        last_cart = cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
 
         # Check if any order exists
         last_order = None
-        for doc in last_cart:
+        for doc in last_cart[last_cart['branch_id'] == cookies.get('branch_id')][last_cart['email'] == cookies.get('email')]:
             last_order = doc.to_dict()
             break  # We only need the first result
         
