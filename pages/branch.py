@@ -1150,11 +1150,11 @@ def dashboard():
             # Try parsing in 24-hour format if AM/PM format fails
             return datetime.strptime(date_str, "%m/%d/%y %H:%M")  # 24-hour format
 
-    def customer_feedback_ratings(feedback, period):
+    def customer_feedback_ratings(feedback, period, branch_id):
         st.header("A. Customer Feedback Ratings")
         try:
-            filtered_feedback_data = feedback[feedback['cart_id'].isin(sale_data_filtered['cart_id'])]
-            
+            filtered_feedback_data = feedback[feedback['branch_id'] == branch_id]
+
             # Apply time period aggregation
             if period == 'Weekly':
                 filtered_feedback_data['period'] = filtered_feedback_data['date'].dt.to_period('W')
