@@ -822,6 +822,8 @@ def get_next_feedback_id():
     branch_id = cookies.get('branch_id')
     cart_ref = db.collection("cart").where("email", "==", email).where("branch_id", "==", branch_id)
     
+    st.write(cart_ref)
+    
     # Query to find the last cart by order_id in descending order
     last_cart = cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
 
