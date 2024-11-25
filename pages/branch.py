@@ -887,7 +887,7 @@ def dashboard():
         inventory_branch = inventory[inventory['branch_id'] == selected_branch]
         usage_branch = usage[usage['branch_id'] == selected_branch]
         usage_branch['date'] = pd.to_datetime(usage_branch['date'])
-        inventory_branch = pd.merge(usage_branch, inventory_branch.drop(columns='branch_id'), on='inventory_id', how='outer').fillna(0)
+        inventory_branch = pd.merge(usage_branch, inventory_branch.drop(columns='branch_id'), on='inventory_id', how='outer')
 
         # Calculate turnover rate (e.g., usage / average inventory)
         inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']
