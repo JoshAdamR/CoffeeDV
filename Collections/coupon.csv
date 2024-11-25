@@ -1,4 +1,0 @@
-coupon_code,promotion_type,rm_discount,discount_percentage,start_date,expiry_date
-SAVE10,Discount,0,10,1/1/2024,12/31/2024
-SAVE5,Discount,5,0,6/1/2024,11/30/2024
-BULKBUY,Discount,0,30,07/15/2024,11/15/2024
