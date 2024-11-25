@@ -1332,6 +1332,15 @@ def dashboard():
                 cart_table = get_ref('cart')
                 sale = cart_table[cart_table['status'] == 'Done']
                 order = cart_table[cart_table['status'] != 'In Cart']
+                # Date Range Filter
+                sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
+                min_date = sale['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
+                max_date = sale['ordered_time_date'].max()  # Maximum date in your dataset
+                start_date, end_date = st.date_input('Select Date Range:', [min_date, max_date])
+                sale_data_filtered = sale[
+                    (sale['ordered_time_date'] >= pd.to_datetime(start_date)) & 
+                    (sale['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
+                ]
             product = get_ref('product')
             addon = get_ref('addon')
             customer = get_ref('customer')
@@ -1355,15 +1364,7 @@ def dashboard():
                 # Group by year
                 operatingcost_data_filtered['year'] = pd.to_datetime(start_date).year
                 operatingcost_data_filtered = operatingcost_data_filtered.groupby(['branch_id', 'year']).sum().reset_index()
-            # Date Range Filter
-            sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
-            min_date = sale['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
-            max_date = sale['ordered_time_date'].max()  # Maximum date in your dataset
-            start_date, end_date = st.date_input('Select Date Range:', [min_date, max_date])
-            sale_data_filtered = sale[
-                (sale['ordered_time_date'] >= pd.to_datetime(start_date)) & 
-                (sale['ordered_time_date'] < pd.to_datetime(end_date) + pd.Timedelta(days=1))
-            ]
+            
                 
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
