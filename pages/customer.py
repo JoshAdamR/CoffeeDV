@@ -148,7 +148,7 @@ def display_branch_and_menu(branches, products, sizes):
     branch_names = list(branches.values())
     
     selected_branch_name = st.selectbox("📍 Select Branch", branch_names)
-    
+
     global selected_branch_id
     # Get the corresponding branch ID for the selected branch name
     selected_branch_id = next(branch_id for branch_id, branch_name in branches.items() if branch_name == selected_branch_name)
@@ -819,7 +819,7 @@ def deduct_loyalty_points(email, points_to_deduct):
 
 def get_next_feedback_id():
     try:
-        cart_ref = db.collection("cart").where('email', '==', email).where('branch_id', '==', branch_id)
+        cart_ref = db.collection("cart").where('email', '==', email).where('branch_id', '==', selected_branch_id)
         
         # Query to find the last cart by order_id in descending order
         last_cart = cart_ref.order_by("order_id", direction=firestore.Query.DESCENDING).limit(1).stream()
