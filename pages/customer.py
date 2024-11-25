@@ -815,7 +815,7 @@ def deduct_loyalty_points(email, points_to_deduct):
         return None
 
 
-def get_next_feedback_id():
+def get_next_feedback_id(branch_id):
     try:
         cart_ref = db.collection("cart").where('email', '==', email).where('branch_id', '==', branch_id)
         
@@ -842,12 +842,12 @@ def get_next_feedback_id():
         print(f"An error occurred while retrieving the feedback ID: {e}")
         return None  # Indicate no feedback ID in case of errors
 
-def display_feedback(email):
+def display_feedback(email, branch_id):
     st.title("📋 Share Your Feedback")
     st.write("We value your feedback to improve our service. Please take a moment to rate your experience! 🙏")
     
     # Check if a previous order exists
-    feedback_id = get_next_feedback_id()
+    feedback_id = get_next_feedback_id(branch_id)
     if feedback_id is None:
         st.warning("⚠️ You have not placed any orders yet. Feedback can only be provided after placing an order.")
         return  # Exit the function if no orders exist
@@ -910,7 +910,7 @@ def display_sidebar(branches, products, sizes):
     elif page == "Loyalty Program":
         display_loyalty_program(cookies.get("email"))
     elif page == "Feedback":
-        display_feedback(cookies.get("email"))
+        display_feedback(cookies.get("email"), selected_branch_id)
 
 branches, products, sizes, milks, addons = fetch_data_from_firestore()
 sizes, add_ons, temperatures, sugar_levels, milk_types = get_product_details()
