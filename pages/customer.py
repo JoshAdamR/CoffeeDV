@@ -361,7 +361,7 @@ def display_cart(email):
                     unsafe_allow_html=True
                 )
                 coupon_discount = rm_discount
-            elif coupon_details["promotion_type"] == "Percentage":
+            elif discount_percentage > 0:
                 discount_amount = (discount_percentage / 100) * total_price
                 # st.markdown(f"Discount: {discount_percentage}% off")
                 st.markdown(
