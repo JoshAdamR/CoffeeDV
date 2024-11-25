@@ -752,7 +752,7 @@ def dashboard():
         usage_merge['cost'] = usage_merge['unit_price'] * usage_merge['quantity']
         #cost = usage_merge['cost'].sum()
         #profit = revenue - cost
-        
+        usage_merge['date'] = pd.to_datetime(usage_merge['date'])
         # Group by the selected time period
         if time_period == "Daily":
             # Aggregate profit by day
