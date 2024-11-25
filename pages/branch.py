@@ -199,7 +199,10 @@ def coupon():
 
     # Fetch current offers to display and store in session state
     if 'offers' not in st.session_state:
-        st.session_state.offers = get_offers()  # Load offers only once when the app is first loaded
+        try:
+            st.session_state.offers = get_offers()  # Load offers only once when the app is first loaded
+        except:
+            st.write('No coupon yet')
 
     # Display current special offers - dynamically updated
     st.subheader("Current Special Offers")
