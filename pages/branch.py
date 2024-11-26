@@ -751,7 +751,7 @@ def dashboard():
         st.header("D. Profit Calculation")
 
         sale['revenue'] = sale['quantity']*sale['price_after_discount']
-
+        usage_merge = pd.merge(usage_history, inventory, on='inventory_id', how='inner')
         usage_merge['cost'] = usage_merge['usage'] * inv_usage_df['unit_price']
         usage_merge['date'] = pd.to_datetime(usage_merge['date'])
 
