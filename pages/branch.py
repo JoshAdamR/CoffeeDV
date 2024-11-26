@@ -747,11 +747,8 @@ def dashboard():
         # Render the Plotly chart in Streamlit
         st.plotly_chart(fig)
 
-    def calculate_profit(sale, inventory, usage_history, time_period):
+    def calculate_profit(sale, inventory_df, inv_usage_df, time_period):
         st.header("D. Profit Calculation")
-
-        sale['revenue'] = sale['quantity']*sale['price_after_discount']
-        usage_merge = pd.merge(usage_history, inventory, on='inventory_id', how='inner')
 
         # Group by the selected time period
         if time_period == "Daily":
@@ -773,26 +770,28 @@ def dashboard():
         elif time_period == "Yearly":
             # Aggregate profit by month
             sale['date'] = sale['ordered_time_date'].dt.to_period('Y').dt.start_time
+
         
-        usage_merge['ingredient_cost'] = usage_merge['usage'] * usage_merge['unit_price']
+        sale['revenue'] = sale['quantity']*sale['price_after_discount']        
+        inv_usage_df = pd.merge(inv_usage_df, inventory_df, on='inventory_id', how='left')
+        inv_usage_df['ingredient_cost'] = inv_usage_df['usage'] * inv_usage_df['unit_price']
+
         # Map inv_usage to cart
         def calculate_cart_cost(row):
-            base_cost = usage_merge[usage_merge['item_name'] == row['name']]['ingredient_cost'].sum()
-            milk_cost = usage_merge[usage_merge['item_name'] == row['milk_type']]['ingredient_cost'].sum()
-            sugar_cost = usage_merge[usage_merge['item_name'] == row['sugar_level']]['ingredient_cost'].sum()
-            temp_cost = usage_merge[usage_merge['item_name'] == row['temperature']]['ingredient_cost'].sum()
+            base_cost = inv_usage_df[inv_usage_df['item_name'] == row['name']]['ingredient_cost'].sum()
+            milk_cost = inv_usage_df[inv_usage_df['item_name'] == row['milk_type']]['ingredient_cost'].sum()
+            sugar_cost = inv_usage_df[inv_usage_df['item_name'] == row['sugar_level']]['ingredient_cost'].sum()
+            temp_cost = inv_usage_df[inv_usage_df['item_name'] == row['temperature']]['ingredient_cost'].sum()
             addons_cost = 0
             for addon in row['addons']:
-                addons_cost += usage_merge[usage_merge['item_name'] == addon]['ingredient_cost'].sum()
+                addons_cost += inv_usage_df[inv_usage_df['item_name'] == addon]['ingredient_cost'].sum()
             total_cost = (base_cost + milk_cost + sugar_cost + temp_cost + addons_cost) * row['quantity']
             return total_cost
 
         sale['total_cost'] = sale.apply(calculate_cart_cost, axis=1)
         sale['profit'] = sale['revenue'] - sale['total_cost']
-        st.write(sale)
 
         profit_aggregated = sale.groupby('date')['profit'].sum().reset_index()
-        st.write(profit_aggregated)
 
         # Plot the profit based on the selected time period
         st.subheader(f"⦁ Profit ({time_period})")
@@ -1385,9 +1384,10 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             plot_sales_by_time_of_day(sale_data_filtered)
             st.markdown("<hr>", unsafe_allow_html=True)
+            calculate_profit(sale, inventory, inv_usage, period)
         except:
             st.warning('No sales data')
-        calculate_profit(sale, inventory, usage_history, period)
+        
 
     elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
