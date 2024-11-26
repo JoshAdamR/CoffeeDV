@@ -1300,10 +1300,13 @@ def dashboard():
             ready_orders = sale_data[sale_data['status'] == 'Done']
             if not ready_orders.empty:
                 for _, order in ready_orders.iterrows():
-                    col_id = f"col_{order['cart_id']}"  # Unique ID for each button
-                    with st.container():
+                    # Create a row with two columns: one for the order info and one for the button
+                    cart_col, button_col = st.columns([4, 1])
+                    with cart_col:
                         st.write(f"Cart ID: {order['cart_id']}")
-                        if st.button(f"Mark {order['cart_id']} as Collected", key=col_id):
+                    with button_col:
+                        # Display an "X" mark button
+                        if st.button("❌", key=f"collected_{order['cart_id']}"):
                             sale_data.loc[sale_data['cart_id'] == order['cart_id'], 'status'] = 'Collected'
                             st.success(f"Cart ID {order['cart_id']} has been marked as Collected.")
                             st.rerun()  # Refresh the dashboard to reflect changes
