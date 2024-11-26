@@ -752,59 +752,47 @@ def dashboard():
 
         sale['revenue'] = sale['quantity']*sale['price_after_discount']
         usage_merge = pd.merge(usage_history, inventory, on='inventory_id', how='inner')
-        usage_merge['cost'] = usage_merge['usage'] * inv_usage_df['unit_price']
-        usage_merge['date'] = pd.to_datetime(usage_merge['date'])
 
         # Group by the selected time period
         if time_period == "Daily":
             # Aggregate profit by day
             sale['date'] = sale['ordered_time_date'].dt.date
-            usage_merge['date'] = usage_merge['date'].dt.date          
 
         elif time_period == "Weekly":
             # Aggregate profit by week
             sale['date'] = sale['ordered_time_date'].dt.to_period('W').dt.start_time
-            usage_merge['date'] = usage_merge['date'].dt.to_period('W').dt.start_time
 
         elif time_period == "Monthly":
             # Aggregate profit by month
             sale['date'] = sale['ordered_time_date'].dt.to_period('M').dt.start_time
-            usage_merge['date'] = usage_merge['date'].dt.to_period('M').dt.start_time
             
         elif time_period == "Quarterly":
             # Aggregate profit by month
             sale['date'] = sale['ordered_time_date'].dt.to_period('Q').dt.start_time
-            usage_merge['date'] = usage_merge['date'].dt.to_period('Q').dt.start_time
 
         elif time_period == "Yearly":
             # Aggregate profit by month
             sale['date'] = sale['ordered_time_date'].dt.to_period('Y').dt.start_time
-            usage_merge['date'] = usage_merge['date'].dt.to_period('Y').dt.start_time
         
         # Map inv_usage to cart
         def calculate_cart_cost(row):
-            base_cost = inv_usage_df[inv_usage_df['item_name'] == row['name']]['ingredient_cost'].sum()
-            milk_cost = inv_usage_df[inv_usage_df['item_name'] == row['milk_type']]['ingredient_cost'].sum()
-            sugar_cost = inv_usage_df[inv_usage_df['item_name'] == row['sugar_level']]['ingredient_cost'].sum()
-            temp_cost = inv_usage_df[inv_usage_df['item_name'] == row['temperature']]['ingredient_cost'].sum()
+            base_cost = usage_merge[usage_merge['item_name'] == row['name']]['ingredient_cost'].sum()
+            milk_cost = usage_merge[usage_merge['item_name'] == row['milk_type']]['ingredient_cost'].sum()
+            sugar_cost = usage_merge[usage_merge['item_name'] == row['sugar_level']]['ingredient_cost'].sum()
+            temp_cost = usage_merge[usage_merge['item_name'] == row['temperature']]['ingredient_cost'].sum()
             addons_cost = 0
             for addon in row['addons']:
-                addons_cost += inv_usage_df[inv_usage_df['item_name'] == addon]['ingredient_cost'].sum()
+                addons_cost += usage_merge[usage_merge['item_name'] == addon]['ingredient_cost'].sum()
             total_cost = (base_cost + milk_cost + sugar_cost + temp_cost + addons_cost) * row['quantity']
             return total_cost
 
         sale['total_cost'] = sale.apply(calculate_cart_cost, axis=1)
-        st.write(sale)
+
         revenue_aggregated = sale.groupby('date')['price_after_discount'].sum().reset_index()
         cost_aggregated = sale.groupby('date')['total_cost'].sum().reset_index()
-        
-        st.write(revenue_aggregated)
-        st.write(cost_aggregated)
 
         profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='date', how='inner')
         profit_aggregated['profit'] = profit_aggregated['revenue'] - profit_aggregated['cost']
-
-        st.write(profit_aggregated)
 
         # Plot the profit based on the selected time period
         st.subheader(f"⦁ Profit ({time_period})")
