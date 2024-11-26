@@ -897,10 +897,12 @@ def dashboard():
         inventory_branch = pd.merge(usage_branch, inventory_branch.drop(columns='branch_id'), on='inventory_id', how='outer')
         inventory_branch['date'] = inventory_branch['date'].fillna(datetime.now().strftime('%Y-%m-%d %H:%M:%S')) 
 
-        # Calculate turnover rate (e.g., usage / average inventory)
-        inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']
-        inventory_branch['used_inventory'] = inventory_branch['quantity'] * inventory_branch['unit_price']
-        inventory_branch['turnover'] =  inventory_branch['used_inventory'] / inventory_branch['total_inventory']
+        # Calculate total_inventory and used_inventory as numeric types
+        inventory_branch['total_inventory'] = pd.to_numeric(inventory_branch['quantity_on_hand'], errors='coerce') * pd.to_numeric(inventory_branch['unit_price'], errors='coerce')
+        inventory_branch['used_inventory'] = pd.to_numeric(inventory_branch['quantity'], errors='coerce') * pd.to_numeric(inventory_branch['unit_price'], errors='coerce')
+        
+        # Now calculate turnover rate (usage / total_inventory)
+        inventory_branch['turnover'] = inventory_branch['used_inventory'] / inventory_branch['total_inventory']
         inventory_branch['turnover'] = inventory_branch['turnover'].fillna(0)
 
         # Apply time period aggregation
@@ -916,7 +918,7 @@ def dashboard():
             inventory_branch['period'] = inventory_branch['date'].dt.date
         
         # Ensure 'period' is a string or datetime
-        inventory_branch['period'] = inventory_branch['period']
+        inventory_branch['period'] = inventory_branch['period'].astype(str)
 
         inventory_branch = inventory_branch.sort_values(by='period', ascending=True)
 
