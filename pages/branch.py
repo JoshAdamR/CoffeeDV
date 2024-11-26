@@ -805,14 +805,14 @@ def dashboard():
         graph_type_profit = st.selectbox(f"Select Graph Type for Profit ({time_period})", ["Line Graph", "Bar Chart"], key=f"profit_graph_{time_period}")
         
         if graph_type_profit == "Line Graph":
-            fig_profit = px.line(profit_aggregated, x=profit_aggregated['date'], y=profit_aggregated['profit'], title=f'{time_period} Profit Over Time', markers=True)
+            fig_profit = px.line(profit_aggregated, x='date', y='profit', title=f'{time_period} Profit Over Time', markers=True)
             fig_profit.update_layout(
                 xaxis_title=f'{time_period} Period',
                 yaxis_title='Profit'
             )
             st.plotly_chart(fig_profit)
         else:
-            fig_profit = px.bar(profit_aggregated, x=profit_aggregated['date'], y=profit_aggregated['profit'], title=f'{time_period} Profit Over Time', text='profit', color='profit', color_continuous_scale='Blues')
+            fig_profit = px.bar(profit_aggregated, x='date', y='profit', title=f'{time_period} Profit Over Time', text='profit', color='profit', color_continuous_scale='Blues')
             fig_profit.update_traces(texttemplate='%{text:.2f}')
             fig_profit.update_layout(
                 xaxis_title=f'{time_period} Period',
