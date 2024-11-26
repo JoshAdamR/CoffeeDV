@@ -1336,7 +1336,7 @@ def dashboard():
 
             if not get_ref('cart').empty: 
                 cart_table = get_ref('cart')
-                sale = cart_table[cart_table['status'] == 'Done' or cart_table['status'] == 'Collected']
+                sale = cart_table[(cart_table['status'] == 'Done') | (cart_table['status'] == 'Collected')]
                 order = cart_table[cart_table['status'] != 'In Cart']
                 # Date Range Filter
                 sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
