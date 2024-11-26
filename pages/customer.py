@@ -617,7 +617,7 @@ def display_order_status(branches):
                 # Display order details
                 st.write(f"Order ID: {cart_item['cart_id']}")
                 st.write(f"Branch: {branches.get(cart_item['branch_id'], 'Unknown')}")
-                st.write(f"Order Time: {cart_item['order_time']}")
+                st.write(f"Ready for collectiion since: {cart_item['complete_date']}")
 
                 # Add a button to complete the pickup
                 if st.button(f"Complete Pickup for {cart_item['cart_id']}", key=f"complete_{cart_item['cart_id']}"):
