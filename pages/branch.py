@@ -1427,11 +1427,11 @@ def dashboard():
         st.title("Financial Analytics")
         try:
             st.markdown("<hr>", unsafe_allow_html=True)
-            profit_margin_analysis(sale, inventory, inv_usage, period)
+            profit_margin_analysis(sale_data_filtered, inventory, inv_usage, period)
             st.markdown("<hr>", unsafe_allow_html=True)
             cost_analysis(operatingcost, operatingcost_data_filtered)
             st.markdown("<hr>", unsafe_allow_html=True)
-            revenue_streams_analysis(sale, product)
+            revenue_streams_analysis(sale_data_filtered, product)
         except:
             st.warning('No sales data')
 
