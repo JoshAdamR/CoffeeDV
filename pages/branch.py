@@ -1306,7 +1306,7 @@ def dashboard():
                         if st.button(f"Mark {order['cart_id']} as Collected", key=col_id):
                             sale_data.loc[sale_data['cart_id'] == order['cart_id'], 'status'] = 'Collected'
                             st.success(f"Cart ID {order['cart_id']} has been marked as Collected.")
-                            st.experimental_rerun()  # Refresh the dashboard to reflect changes
+                            st.rerun()  # Refresh the dashboard to reflect changes
             else:
                 st.write("No Ready Orders")
 
@@ -1316,7 +1316,7 @@ def dashboard():
         )
 
         if st.button('Refresh'):
-            st.experimental_rerun()
+            st.rerun()
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
