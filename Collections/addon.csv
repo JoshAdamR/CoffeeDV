@@ -1,7 +1,7 @@
-add_on_id,add_on_name,add_on_price
-ADDON001,Pearl,1
-ADDON002,Coconut Jelly,0
-ADDON003,Chia Seed,1
-ADDON004,Sago,1
-ADDON005,Cookie Crumbs,1
-ADDON006,Whipped Cream,2
+add_on_name,add_on_price,id,add_on_id
+Pearl,1,ADDON001,ADDON001
+Coconut Jelly,0,ADDON002,ADDON002
+Chia Seed,1,ADDON003,ADDON003
+Sago,1,ADDON004,ADDON004
+Cookie Crumbs,1,ADDON005,ADDON005
+Whipped Cream,2,ADDON006,ADDON006

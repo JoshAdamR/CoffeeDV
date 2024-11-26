@@ -1,0 +1,2 @@
+rate_sanitary,date,rate_service,rate_wait_time,rate_environment,id,branch_id,rate_coffee,order_id,email
+5,2024-11-25 18:23:14.190270+00:00,5,4,5,ORD001,BRANCH001,5,ORD001,user1@gmail.com

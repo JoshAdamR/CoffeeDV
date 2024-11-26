@@ -1,2 +1,2 @@
-restock_id,inventory_id,quantity,branch_id
-none,none,none,none
+branch_id,inventory_id,restock_id,quantity,id
+none,none,none,none,none

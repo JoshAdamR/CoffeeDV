@@ -1,5 +1,5 @@
-milk_id,type_of_milk,price
-MILK001,Normal Milk,1
-MILK002,Soy Milk,1
-MILK003,Almond Milk,2
-MILK000,No Milk,0
+type_of_milk,price,id,milk_id
+No Milk,0,MILK000,MILK000
+Normal Milk,1,MILK001,MILK001
+Soy Milk,1,MILK002,MILK002
+Almond Milk,2,MILK003,MILK003

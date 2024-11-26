@@ -1,4 +1,4 @@
-sugar_id,level,price
-SUGAR0,No Sugar,0
-SUGAR1,Low Sugar,0
-SUGAR2,Normal Sugar,0
+sugar_id,level,id,price
+SUGAR0,No Sugar,SUGAR0,0
+SUGAR1,Low Sugar,SUGAR1,0
+SUGAR2,Normal Sugar,SUGAR2,0

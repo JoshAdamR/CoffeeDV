@@ -1,8 +1,8 @@
-product_id,product_name,product_category,base_price,image_url
-PROD001,Espresso,Coffee,10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzLbaDqYPXSoYlrhZ8iJxy6RNoyqaAQpZOOg&s
-PROD002,Latte,Coffee,12,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_F7D5DqADKSLEamMfCn3OcDIzqMJB8QeDA&s
-PROD003,Capuccino,Coffee,12,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcScDgtANNelglraInKFeK_KayApl_TP-4lvkQ&s
-PROD004,Chai Latte,Tea,10,https://liliebakery.fr/wp-content/uploads/2022/10/Chai-latte-recette-facile-Lilie-Bakery-500x500.jpg
-PROD005,Mocha,Coffee,12,"https://images.immediate.co.uk/production/volatile/sites/2/2021/11/Mocha-1fc71f7.png?quality=90&resize=556,505"
-PROD006,Green Tea,Tea,8,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeUkdsTL9R3r7ZcJDdjVc3BI8sDkhudoDnEw&s
-PROD007,Chocolate,Chocolate,10,https://www.anediblemosaic.com/wp-content/uploads//2021/02/french-hot-chocolate-featurd-image.jpg
+product_name,product_category,id,base_price,product_id,image_url
+Espresso,Coffee,PROD001,10,PROD001,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzLbaDqYPXSoYlrhZ8iJxy6RNoyqaAQpZOOg&s
+Latte,Coffee,PROD002,12,PROD002,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_F7D5DqADKSLEamMfCn3OcDIzqMJB8QeDA&s
+Capuccino,Coffee,PROD003,12,PROD003,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcScDgtANNelglraInKFeK_KayApl_TP-4lvkQ&s
+Chai Latte,Tea,PROD004,10,PROD004,https://liliebakery.fr/wp-content/uploads/2022/10/Chai-latte-recette-facile-Lilie-Bakery-500x500.jpg
+Mocha,Coffee,PROD005,12,PROD005,"https://images.immediate.co.uk/production/volatile/sites/2/2021/11/Mocha-1fc71f7.png?quality=90&resize=556,505"
+Green Tea,Tea,PROD006,8,PROD006,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeUkdsTL9R3r7ZcJDdjVc3BI8sDkhudoDnEw&s
+Chocolate,Chocolate,PROD007,10,PROD007,https://www.anediblemosaic.com/wp-content/uploads//2021/02/french-hot-chocolate-featurd-image.jpg

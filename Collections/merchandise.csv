@@ -1,4 +1,4 @@
-merch_id,merch_name,points,image_url
-MERCH000,Coffee Mug,500,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtj_1A10LLNivGchQXHPwG8QBHSAl6u-B2IA&s
-MERCH001,Tshirt,1000,https://ocs-pl.oktawave.com/v1/AUTH_630f86eaa3774cda8593b8a9710b1aa4/lte/mrgugu/2020/0904/20200904071151_SLEcBhxhgMUjDQes_400x440.webp
-MERCH002,Tumbler,2000,https://i.etsystatic.com/34952002/r/il/911fa7/4283812897/il_300x300.4283812897_c94i.jpg
+merch_id,points,id,merch_name,image_url
+MERCH000,500,MERCH000,Coffee Mug,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtj_1A10LLNivGchQXHPwG8QBHSAl6u-B2IA&s
+MERCH001,1000,MERCH001,Tshirt,https://ocs-pl.oktawave.com/v1/AUTH_630f86eaa3774cda8593b8a9710b1aa4/lte/mrgugu/2020/0904/20200904071151_SLEcBhxhgMUjDQes_400x440.webp
+MERCH002,2000,MERCH002,Tumbler,https://i.etsystatic.com/34952002/r/il/911fa7/4283812897/il_300x300.4283812897_c94i.jpg

@@ -1,4 +1,4 @@
-temp_id,temp,price
-TEMP0,Hot,0
-TEMP1,Less Ice,1
-TEMP2,Normal Ice,1
+temp,temp_id,id,price
+Hot,TEMP0,TEMP0,0
+Less Ice,TEMP1,TEMP1,1
+Normal Ice,TEMP2,TEMP2,1

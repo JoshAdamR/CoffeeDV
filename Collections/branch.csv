@@ -1,6 +1,6 @@
-branch_id,branch_name,location,operating_id,email
-BRANCH001,Branch A,KL,OPER001,brancha@gmail.com
-BRANCH002,Branch B,Penang,OPER002,branchb@gmail.com
-BRANCH003,Branch C,Johor Bahru,OPER003,branchc@gmail.com
-BRANCH004,Branch D,Kota Kinabalu,OPER004,branchd@gmail.com
-BRANCH005,Branch E,Ipoh,OPER005,branche@gmail.com
+branch_id,operating_id,id,location,email,branch_name
+BRANCH001,OPER001,BRANCH001,KL,brancha@gmail.com,Branch A
+BRANCH002,OPER002,BRANCH002,Penang,branchb@gmail.com,Branch B
+BRANCH003,OPER003,BRANCH003,Johor Bahru,branchc@gmail.com,Branch C
+BRANCH004,OPER004,BRANCH004,Kota Kinabalu,branchd@gmail.com,Branch D
+BRANCH005,OPER005,BRANCH005,Ipoh,branche@gmail.com,Branch E

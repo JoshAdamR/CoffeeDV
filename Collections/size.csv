@@ -1,4 +1,4 @@
-size_id,size_name,price,recipe_multiplier
-SIZE001,Small,0,1
-SIZE002,Medium,0.5,1.4
-SIZE003,Large,1,1.75
+size_name,size_id,recipe_multiplier,id,price
+Small,SIZE001,1.0,SIZE001,0.0
+Medium,SIZE002,1.4,SIZE002,0.5
+Large,SIZE003,1.75,SIZE003,1.0

@@ -1,16 +1,16 @@
-inventory_id,inventory_name,unit_price,metric
-INV001,"Coffee Beans	",50,kg
-INV002,Milk,20,l
-INV003,"Chai Spice	",50,kg
-INV004,Cocoa Powder,60,kg
-INV005,"Green Tea	",70,kg
-INV006,Pearl,20,kg
-INV007,Coconut Jelly,20,kg
-INV008,Chia Seed,45,kg
-INV009,Sago,20,kg
-INV010,Cookie Crumbs,30,kg
-INV011,Whipped Cream,40,kg
-INV012,Soy Milk,20,l
-INV013,Almond Milk,30,l
-INV014,Sugar,20,kg
-INV015,Ice,5,kg
+unit_price,inventory_id,inventory_name,id,metric
+50,INV001,Coffee Beans	,INV001,kg
+20,INV002,Milk,INV002,l
+50,INV003,Chai Spice	,INV003,kg
+60,INV004,Cocoa Powder,INV004,kg
+70,INV005,Green Tea	,INV005,kg
+20,INV006,Pearl,INV006,kg
+20,INV007,Coconut Jelly,INV007,kg
+45,INV008,Chia Seed,INV008,kg
+20,INV009,Sago,INV009,kg
+30,INV010,Cookie Crumbs,INV010,kg
+40,INV011,Whipped Cream,INV011,kg
+20,INV012,Soy Milk,INV012,l
+30,INV013,Almond Milk,INV013,l
+20,INV014,Sugar,INV014,kg
+5,INV015,Ice,INV015,kg
