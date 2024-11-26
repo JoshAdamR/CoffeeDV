@@ -37,26 +37,25 @@ if page == "Login":
                     # st.session_state.logged_in_admin = True
                     st.success("Logged in successfully!")
                     sleep(0.5)
-                    st.switch_page("pages/admin.py")
                     st.balloons()
-                    
+                    st.switch_page("pages/admin.py")
                     
                 while cookies.get("role") == 'customer' and cookies.get("status") == 'true':
                     # st.write("You are logged in as a **Customer**.")
                     # st.session_state.logged_in_cust = True
                     st.success("Logged in successfully!")
                     sleep(0.5)
-                    st.switch_page("pages/customer.py")
                     st.balloons()
+                    st.switch_page("pages/customer.py")
 
                 while cookies.get("role") == 'branch' and cookies.get("status") == 'true':
                     # st.write("You are logged in as a **Customer**.")
                     # st.session_state.logged_in_cust = True
                     st.success("Logged in successfully!")
                     sleep(0.5)
-                    st.switch_page("pages/branch.py")
                     st.balloons()
-                    
+                    st.switch_page("pages/branch.py")
+                                        
 
             else:
                 st.error("Invalid email or password. Please try again.")
