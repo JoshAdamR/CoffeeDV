@@ -607,14 +607,27 @@ def display_order_status(branches):
     # Organize the order statuses into tabs
     tab_preparing, tab_completed, tab_history = st.tabs(["Preparing", "Completed", "All Orders"])
     
-    # Preparing Orders
-    with tab_preparing:
-        st.subheader("Your Orders are Being Prepared by the Barista")
-        cart_items = fetch_cart_items(email=email, status="Preparing")
+    # Completed Orders
+    with tab_completed:
+        st.subheader("Your Orders are Ready for Pickup")
+        cart_items = fetch_cart_items(email=email, status="Done")
+
         if cart_items:
-            display_orders(cart_items, branches)
+            for cart_item in cart_items:
+                # Display order details
+                st.write(f"Order ID: {cart_item['cart_id']}")
+                st.write(f"Branch: {branches.get(cart_item['branch_id'], 'Unknown')}")
+                st.write(f"Order Time: {cart_item['order_time']}")
+
+                # Add a button to complete the pickup
+                if st.button(f"Complete Pickup for {cart_item['cart_id']}", key=f"complete_{cart_item['cart_id']}"):
+                    # Update the order status to "Collected" in the database
+                    update_order_status(cart_id=cart_item['cart_id'], new_status="Collected")
+                    st.success(f"Order {cart_item['cart_id']} has been marked as Collected!")
+                    st.experimental_rerun()  # Refresh the page to reflect the changes
+                st.markdown("---")  # Add a separator between orders
         else:
-            st.info("No orders are currently being prepared.")
+            st.info("You have no completed orders at the moment.")
 
     
     # Completed Orders
@@ -625,11 +638,13 @@ def display_order_status(branches):
             display_orders(cart_items, branches)
         else:
             st.info("You have no completed orders at the moment.")
+
+        
     
     # All Orders
     with tab_history:
         st.subheader("Your Order History")
-        statuses = ["Preparing", "Done"]
+        statuses = ["Preparing", "Done", "Completed"]
         cart_items = []
         for status in statuses:
             cart_items.extend(fetch_cart_items(email=email, status=status))
