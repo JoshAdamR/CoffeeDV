@@ -900,21 +900,24 @@ def dashboard():
         # Calculate turnover rate (e.g., usage / average inventory)
         inventory_branch['total_inventory'] = inventory_branch['quantity_on_hand'] * inventory_branch['unit_price']
         inventory_branch['used_inventory'] = inventory_branch['quantity'] * inventory_branch['unit_price']
-        inventory_branch['turnover'] =  inventory_branch['used_inventory']/inventory_branch['total_inventory']
+        inventory_branch['turnover'] =  inventory_branch['used_inventory'] / inventory_branch['total_inventory']
         inventory_branch['turnover'] = inventory_branch['turnover'].fillna(0)
 
         # Apply time period aggregation
-        if period == 'Weekly':
+        if time_period == 'Weekly':
             inventory_branch['period'] = inventory_branch['date'].dt.to_period('W')
-        elif period == 'Monthly':
+        elif time_period == 'Monthly':
             inventory_branch['period'] = inventory_branch['date'].dt.to_period('M')
-        elif period == 'Quarterly':
+        elif time_period == 'Quarterly':
             inventory_branch['period'] = inventory_branch['date'].dt.to_period('Q')
-        elif period == 'Yearly':
+        elif time_period == 'Yearly':
             inventory_branch['period'] = inventory_branch['date'].dt.to_period('Y')
         else:  # Daily
             inventory_branch['period'] = inventory_branch['date'].dt.date
         
+        # Ensure 'period' is a string or datetime
+        inventory_branch['period'] = inventory_branch['period'].astype(str)
+
         inventory_branch = inventory_branch.sort_values(by='period', ascending=True)
 
         fig = go.Figure()
