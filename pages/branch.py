@@ -1075,7 +1075,7 @@ def dashboard():
         st.header("C. Revenue Streams")
         
         # Merge order data with product data on 'product_id'
-        order_data_filtered['name'] = order_data_filtered['name']
+        product_data['name'] = product_data['product_name']
         merged_data = pd.merge(order_data_filtered, product_data, on='name')
 
         # Ensure 'total_price' is numeric, coercing errors to NaN
