@@ -1452,10 +1452,7 @@ def dashboard():
             st.warning('No sales data')
         order_processing_times(sale_data_filtered)
     elif selection == "Order Monitoring Dashboard":
-        try:
-            order_monitoring_dashboard(sale)
-        except:
-            st.warning('No sales data')
+        order_monitoring_dashboard(sale)
 
     
 try:
