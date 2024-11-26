@@ -1272,7 +1272,7 @@ def dashboard():
 
     # ==============================================================================================
 
-    def order_monitoring_dashboard():
+    def order_monitoring_dashboard(sale_data):
         st.title("PyBean Coffee Shop")
         st.subheader("Order Status Dashboard")
 
