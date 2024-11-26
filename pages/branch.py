@@ -789,6 +789,9 @@ def dashboard():
         sale['total_cost'] = sale.apply(calculate_cart_cost, axis=1)
         sale['profit'] = sale['revenue'] - sale['total_cost']
 
+        st.write(sale)
+        st.write(profit_aggregated)
+
         profit_aggregated = sale.groupby('date')['profit'].sum().reset_index()
 
         # Plot the profit based on the selected time period
