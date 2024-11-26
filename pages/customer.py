@@ -622,9 +622,10 @@ def display_order_status(branches):
                 # Add a button to complete the pickup
                 if st.button(f"Complete Pickup for {cart_item['cart_id']}", key=f"complete_{cart_item['cart_id']}"):
                     # Update the order status to "Collected" in the database
-                    update_order_status(cart_id=cart_item['cart_id'], new_status="Collected")
+                    cart_ref = store.collection('cart')
+                    cart_ref.document(cart_item['cart_id']).update({'status': 'Collected', 'collected_date': date_now})
                     st.success(f"Order {cart_item['cart_id']} has been marked as Collected!")
-                    st.experimental_rerun()  # Refresh the page to reflect the changes
+                    st.rerun()  # Refresh the page to reflect the changes
                 st.markdown("---")  # Add a separator between orders
         else:
             st.info("You have no completed orders at the moment.")
