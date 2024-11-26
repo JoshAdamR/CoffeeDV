@@ -761,41 +761,36 @@ def dashboard():
         if time_period == "Daily":
             # Aggregate profit by day
             sale['date'] = sale['ordered_time_date'].dt.date
-            usage_merge['date'] = usage_merge['date'].dt.date
-            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
-            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()            
+            usage_merge['date'] = usage_merge['date'].dt.date          
 
         elif time_period == "Weekly":
             # Aggregate profit by week
             sale['date'] = sale['ordered_time_date'].dt.to_period('W').dt.start_time
             usage_merge['date'] = usage_merge['date'].dt.to_period('W').dt.start_time
-            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
-            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
 
         elif time_period == "Monthly":
             # Aggregate profit by month
             sale['date'] = sale['ordered_time_date'].dt.to_period('M').dt.start_time
             usage_merge['date'] = usage_merge['date'].dt.to_period('M').dt.start_time
-            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
-            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
             
         elif time_period == "Quarterly":
             # Aggregate profit by month
             sale['date'] = sale['ordered_time_date'].dt.to_period('Q').dt.start_time
             usage_merge['date'] = usage_merge['date'].dt.to_period('Q').dt.start_time
-            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
-            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
 
         elif time_period == "Yearly":
             # Aggregate profit by month
             sale['date'] = sale['ordered_time_date'].dt.to_period('Y').dt.start_time
             usage_merge['date'] = usage_merge['date'].dt.to_period('Y').dt.start_time
-            revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
-            cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
+
+        revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+        cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
 
 
         profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='date', how='inner')
         profit_aggregated['profit'] = profit_aggregated['revenue'] - profit_aggregated['cost']
+
+        st.write(profit_aggregated)
 
         # Plot the profit based on the selected time period
         st.subheader(f"⦁ Profit ({time_period})")
