@@ -643,7 +643,7 @@ def display_order_status(branches):
     # All Orders
     with tab_history:
         st.subheader("Your Order History")
-        statuses = ["Preparing", "Done", "Completed"]
+        statuses = ["Preparing", "Done", "Collected"]
         cart_items = []
         for status in statuses:
             cart_items.extend(fetch_cart_items(email=email, status=status))
