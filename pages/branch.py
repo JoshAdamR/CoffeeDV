@@ -1306,7 +1306,7 @@ def dashboard():
                         st.write(f"{order['cart_id']}")
                     with button_col:
                         # Display an "X" mark button
-                        if st.button("X", key=f"collected_{order['cart_id']}"):
+                        if st.button("X", key=f"{order['cart_id']}"):
                             sale_data.loc[sale_data['cart_id'] == order['cart_id'], 'status'] = 'Collected'
                             st.rerun()  # Refresh the dashboard to reflect changes
             else:
