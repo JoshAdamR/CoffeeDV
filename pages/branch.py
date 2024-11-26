@@ -1320,7 +1320,6 @@ def dashboard():
                             st.session_state.sale_data.loc[
                                 st.session_state.sale_data['cart_id'] == order['cart_id'], 'status'
                             ] = 'Collected'
-                            st.success(f"Cart ID {order['cart_id']} has been marked as Collected.")
                             st.rerun()  # Refresh the dashboard to reflect changes
             else:
                 st.write("No Ready Orders")
