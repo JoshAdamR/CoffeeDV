@@ -607,6 +607,16 @@ def display_order_status(branches):
     # Organize the order statuses into tabs
     tab_preparing, tab_completed, tab_history = st.tabs(["Preparing", "Completed", "All Orders"])
     
+    # Preparing Orders
+    with tab_preparing:
+        st.subheader("Your Orders are Being Prepared by the Barista")
+        cart_items = fetch_cart_items(email=email, status="Preparing")
+        if cart_items:
+            display_orders(cart_items, branches)
+        else:
+            st.info("No orders are currently being prepared.")
+
+    
     # Completed Orders
     with tab_completed:
         st.subheader("Your Orders are Ready for Pickup")
@@ -629,18 +639,6 @@ def display_order_status(branches):
                 st.markdown("---")  # Add a separator between orders
         else:
             st.info("You have no completed orders at the moment.")
-
-    
-    # Completed Orders
-    with tab_completed:
-        st.subheader("Your Orders are Ready for Pickup")
-        cart_items = fetch_cart_items(email=email, status="Done")
-        if cart_items:
-            display_orders(cart_items, branches)
-        else:
-            st.info("You have no completed orders at the moment.")
-
-        
     
     # All Orders
     with tab_history:
