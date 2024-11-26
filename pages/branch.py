@@ -948,7 +948,7 @@ def dashboard():
         st.header("A. Promotion Performance")
         
         # Add a promotion type column based on coupon_code presence
-        sale_data['promotion_type'] = sale_data['coupon_used'].apply(lambda x: 'Promotion' if x != 'None' else 'Non-Promotion')
+        sale_data['promotion_type'] = sale_data['coupon_used'].apply(lambda x: 'Promotion' if x != '' else 'Non-Promotion')
 
         if metric == "Sales":
             # Group by promotion type and calculate total sales
