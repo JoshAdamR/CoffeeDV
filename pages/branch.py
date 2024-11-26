@@ -1076,7 +1076,6 @@ def dashboard():
         
         # Merge order data with product data on 'product_id'
         product_data['name'] = product_data['product_name']
-        product_data['category'] = product_data['product_category']
         merged_data = pd.merge(order_data_filtered, product_data, on='name')
 
         # Ensure 'total_price' is numeric, coercing errors to NaN
@@ -1162,7 +1161,7 @@ def dashboard():
                         f"${product_revenue[product_revenue['name'] == least_contrib_product]['price_after_discount'].values[0]:.2f}")
             
             # Create pie chart for individual products in the selected category or 'All'
-            fig_product_revenue = px.pie(product_revenue_sorted, values='total_price', names='name',
+            fig_product_revenue = px.pie(product_revenue_sorted, values='price_after_discount', names='name',
                                         title=f'Revenue Distribution for {selected_category} Products' if selected_category != "All" else 'Revenue Distribution for All Products',
                                         labels={'price_after_discount': 'Total Revenue'},
                                         hole=0.3)
