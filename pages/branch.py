@@ -1278,8 +1278,8 @@ def dashboard():
 
     # ==============================================================================================
 
-    def order_monitoring_dashboard(sale_data):
-        # Ensure `time` and `datetime` are imported
+    def order_monitoring_dashboard(sale_data): 
+        # Ensure time and datetime are imported
         st.title("PyBean Coffee Shop")
         st.subheader("Order Status Dashboard")
 
@@ -1330,28 +1330,21 @@ def dashboard():
                                                      "Order Monitoring Dashboard"])
         
         
-    # Function to get the data from the database
-    def get_ref(table):
-        # Only fetch the data from the database if it's not already in session state
-        if f"{table}_data" not in st.session_state:
-            ref = store.collection(table)
-            st.session_state[f"{table}_data"] = pd.DataFrame([doc.to_dict() for doc in ref.stream()])
-        return st.session_state[f"{table}_data"]
-
-
     # Sidebar Filters: Branch, Time Period, and Date Range
     with st.sidebar:
+        # Container with Border for Filters
         with st.container():
             st.subheader("Filter Data")
             period = st.selectbox('Select Time Period:', ['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'])
 
-            if not get_ref('cart').empty:
+            if not get_ref('cart').empty: 
                 cart_table = get_ref('cart')
                 sale = cart_table[cart_table['status'] == 'Done']
                 order = cart_table[cart_table['status'] != 'In Cart']
+                # Date Range Filter
                 sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
-                min_date = sale['ordered_time_date'].min()
-                max_date = sale['ordered_time_date'].max()
+                min_date = sale['ordered_time_date'].min()  # Minimum date in your dataset (using 'sale_date' here)
+                max_date = sale['ordered_time_date'].max()  # Maximum date in your dataset
                 try:
                     start_date, end_date = st.date_input('Select Date Range:', [min_date, max_date])
                     sale_data_filtered = sale[
@@ -1360,8 +1353,7 @@ def dashboard():
                     ]
                 except:
                     st.warning('Please select end date as well')
-
-            # Fetch other data for different dashboards
+                    
             product = get_ref('product')
             addon = get_ref('addon')
             customer = get_ref('customer')
@@ -1369,20 +1361,24 @@ def dashboard():
             usage_history = get_ref('usage_history')
             inv_quantity_branch = get_ref('inv_quantity_branch')
             inventory_full = pd.merge(inventory, inv_quantity_branch, on='inventory_id', how='inner')
-            restock_history = get_ref('restock_history')
+            restock_history = get_ref('restock_history')  # Access the restock table
             inv_usage = get_ref('inv_usage')
             feedback = get_ref('feedback')
+            # Create a filtered version of operatingcost_data based on branch and time period filters
             operatingcost = get_ref('operatingcost')
-            operatingcost_data_filtered = operatingcost
-
+            operatingcost_data_filtered = operatingcost#[operatingcost['branch_id'] == branch_id]
+            # Apply the time period filter (Monthly or Yearly)
             if period == 'Monthly':
+                # Group by year and month (we'll extract these from the start_date and end_date)
                 operatingcost_data_filtered['year'] = pd.to_datetime(start_date).year
                 operatingcost_data_filtered['month'] = pd.to_datetime(start_date).month
                 operatingcost_data_filtered = operatingcost_data_filtered.groupby(['branch_id', 'year', 'month']).sum().reset_index()
             elif period == 'Yearly':
+                # Group by year
                 operatingcost_data_filtered['year'] = pd.to_datetime(start_date).year
                 operatingcost_data_filtered = operatingcost_data_filtered.groupby(['branch_id', 'year']).sum().reset_index()
-
+            
+                
     if selection == "Sales Analytics Dashboard":
         st.title("Sales Analytics Dashboard")
         try:
@@ -1402,7 +1398,9 @@ def dashboard():
     elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
         try:
+            # Filter customers using the filtered sales data
             filtered_customers = customer[customer['email'].isin(sale_data_filtered['email'])]
+            # Pass the filtered data to the plotting functions
             st.markdown("<hr>", unsafe_allow_html=True)
             plot_customer_demographics(filtered_customers)
             st.markdown("<hr>", unsafe_allow_html=True)
@@ -1416,12 +1414,17 @@ def dashboard():
         st.markdown("<hr>", unsafe_allow_html=True)
         calculate_inventory_turnover(inventory_full, usage_history, branch_id, period)
 
+
     elif selection == "Promotion and Discount Analytics":
         st.title("Promotion and Discount Analytics")
+        # Use the already filtered sale_data_filtered
+        # Add a radio button to toggle between Sales or Orders for Promotion Performance Chart
         metric = st.radio("Select Metric for Promotion Performance", ["Sales", "Orders"])
         try:
+            # Plot Promotion Performance based on selected metric
             plot_promotion_performance(sale_data_filtered, metric)
             st.markdown("<hr>", unsafe_allow_html=True)
+            # Plot Coupon Usage Over Time
             plot_coupon_usage_over_time(sale_data_filtered)
         except:
             st.warning('No sales data')
