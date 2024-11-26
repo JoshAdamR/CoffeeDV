@@ -1241,6 +1241,7 @@ def dashboard():
     # Function to calculate and display order processing times
     def order_processing_times(sale_data):
         st.header("B. Order Processing Times")
+
         sale_date = 'ordered_time_date'
         order_completion_date = 'complete_date'
 
@@ -1441,10 +1442,10 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             customer_feedback_ratings(feedback, period, branch_id)
             st.markdown("<hr>", unsafe_allow_html=True)
-            order_processing_times(sale_data_filtered)
+            
         except:
             st.warning('No sales data')
-
+        order_processing_times(sale_data_filtered)
     elif selection == "Order Monitoring Dashboard":
         try:
             order_monitoring_dashboard(sale)
