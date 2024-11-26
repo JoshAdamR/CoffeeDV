@@ -916,7 +916,7 @@ def dashboard():
             inventory_branch['period'] = inventory_branch['date'].dt.date
         
         # Ensure 'period' is a string or datetime
-        inventory_branch['period'] = inventory_branch['period'].astype(str)
+        inventory_branch['period'] = inventory_branch['period']
 
         inventory_branch = inventory_branch.sort_values(by='period', ascending=True)
 
