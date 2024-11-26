@@ -1319,7 +1319,7 @@ def dashboard():
                         st.write(f"{order['cart_id']}")
                     with button_col:
                         # Display an "X" mark button
-                        if st.button("❌", key=f"collected_{order['cart_id']}"):
+                        if st.button("❌", key=f"{order['cart_id']}"):
                             # Update the status to 'Collected'
                             st.session_state.sale_data.loc[
                                 st.session_state.sale_data['cart_id'] == order['cart_id'], 'status'
