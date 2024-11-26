@@ -1076,6 +1076,7 @@ def dashboard():
         
         # Merge order data with product data on 'product_id'
         product_data['name'] = product_data['product_name']
+        product_data['category'] = product_data['product_category']
         merged_data = pd.merge(order_data_filtered, product_data, on='name')
 
         # Ensure 'total_price' is numeric, coercing errors to NaN
