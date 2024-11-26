@@ -1272,8 +1272,7 @@ def dashboard():
 
     # ==============================================================================================
 
-    def order_monitoring_dashboard(sale_data): 
-        # Ensure time and datetime are imported
+    def order_monitoring_dashboard(sale_data):
         st.title("PyBean Coffee Shop")
         st.subheader("Order Status Dashboard")
 
@@ -1289,31 +1288,35 @@ def dashboard():
 
         with col1:
             st.subheader("Preparing Orders")
-            preparing_orders = sale_data[sale_data['status'] == 'Preparing']['cart_id']
+            preparing_orders = sale_data[sale_data['status'] == 'Preparing']
             if not preparing_orders.empty:
-                for order in preparing_orders:
-                    st.write(order)
+                for _, order in preparing_orders.iterrows():
+                    st.write(f"Cart ID: {order['cart_id']}")
             else:
                 st.write("No Preparing Orders")
 
         with col2:
             st.subheader("Ready for Collection")
-            ready_orders = sale_data[sale_data['status'] == 'Done']['cart_id']
+            ready_orders = sale_data[sale_data['status'] == 'Done']
             if not ready_orders.empty:
-                for order in ready_orders:
-                    st.write(order)
+                for _, order in ready_orders.iterrows():
+                    col_id = f"col_{order['cart_id']}"  # Unique ID for each button
+                    with st.container():
+                        st.write(f"Cart ID: {order['cart_id']}")
+                        if st.button(f"Mark {order['cart_id']} as Collected", key=col_id):
+                            sale_data.loc[sale_data['cart_id'] == order['cart_id'], 'status'] = 'Collected'
+                            st.success(f"Cart ID {order['cart_id']} has been marked as Collected.")
+                            st.experimental_rerun()  # Refresh the dashboard to reflect changes
             else:
                 st.write("No Ready Orders")
 
         # Continuously update live time
-        #while True:
         live_time_container.markdown(
             f"Live Date and Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         )
-            #time.sleep(1)  # Wait for 1 second before updating again
 
         if st.button('Refresh'):
-            st.rerun()
+            st.experimental_rerun()
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
@@ -1333,7 +1336,7 @@ def dashboard():
 
             if not get_ref('cart').empty: 
                 cart_table = get_ref('cart')
-                sale = cart_table[cart_table['status'] == 'Done']
+                sale = cart_table[cart_table['status'] == 'Done' or cart_table['status'] == 'Collected']
                 order = cart_table[cart_table['status'] != 'In Cart']
                 # Date Range Filter
                 sale['ordered_time_date'] = pd.to_datetime(sale['ordered_time_date'])
