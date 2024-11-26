@@ -443,11 +443,11 @@ def branch_order(branch_id):
             # Button to complete the selected order
             if st.button("Complete Order"):
                 complete_order_by_id(selected_order_id, orders)
+                st.success(f"Order ID {selected_order_id} has been marked as Done!")
                 store.collection('cart').where('order_id', '==', selected_order_id).limit(1).get()[0].reference.update({
                     'complete_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 })
                 update_inventory(orders)
-                st.success(f"Order ID {selected_order_id} has been marked as Done!")
                 st.rerun()  # Refresh the page after completing the order
     else:
         st.subheader("Total Pending Orders: 0")
