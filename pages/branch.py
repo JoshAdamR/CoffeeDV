@@ -788,11 +788,10 @@ def dashboard():
 
         sale['total_cost'] = sale.apply(calculate_cart_cost, axis=1)
         sale['profit'] = sale['revenue'] - sale['total_cost']
-
         st.write(sale)
-        st.write(profit_aggregated)
 
         profit_aggregated = sale.groupby('date')['profit'].sum().reset_index()
+        st.write(profit_aggregated)
 
         # Plot the profit based on the selected time period
         st.subheader(f"⦁ Profit ({time_period})")
@@ -1385,9 +1384,9 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             plot_sales_by_time_of_day(sale_data_filtered)
             st.markdown("<hr>", unsafe_allow_html=True)
-            calculate_profit(sale, inventory, usage_history, period)
         except:
             st.warning('No sales data')
+        calculate_profit(sale, inventory, usage_history, period)
 
     elif selection == "Customer Analytics Dashboard":
         st.title("Customer Analytics Dashboard")
