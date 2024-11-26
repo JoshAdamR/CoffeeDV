@@ -1135,11 +1135,11 @@ def dashboard():
             total_revenue = category_data['price_after_discount'].sum()
 
             # Find the product that contributes the most and least
-            most_contrib_product = category_data.groupby('product_name')['price_after_discount'].sum().idxmax()
-            least_contrib_product = category_data.groupby('product_name')['price_after_discount'].sum().idxmin()
+            most_contrib_product = category_data.groupby('name')['price_after_discount'].sum().idxmax()
+            least_contrib_product = category_data.groupby('name')['price_after_discount'].sum().idxmin()
 
             # Calculate the total revenue per product
-            product_revenue = category_data.groupby('product_name')['price_after_discount'].sum().reset_index()
+            product_revenue = category_data.groupby('name')['price_after_discount'].sum().reset_index()
 
             # Sort products by revenue in descending order
             product_revenue_sorted = product_revenue.sort_values(by='price_after_discount', ascending=False)
@@ -1152,14 +1152,14 @@ def dashboard():
 
             # Display the Product that contributes the most in the second column
             col2.metric(f"Top Product: {most_contrib_product}", 
-                        f"${product_revenue[product_revenue['product_name'] == most_contrib_product]['price_after_discount'].values[0]:.2f}")
+                        f"${product_revenue[product_revenue['name'] == most_contrib_product]['price_after_discount'].values[0]:.2f}")
             
             # Display the Product that contributes the least in the third column
             col3.metric(f"Least Product: {least_contrib_product}", 
-                        f"${product_revenue[product_revenue['product_name'] == least_contrib_product]['price_after_discount'].values[0]:.2f}")
+                        f"${product_revenue[product_revenue['name'] == least_contrib_product]['price_after_discount'].values[0]:.2f}")
             
             # Create pie chart for individual products in the selected category or 'All'
-            fig_product_revenue = px.pie(product_revenue_sorted, values='total_price', names='product_name',
+            fig_product_revenue = px.pie(product_revenue_sorted, values='total_price', names='name',
                                         title=f'Revenue Distribution for {selected_category} Products' if selected_category != "All" else 'Revenue Distribution for All Products',
                                         labels={'price_after_discount': 'Total Revenue'},
                                         hole=0.3)
