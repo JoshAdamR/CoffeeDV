@@ -1276,6 +1276,14 @@ def dashboard():
         st.title("PyBean Coffee Shop")
         st.subheader("Order Status Dashboard")
 
+        # Initialize sale_data in session state if it doesn't exist
+        if 'sale_data' not in st.session_state:
+            # Replace this with your actual data
+            st.session_state.sale_data = sale_data
+            st.session_state.sale_data['ordered_time_date'] = pd.to_datetime(
+                st.session_state.sale_data['ordered_time_date'], format='%m/%d/%y %H:%M'
+            )
+
         sale_data = st.session_state.sale_data
 
         # Sort by newest first
