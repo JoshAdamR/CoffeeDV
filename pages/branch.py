@@ -785,7 +785,9 @@ def dashboard():
 
         revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
         cost_aggregated = usage_merge.groupby('date')['cost'].sum().reset_index()
-
+        
+        st.write(revenue_aggregated)
+        st.write(cost_aggregated)
 
         profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='date', how='inner')
         profit_aggregated['profit'] = profit_aggregated['revenue'] - profit_aggregated['cost']
