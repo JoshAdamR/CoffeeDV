@@ -484,10 +484,10 @@ def display_cart(email):
                     # Update Cart with new order_id and other details
                     for item in cart_items:
                         db.collection("cart").document(item['id']).set({
-                            "invoice_id": invoice_id,
-                            "order_id": order_id,
+                            #"invoice_id": invoice_id,
+                            #"order_id": order_id,
                             "status": "Preparing",
-                            "ordered_time_date": ordered_time_date,
+                            #"ordered_time_date": ordered_time_date,
                             "coupon_used": coupon_code,
                             "coupon_discount": coupon_discount,
                             "loyalty_points_discount": loyalty_points_discount,
