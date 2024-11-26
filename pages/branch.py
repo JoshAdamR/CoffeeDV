@@ -1272,16 +1272,29 @@ def dashboard():
 
     # ==============================================================================================
 
-    def order_monitoring_dashboard(sale_data):
+    def order_monitoring_dashboard():
         st.title("PyBean Coffee Shop")
         st.subheader("Order Status Dashboard")
 
+        # Initialize sale_data in session state if it doesn't exist
+        if 'sale_data' not in st.session_state:
+            # Replace this with your actual data
+            st.session_state.sale_data = pd.DataFrame({
+                "cart_id": [101, 102, 103, 104],
+                "status": ["Preparing", "Done", "Preparing", "Done"],
+                "ordered_time_date": ["11/25/24 10:00", "11/25/24 10:30", "11/25/24 11:00", "11/25/24 11:30"]
+            })
+            st.session_state.sale_data['ordered_time_date'] = pd.to_datetime(
+                st.session_state.sale_data['ordered_time_date'], format='%m/%d/%y %H:%M'
+            )
+
+        sale_data = st.session_state.sale_data
+
+        # Sort by newest first
+        sale_data = sale_data.sort_values(by='ordered_time_date', ascending=False)
+
         # Live Time Section
         live_time_container = st.empty()  # Create an empty container for live updates
-
-        # Convert sale_date to datetime and sort the data by the most recent sale
-        sale_data['ordered_time_date'] = pd.to_datetime(sale_data['ordered_time_date'], format='%m/%d/%y %H:%M')  # Convert to datetime
-        sale_data = sale_data.sort_values(by='ordered_time_date', ascending=False)  # Sort by newest first
 
         # Create two columns for "Preparing Orders" and "Ready for Collection"
         col1, col2 = st.columns(2)
@@ -1306,9 +1319,13 @@ def dashboard():
                         st.write(f"{order['cart_id']}")
                     with button_col:
                         # Display an "X" mark button
-                        if st.button("X", key=f"{order['cart_id']}"):
-                            sale_data.loc[sale_data['cart_id'] == order['cart_id'], 'status'] = 'Collected'
-                            st.rerun()  # Refresh the dashboard to reflect changes
+                        if st.button("❌", key=f"collected_{order['cart_id']}"):
+                            # Update the status to 'Collected'
+                            st.session_state.sale_data.loc[
+                                st.session_state.sale_data['cart_id'] == order['cart_id'], 'status'
+                            ] = 'Collected'
+                            st.success(f"Cart ID {order['cart_id']} has been marked as Collected.")
+                            st.experimental_rerun()  # Refresh the dashboard to reflect changes
             else:
                 st.write("No Ready Orders")
 
@@ -1318,7 +1335,7 @@ def dashboard():
         )
 
         if st.button('Refresh'):
-            st.rerun()
+            st.experimental_rerun()
 
     selection = st.sidebar.selectbox("Select View", ["Sales Analytics Dashboard",
                                                      "Customer Analytics Dashboard",
