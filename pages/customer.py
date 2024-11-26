@@ -485,7 +485,7 @@ def display_cart(email):
                     
                     for item in cart_items:
                         db.collection("cart").document(item['id']).set({
-                            "invoice_id": invoice_id,
+                            #"invoice_id": invoice_id,
                             #"order_id": order_id,
                             "status": "Preparing",
                             #"ordered_time_date": ordered_time_date,
