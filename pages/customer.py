@@ -483,12 +483,17 @@ def display_cart(email):
 
                     # Update Cart with new order_id and other details
                     
+                    def random_date():
+                        start_date = datetime(2023, 1, 1)
+                        end_date = datetime(2024, 12, 31)
+                        return start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
+
                     for item in cart_items:
                         db.collection("cart").document(item['id']).set({
-                            #"invoice_id": invoice_id,
-                            #"order_id": order_id,
+                            "invoice_id": invoice_id,
+                            "order_id": order_id,
                             "status": "Preparing",
-                            #"ordered_time_date": ordered_time_date,
+                            "ordered_time_date": random_date().strftime("%Y-%m-%d %H:%M:%S"),
                             "coupon_used": coupon_code,
                             "coupon_discount": coupon_discount,
                             "loyalty_points_discount": loyalty_points_discount,
