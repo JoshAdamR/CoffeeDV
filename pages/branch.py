@@ -354,10 +354,10 @@ def branch_order(branch_id):
     def complete_order_by_id(selected_order_id, orders):
         # Filter the orders list for the selected order_id
         filtered_orders = [order for order in orders if order['order_id'] == selected_order_id]
-
+        date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # Update the status of each matching order to 'Done'
         for order in filtered_orders:
-            cart_ref.document(order['id']).update({'status': 'Done'})
+            cart_ref.document(order['id']).update({'status': 'Done', 'complete_date': date_now})
 
 
     # Streamlit layout
@@ -444,9 +444,6 @@ def branch_order(branch_id):
             if st.button("Complete Order"):
                 complete_order_by_id(selected_order_id, orders)
                 st.success(f"Order ID {selected_order_id} has been marked as Done!")
-                store.collection('cart').where('order_id', '==', selected_order_id).limit(1).get()[0].reference.update({
-                    'complete_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                })
                 update_inventory(orders)
                 st.rerun()  # Refresh the page after completing the order
     else:
