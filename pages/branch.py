@@ -794,10 +794,8 @@ def dashboard():
             return total_cost
 
         sale['total_cost'] = sale.apply(calculate_cart_cost, axis=1)
-
-        sale['revenue'] = sale['price_after_discount']
-    
-        revenue_aggregated = sale.groupby('date')['revenue'].sum().reset_index()
+        st.write(sale)
+        revenue_aggregated = sale.groupby('date')['price_after_discount'].sum().reset_index()
         cost_aggregated = sale.groupby('date')['total_cost'].sum().reset_index()
         
         st.write(revenue_aggregated)
