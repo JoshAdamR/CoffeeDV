@@ -703,22 +703,11 @@ def dashboard():
         # Render the Plotly chart in Streamlit
         st.plotly_chart(fig)
 
-    def plot_sales_by_time_of_day(sale_data, period):
+    def plot_sales_by_time_of_day(sale_data):
         st.header("C. Sales by Time of Day")
 
         # Ensure the 'sale_date' is in datetime format
         sale_data['ordered_time_date'] = pd.to_datetime(sale_data['ordered_time_date'], errors='coerce')
-
-        if period == 'Weekly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('W')
-        elif period == 'Monthly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('M')
-        elif period == 'Quarterly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Q')
-        elif period == 'Yearly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Y')
-        else:  # Daily
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.date
         
         # Create a new column for the hour of the day
         sale_data['hour'] = sale_data['ordered_time_date'].dt.hour
@@ -860,19 +849,8 @@ def dashboard():
                         hover_data=['Number of Customers'])
             st.plotly_chart(fig)
 
-    def plot_order_frequency_history(sale_data, period):
+    def plot_order_frequency_history(sale_data):
         st.subheader("B. Order Frequency and History")
-
-        if period == 'Weekly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('W')
-        elif period == 'Monthly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('M')
-        elif period == 'Quarterly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Q')
-        elif period == 'Yearly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Y')
-        else:  # Daily
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.date
 
         # Group by order date and count orders
         order_frequency = sale_data.groupby('ordered_time_date').size().reset_index(name='Number of Orders')
@@ -963,20 +941,9 @@ def dashboard():
         st.plotly_chart(fig)
 
 
-    def plot_promotion_performance(sale_data, metric, period):
+    def plot_promotion_performance(sale_data, metric):
         st.header("A. Promotion Performance")
         
-        if period == 'Weekly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('W')
-        elif period == 'Monthly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('M')
-        elif period == 'Quarterly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Q')
-        elif period == 'Yearly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Y')
-        else:  # Daily
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.date
-
         # Add a promotion type column based on coupon_code presence
         sale_data['promotion_type'] = sale_data['coupon_used'].apply(lambda x: 'Promotion' if x != 'None' else 'Non-Promotion')
 
@@ -1013,19 +980,8 @@ def dashboard():
         st.plotly_chart(fig1)
 
     # Function to plot Coupon Usage Over Time Chart
-    def plot_coupon_usage_over_time(sale_data, period):
+    def plot_coupon_usage_over_time(sale_data):
         st.header("B. Coupon Usage Over Time")
-        
-        if period == 'Weekly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('W')
-        elif period == 'Monthly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('M')
-        elif period == 'Quarterly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Q')
-        elif period == 'Yearly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Y')
-        else:  # Daily
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.date
 
         # Filter sales with coupons and group by date for coupon-based sales
         coupon_sales = sale_data[sale_data['coupon_used'] != 'None']
@@ -1046,7 +1002,7 @@ def dashboard():
     # Financial Analytics
 
     # Function to perform Profit Margin Analysis
-    def profit_margin_analysis(cart_df, inventory_df, inv_usage_df):
+    def profit_margin_analysis(cart_df, inventory_df, inv_usage_df, time_period):
         st.header("A. Profit Margin Analysis")
         inv_usage_df = pd.merge(inv_usage_df, inventory_df, on='inventory_id', how='left')
         inv_usage_df['ingredient_cost'] = inv_usage_df['usage'] * inv_usage_df['unit_price']
@@ -1285,20 +1241,8 @@ def dashboard():
     
                 
     # Function to calculate and display order processing times
-    def order_processing_times(sale_data, period):
+    def order_processing_times(sale_data):
         st.header("B. Order Processing Times")
-
-        if period == 'Weekly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('W')
-        elif period == 'Monthly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('M')
-        elif period == 'Quarterly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Q')
-        elif period == 'Yearly':
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.to_period('Y')
-        else:  # Daily
-            sale_data['ordered_time_date'] = sale_data['ordered_time_date'].dt.date
-
         sale_date = 'ordered_time_date'
         order_completion_date = 'complete_date'
 
@@ -1440,7 +1384,7 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             plot_sales_by_product(order)
             st.markdown("<hr>", unsafe_allow_html=True)
-            plot_sales_by_time_of_day(sale_data_filtered, period)
+            plot_sales_by_time_of_day(sale_data_filtered)
             st.markdown("<hr>", unsafe_allow_html=True)
             calculate_profit(sale, inventory, usage_history, period)
         except:
@@ -1455,7 +1399,7 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             plot_customer_demographics(filtered_customers)
             st.markdown("<hr>", unsafe_allow_html=True)
-            plot_order_frequency_history(sale_data_filtered, period)
+            plot_order_frequency_history(sale_data_filtered)
         except:
             st.warning('No sales data')
 
@@ -1473,10 +1417,10 @@ def dashboard():
         metric = st.radio("Select Metric for Promotion Performance", ["Sales", "Orders"])
         try:
             # Plot Promotion Performance based on selected metric
-            plot_promotion_performance(sale_data_filtered, metric, period)
+            plot_promotion_performance(sale_data_filtered, metric)
             st.markdown("<hr>", unsafe_allow_html=True)
             # Plot Coupon Usage Over Time
-            plot_coupon_usage_over_time(sale_data_filtered, period)
+            plot_coupon_usage_over_time(sale_data_filtered)
         except:
             st.warning('No sales data')
 
@@ -1484,7 +1428,7 @@ def dashboard():
         st.title("Financial Analytics")
         try:
             st.markdown("<hr>", unsafe_allow_html=True)
-            profit_margin_analysis(sale, inventory, inv_usage)
+            profit_margin_analysis(sale, inventory, inv_usage, period)
             st.markdown("<hr>", unsafe_allow_html=True)
             cost_analysis(operatingcost, operatingcost_data_filtered)
             st.markdown("<hr>", unsafe_allow_html=True)
@@ -1498,7 +1442,7 @@ def dashboard():
             st.markdown("<hr>", unsafe_allow_html=True)
             customer_feedback_ratings(feedback, period, branch_id)
             st.markdown("<hr>", unsafe_allow_html=True)
-            order_processing_times(sale_data_filtered, period)
+            order_processing_times(sale_data_filtered)
         except:
             st.warning('No sales data')
 
