@@ -774,6 +774,7 @@ def dashboard():
             # Aggregate profit by month
             sale['date'] = sale['ordered_time_date'].dt.to_period('Y').dt.start_time
         
+        usage_merge['ingredient_cost'] = usage_merge['usage'] * usage_merge['unit_price']
         # Map inv_usage to cart
         def calculate_cart_cost(row):
             base_cost = usage_merge[usage_merge['item_name'] == row['name']]['ingredient_cost'].sum()
