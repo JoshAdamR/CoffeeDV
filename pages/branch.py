@@ -787,12 +787,9 @@ def dashboard():
             return total_cost
 
         sale['total_cost'] = sale.apply(calculate_cart_cost, axis=1)
+        sale['profit'] = sale['revenue'] - sale['total_cost']
 
-        revenue_aggregated = sale.groupby('date')['price_after_discount'].sum().reset_index()
-        cost_aggregated = sale.groupby('date')['total_cost'].sum().reset_index()
-
-        profit_aggregated = pd.merge(revenue_aggregated, cost_aggregated, on='date', how='inner')
-        profit_aggregated['profit'] = profit_aggregated['revenue'] - profit_aggregated['cost']
+        profit_aggregated = sale.groupby('date')['profit'].sum().reset_index()
 
         # Plot the profit based on the selected time period
         st.subheader(f"⦁ Profit ({time_period})")
