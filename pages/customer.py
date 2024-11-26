@@ -482,17 +482,14 @@ def display_cart(email):
                         st.error(f"An error occurred: {str(e)}")
 
                     # Update Cart with new order_id and other details
-                    def get_ref(table):
-                        ref = store.collection(table)
-                        return ref
-
+                    
                     for item in cart_items:
                         db.collection("cart").document(item['id']).set({
                             #"invoice_id": invoice_id,
                             #"order_id": order_id,
                             "status": "Preparing",
                             #"ordered_time_date": ordered_time_date,
-                            "coupon_used": get_ref("cart").where("cart_id", '==', item['id']).get().to_dict().get('coupon_used'),
+                            "coupon_used": coupon_code,
                             "coupon_discount": coupon_discount,
                             "loyalty_points_discount": loyalty_points_discount,
                             "total_price": total_price,
