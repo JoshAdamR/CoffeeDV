@@ -1272,62 +1272,45 @@ def dashboard():
 
     # ==============================================================================================
 
-    def order_monitoring_dashboard(sale_data):
+    def order_monitoring_dashboard(sale_data): 
+        # Ensure time and datetime are imported
         st.title("PyBean Coffee Shop")
         st.subheader("Order Status Dashboard")
 
-        # Initialize sale_data in session state if it doesn't exist
-        if 'sale_data' not in st.session_state:
-            # Replace this with your actual data
-            st.session_state.sale_data = sale_data
-            st.session_state.sale_data['ordered_time_date'] = pd.to_datetime(
-                st.session_state.sale_data['ordered_time_date'], format='%m/%d/%y %H:%M'
-            )
-
-        sale_data = st.session_state.sale_data
-
-        # Sort by newest first
-        sale_data = sale_data.sort_values(by='ordered_time_date', ascending=False)
-
         # Live Time Section
         live_time_container = st.empty()  # Create an empty container for live updates
+
+        # Convert sale_date to datetime and sort the data by the most recent sale
+        sale_data['ordered_time_date'] = pd.to_datetime(sale_data['ordered_time_date'], format='%m/%d/%y %H:%M')  # Convert to datetime
+        sale_data = sale_data.sort_values(by='ordered_time_date', ascending=False)  # Sort by newest first
 
         # Create two columns for "Preparing Orders" and "Ready for Collection"
         col1, col2 = st.columns(2)
 
         with col1:
             st.subheader("Preparing Orders")
-            preparing_orders = sale_data[sale_data['status'] == 'Preparing']
+            preparing_orders = sale_data[sale_data['status'] == 'Preparing']['cart_id']
             if not preparing_orders.empty:
-                for _, order in preparing_orders.iterrows():
-                    st.write(f"Cart ID: {order['cart_id']}")
+                for order in preparing_orders:
+                    st.write(order)
             else:
                 st.write("No Preparing Orders")
 
         with col2:
             st.subheader("Ready for Collection")
-            ready_orders = sale_data[sale_data['status'] == 'Done']
+            ready_orders = sale_data[sale_data['status'] == 'Done']['cart_id']
             if not ready_orders.empty:
-                for _, order in ready_orders.iterrows():
-                    # Create a row with two columns: one for the order info and one for the button
-                    cart_col, button_col = st.columns([4, 1])
-                    with cart_col:
-                        st.write(f"{order['cart_id']}")
-                    with button_col:
-                        # Display an "X" mark button
-                        if st.button("❌", key=f"{order['cart_id']}"):
-                            # Update the status to 'Collected'
-                            st.session_state.sale_data.loc[
-                                st.session_state.sale_data['cart_id'] == order['cart_id'], 'status'
-                            ] = 'Collected'
-                            st.rerun()  # Refresh the dashboard to reflect changes
+                for order in ready_orders:
+                    st.write(order)
             else:
                 st.write("No Ready Orders")
 
         # Continuously update live time
+        #while True:
         live_time_container.markdown(
             f"Live Date and Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         )
+            #time.sleep(1)  # Wait for 1 second before updating again
 
         if st.button('Refresh'):
             st.rerun()
@@ -1464,7 +1447,10 @@ def dashboard():
             st.warning('No sales data')
         order_processing_times(sale_data_filtered)
     elif selection == "Order Monitoring Dashboard":
-        order_monitoring_dashboard(sale)
+        try:
+            order_monitoring_dashboard(sale)
+        except:
+            st.warning('No sales data')
 
     
 try:
